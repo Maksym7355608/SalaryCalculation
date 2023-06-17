@@ -1,6 +1,8 @@
-﻿namespace Identity.Data.Entities;
+﻿using SalaryCalculation.Data.BaseModels;
 
-public class User
+namespace Identity.Data.Entities;
+
+public class User : BaseMongoEntity
 {
     public int Id { get; set; }
     public string UserName { get; set; }

@@ -1,17 +1,17 @@
 ﻿using MongoDB.Driver;
-using SalaryCalculation.Data.BaseEventModels;
+using SalaryCalculation.Data.BaseModels;
 
 namespace SalaryCalculation.Data;
 
 public class UnitOfWork : IUnitOfWork
 {
     private readonly IMongoDatabase _database;
-    private readonly IMessageBus _bus;
+    public IMessageBus Bus { get; }
 
     public UnitOfWork(IMongoDatabase database, IMessageBus bus)
     {
         _database = database;
-        _bus = bus;
+        Bus = bus;
     }
 
     public IMongoCollection<T> GetCollection<T>()
@@ -26,13 +26,13 @@ public class UnitOfWork : IUnitOfWork
 
     public Task PublishEventAsync<M>(M msg) where M : BusEvent
     {
-        return _bus.PublishEventAsync(msg);
+        return Bus.PublishEventAsync(msg);
     }
 
     public Task PublishEventAsync<TBase, T>(T msg)
         where TBase : BusEvent
         where T : TBase
     {
-        return _bus.PublishEventAsync<TBase, T>(msg);
+        return Bus.PublishEventAsync<TBase, T>(msg);
     }
 }

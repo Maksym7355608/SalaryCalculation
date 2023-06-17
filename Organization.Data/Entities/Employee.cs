@@ -1,8 +1,9 @@
 using Organization.Data.BaseModels;
+using SalaryCalculation.Data.BaseModels;
 
 namespace Organization.Data.Entities;
 
-public class Employee
+public class Employee : BaseMongoEntity
 {
     public int Id { get; set; }
     public long RollNumber { get; set; }

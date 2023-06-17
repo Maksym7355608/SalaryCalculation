@@ -1,4 +1,4 @@
-﻿using SalaryCalculation.Data.BaseEventModels;
+﻿using SalaryCalculation.Data.BaseModels;
 
 namespace SalaryCalculation.Data;
 
@@ -10,9 +10,5 @@ public interface IMessageBus
         where TBase : BusEvent
         where T : TBase;
     
-    Task PublishMessageAsync<M>(M msg) where M : BusMessage;
     
-    Task PublishMessageAsync<TBase, T>(T msg)
-        where TBase : BusMessage
-        where T : TBase;
 }

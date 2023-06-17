@@ -1,4 +1,4 @@
-﻿namespace SalaryCalculation.Data.BaseEventModels;
+﻿namespace SalaryCalculation.Data.BaseModels;
 
 public class BusEvent
 {

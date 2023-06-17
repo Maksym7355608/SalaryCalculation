@@ -1,9 +1,10 @@
 using MongoDB.Bson;
 using Organization.Data.BaseModels;
+using SalaryCalculation.Data.BaseModels;
 
 namespace Organization.Data.Entities;
 
-public class Manager
+public class Manager : BaseMongoEntity
 {
     public ObjectId Id { get; set; }
     public long? RollNumber { get; set; }

@@ -1,16 +1,17 @@
 ﻿using Newtonsoft.Json;
-using SalaryCalculation.Data.BaseEventModels;
-
-namespace SalaryCalculation.Data;
-
+using SalaryCalculation.Data.BaseModels;
 using RabbitMQ.Client;
 using System.Text;
 using System.Threading.Tasks;
+using RabbitMQ.Client.Events;
+
+namespace SalaryCalculation.Data;
 
 public class RabbitMQMessageBus : IMessageBus
 {
     private readonly IConnection _connection;
     private readonly IModel _channel;
+    private readonly Dictionary<Type, List<Action<BusEvent>>> _subscribers;
 
     public RabbitMQMessageBus(string connectionString)
     {
@@ -34,22 +35,34 @@ public class RabbitMQMessageBus : IMessageBus
     {
         await PublishEventAsync<T>(msg);
     }
-
-    public async Task PublishMessageAsync<M>(M msg) where M : BusMessage
+    
+    public void Subscribe<T>(Action<T> handler) where T : BusEvent
     {
-        var exchangeName = typeof(M).Name;
-        var routingKey = "";
-        var body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(msg));
+        var exchangeName = typeof(T).Name;
+        var queueName = _channel.QueueDeclare().QueueName;
+        _channel.QueueBind(queue: queueName, exchange: exchangeName, routingKey: "");
 
-        _channel.BasicPublish(exchange: exchangeName, routingKey: routingKey, basicProperties: null, body: body);
+        var consumer = new EventingBasicConsumer(_channel);
+        consumer.Received += (model, ea) =>
+        {
+            var body = ea.Body.ToArray();
+            var message = Encoding.UTF8.GetString(body);
+            var msg = JsonConvert.DeserializeObject<T>(message);
+            handler.Invoke(msg);
+        };
+
+        _channel.BasicConsume(queue: queueName, autoAck: true, consumer: consumer);
+
+        if (_subscribers.ContainsKey(typeof(T)))
+        {
+            _subscribers[typeof(T)].Add((Action<BusEvent>)(Delegate)handler);
+        }
+        else
+        {
+            _subscribers[typeof(T)] = new List<Action<BusEvent>> { (Action<BusEvent>)(Delegate)handler };
+        }
     }
 
-    public async Task PublishMessageAsync<TBase, T>(T msg)
-        where TBase : BusMessage
-        where T : TBase
-    {
-        await PublishMessageAsync<T>(msg);
-    }
 
     public void Dispose()
     {

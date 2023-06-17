@@ -1,11 +1,12 @@
 using Organization.Data.BaseModels;
+using SalaryCalculation.Data.BaseModels;
 
 namespace Organization.Data.Entities;
 
 /// <summary>
 /// Організація
 /// </summary>
-public class Organization
+public class Organization : BaseMongoEntity
 {
     public int Id { get; set; }
     public string Code { get; set; }

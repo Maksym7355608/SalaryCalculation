@@ -1,4 +1,4 @@
-namespace Organization.Data.BaseModels;
+namespace SalaryCalculation.Data.BaseModels;
 
 public class IdNamePair
 {
