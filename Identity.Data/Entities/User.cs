@@ -12,7 +12,7 @@ public class User : BaseMongoEntity<ObjectId>
     public bool EmailConfirmed { get; set; }
     public string PasswordHash { get; set; }
     public string PhoneNumber { get; set; }
-    public IEnumerable<Role> Roles { get; set; }
+    public IEnumerable<ObjectId> Roles { get; set; }
 
     public string FirstName { get; set; }
     public string MiddleName { get; set; }
