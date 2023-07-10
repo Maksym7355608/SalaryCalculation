@@ -3,9 +3,8 @@ using SalaryCalculation.Data.BaseModels;
 
 namespace Organization.Data.Entities;
 
-public class Employee : BaseMongoEntity
+public class Employee : BaseMongoEntity<int>
 {
-    public int Id { get; set; }
     public long RollNumber { get; set; }
     public Person Name { get; set; }
     public DateTime DateFrom { get; set; }
@@ -15,6 +14,7 @@ public class Employee : BaseMongoEntity
     public int Sex { get; set; }
     public int MarriedStatus { get; set; }
     public Bank BankAccount { get; set; }
+    public IEnumerable<Contact> Contacts { get; set; }
 
     public IdNamePair OrganizationId { get; set; }
     public IdNamePair OrganizationUnitId { get; set; }

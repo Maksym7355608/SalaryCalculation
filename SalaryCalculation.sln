@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Schedule.Data", "Schedule.D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Calculation.Data", "Calculation.Data\Calculation.Data.csproj", "{1C319BAC-97FA-4415-97CB-6347805A9265}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SalaryCalculation.Shared.Extensions", "SalaryCalculation.Shared.Extensions\SalaryCalculation.Shared.Extensions.csproj", "{B373EEDB-0BAD-4775-97B9-9CC730EA9CED}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +38,9 @@ Global
 		{1C319BAC-97FA-4415-97CB-6347805A9265}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1C319BAC-97FA-4415-97CB-6347805A9265}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1C319BAC-97FA-4415-97CB-6347805A9265}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B373EEDB-0BAD-4775-97B9-9CC730EA9CED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B373EEDB-0BAD-4775-97B9-9CC730EA9CED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B373EEDB-0BAD-4775-97B9-9CC730EA9CED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B373EEDB-0BAD-4775-97B9-9CC730EA9CED}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

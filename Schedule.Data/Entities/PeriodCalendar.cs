@@ -3,9 +3,8 @@ using SalaryCalculation.Data.BaseModels;
 
 namespace Schedule.Data.Entities;
 
-public class PeriodCalendar : BaseMongoEntity
+public class PeriodCalendar : BaseMongoEntity<ObjectId>
 {
-    public ObjectId Id { get; set; }
     /// <summary>
     /// Enum - EWorkType
     /// </summary>

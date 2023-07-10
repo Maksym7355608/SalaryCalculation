@@ -6,9 +6,8 @@ namespace Organization.Data.Entities;
 /// <summary>
 /// Організація
 /// </summary>
-public class Organization : BaseMongoEntity
+public class Organization : BaseMongoEntity<int>
 {
-    public int Id { get; set; }
     public string Code { get; set; }
     public string Name { get; set; }
     public long Edrpou { get; set; }
