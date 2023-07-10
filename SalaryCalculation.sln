@@ -12,6 +12,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Calculation.Data", "Calcula
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SalaryCalculation.Shared.Extensions", "SalaryCalculation.Shared.Extensions\SalaryCalculation.Shared.Extensions.csproj", "{B373EEDB-0BAD-4775-97B9-9CC730EA9CED}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dictionary.Models", "Dictionary.Models\Dictionary.Models.csproj", "{C75479A1-D676-4434-9385-1F556A49625D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Documents.Data", "Documents.Data\Documents.Data.csproj", "{50E12640-F216-4B27-85AC-F59AE05443C0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,5 +46,13 @@ Global
 		{B373EEDB-0BAD-4775-97B9-9CC730EA9CED}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B373EEDB-0BAD-4775-97B9-9CC730EA9CED}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B373EEDB-0BAD-4775-97B9-9CC730EA9CED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C75479A1-D676-4434-9385-1F556A49625D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C75479A1-D676-4434-9385-1F556A49625D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C75479A1-D676-4434-9385-1F556A49625D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C75479A1-D676-4434-9385-1F556A49625D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{50E12640-F216-4B27-85AC-F59AE05443C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{50E12640-F216-4B27-85AC-F59AE05443C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{50E12640-F216-4B27-85AC-F59AE05443C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{50E12640-F216-4B27-85AC-F59AE05443C0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
