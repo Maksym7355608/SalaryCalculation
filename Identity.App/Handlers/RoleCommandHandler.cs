@@ -4,6 +4,7 @@ using Identity.App.Commands;
 using Identity.App.DtoModels;
 using Identity.Data.Data;
 using Identity.Data.Entities;
+using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using SalaryCalculation.Shared.Common.Validation;
@@ -12,7 +13,7 @@ namespace Identity.App.Handlers;
 
 public class RoleCommandHandler : BaseIdentityCommandHandler, IRoleCommandHandler
 {
-    public RoleCommandHandler(IIdentityUnitOfWork work, IMapper mapper) : base(work, mapper)
+    public RoleCommandHandler(IIdentityUnitOfWork work, ILogger logger, IMapper mapper) : base(work, logger, mapper)
     { }
     
     public async Task CreateRole(RoleCreateCommand command)

@@ -5,13 +5,11 @@ using Identity.Data.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
-using SalaryCalculation.Shared.Common.Attributes;
 using SalaryCalculation.Shared.Extensions.EnumExtensions;
 
 namespace Identity.Api.Controllers;
 
 [ApiController]
-[HasPermission(EPermission.RoleControl)]
 [Route("api/[controller]")]
 public class RoleController : BaseIdentityController
 {

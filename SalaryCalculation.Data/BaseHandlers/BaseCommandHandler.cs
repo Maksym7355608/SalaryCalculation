@@ -17,20 +17,20 @@ public abstract class BaseCommandHandler
         Logger = logger;
     }
     
-    protected void CheckIfNotFound<T>(int id, T? entity) where T : class
+    protected void CheckIfNotFound<T, TId>(TId id, T? entity) where T : class
     {
         if (entity != null)
             return;
-        ThrowNotFound<T>(id);
+        ThrowNotFound<T, TId>(id);
     }
 
-    protected void CheckIfNotFound<T>(int id, object? entity) where T : class
+    protected void CheckIfNotFound<T, TId>(TId id, object? entity) where T : class
     {
         if (entity != null)
             return;
-        ThrowNotFound<T>(id);
+        ThrowNotFound<T, TId>(id);
     }
 
-    protected void ThrowNotFound<T>(int id) =>
+    protected void ThrowNotFound<T, TId>(TId id) =>
         throw new EntityNotFoundException("Entity {0} with id {1} was not found", typeof(T).Name, id.ToString());
 }
