@@ -7,9 +7,11 @@ using Identity.App.Abstract;
 using Identity.App.Commands;
 using Identity.Data.Data;
 using Identity.Data.Entities;
+using Identity.Data.Enums;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using SalaryCalculation.Shared.Extensions.EnumExtensions;
 
 namespace Identity.App.Handlers;
 
@@ -68,7 +70,9 @@ public class IdentityCommandHandler : BaseIdentityCommandHandler, IIdentityComma
         {
             var roles = await Work.GetCollection<Role>()
                 .Find(x => user.Roles.Contains(x.Id))
-                .Project(x => x.Name)
+                .Project<RoleForClaim>(Builders<Role>.Projection
+                    .Include(x => x.Name)
+                    .Include(x => x.Permissions))
                 .ToListAsync();
             // Generate and return the JWT token
             var token = GenerateJwtToken(user, roles);
@@ -97,7 +101,7 @@ public class IdentityCommandHandler : BaseIdentityCommandHandler, IIdentityComma
         return true;
     }
     
-    private string GenerateJwtToken(User user, IEnumerable<string> roles)
+    private string GenerateJwtToken(User user, IEnumerable<RoleForClaim> roles)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Encoding.ASCII.GetBytes("secretKey");
@@ -109,7 +113,7 @@ public class IdentityCommandHandler : BaseIdentityCommandHandler, IIdentityComma
             new(ClaimTypes.Email, user.Email)
         };
 
-        claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
+        claims.AddRange(roles.SelectMany(role => role.Permissions.Select(x => new Claim(ClaimTypes.Role, ((EPermission)x).GetDescription()))));
 
         var tokenDescriptor = new SecurityTokenDescriptor
         {
@@ -122,5 +126,7 @@ public class IdentityCommandHandler : BaseIdentityCommandHandler, IIdentityComma
         var token = tokenHandler.CreateToken(tokenDescriptor);
         return tokenHandler.WriteToken(token);
     }
+
+    private record RoleForClaim(string Name, IEnumerable<int> Permissions);
 
 }

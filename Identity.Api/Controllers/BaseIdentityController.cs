@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Identity.App.Abstract;
 using Microsoft.AspNetCore.Mvc;
-using SalaryCalculation.Shared.Extensions.Controllers;
+using SalaryCalculation.Shared.Common.Controllers;
 
 namespace Identity.Api.Controllers;
 

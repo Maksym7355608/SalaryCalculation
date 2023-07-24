@@ -1,6 +1,6 @@
 ﻿namespace Identity.App.Commands;
 
-public class RoleCreateCommand
+public class RoleCreateCommand : RoleUpdateCommand
 {
     
 }

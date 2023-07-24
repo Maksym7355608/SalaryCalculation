@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Identity.App.Abstract;
 using Identity.App.Commands;
 using Identity.Api.Commands;
+using Microsoft.AspNetCore.Authorization;
 using MongoDB.Bson;
 
 namespace Identity.Api.Controllers;
@@ -35,6 +36,7 @@ public class IdentityController : BaseIdentityController
         return RestAjaxResponse(IsValid, Errors);
     }
 
+    [Authorize]
     [HttpPut("update")]
     public async Task<IActionResult> UpdateUserAsync([FromBody] UserUpdateCommand command)
     {
@@ -42,6 +44,7 @@ public class IdentityController : BaseIdentityController
         return RestAjaxResponse(IsValid, Errors);
     }
     
+    [Authorize]
     [HttpDelete("delete")]
     public async Task<IActionResult> DeleteUserAsync([FromBody] ObjectId id)
     {
@@ -49,6 +52,7 @@ public class IdentityController : BaseIdentityController
         return RestAjaxResponse(IsValid, Errors);
     }
     
+    [Authorize]
     [HttpPost("addRole")]
     public async Task<IActionResult> AddUserRoleAsync([FromBody] ObjectId userId, [FromBody] ObjectId roleId)
     {
@@ -56,6 +60,7 @@ public class IdentityController : BaseIdentityController
         return RestAjaxResponse(IsValid, Errors);
     }
     
+    [Authorize]
     [HttpPost("removeRole")]
     public async Task<IActionResult> RemoveUserRoleAsync([FromBody] ObjectId userId, [FromBody] ObjectId roleId)
     {

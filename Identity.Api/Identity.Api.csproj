@@ -19,6 +19,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Identity.App\Identity.App.csproj" />
+      <ProjectReference Include="..\SalaryCalculation.Shared.Common\SalaryCalculation.Shared.Common.csproj" />
       <ProjectReference Include="..\SalaryCalculation.Shared.Extensions\SalaryCalculation.Shared.Extensions.csproj" />
     </ItemGroup>
 

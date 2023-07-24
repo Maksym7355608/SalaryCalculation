@@ -1,10 +1,11 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 
-namespace SalaryCalculation.Shared.Extensions.Controllers;
+namespace SalaryCalculation.Shared.Common.Controllers;
 
 public abstract class BaseController : ControllerBase
 {
+    protected string BearerToken { get; set; }
     protected readonly IMapper Mapper;
     protected bool IsValid => ModelState.IsValid;
     protected string[] Errors => ModelState.Values.SelectMany(x => x.Errors.Select(x => x.ErrorMessage)).ToArray();
@@ -14,11 +15,8 @@ public abstract class BaseController : ControllerBase
         Mapper = mapper;
     }
     
-    public IActionResult RestAjaxResponse(bool success, string[]? errors = null, object data = null)
+    public JsonResult RestAjaxResponse(bool success, string[]? errors = null, object data = null)
     {
-        if(errors != null && errors.Any())
-            return BadRequest(new {success = success, errors = errors, data = data});
-        else
-            return Ok(new {success = success, errors = errors, data = data});
+        return new JsonResult(new {success = success, errors = errors, data = data});
     }
 }
