@@ -7,7 +7,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="DtoModels\" />
       <Folder Include="Mapper\" />
       <Folder Include="Validation\" />
     </ItemGroup>
@@ -21,6 +20,8 @@
     <ItemGroup>
       <ProjectReference Include="..\Identity.Data\Identity.Data.csproj" />
       <ProjectReference Include="..\SalaryCalculation.Data\SalaryCalculation.Data.csproj" />
+      <ProjectReference Include="..\SalaryCalculation.Shared.Common\SalaryCalculation.Shared.Common.csproj" />
+      <ProjectReference Include="..\SalaryCalculation.Shared.Extensions\SalaryCalculation.Shared.Extensions.csproj" />
     </ItemGroup>
 
 </Project>
