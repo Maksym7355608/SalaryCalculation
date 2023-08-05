@@ -2,7 +2,7 @@
 
 namespace Identity.App.Commands;
 
-public class UserCreateCommand : BaseCommand
+public class UserCreateCommand : UserUpdateCommand
 {
     
 }

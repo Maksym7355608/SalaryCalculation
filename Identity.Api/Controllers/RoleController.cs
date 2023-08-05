@@ -1,15 +1,14 @@
 ﻿using AutoMapper;
 using Identity.App.Abstract;
 using Identity.App.Commands;
-using Identity.Data.Enums;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
-using SalaryCalculation.Shared.Extensions.EnumExtensions;
+using SalaryCalculation.Shared.Common.Attributes;
 
 namespace Identity.Api.Controllers;
 
 [ApiController]
+[HandleException]
 [Route("api/[controller]")]
 public class RoleController : BaseIdentityController
 {
@@ -22,20 +21,20 @@ public class RoleController : BaseIdentityController
     public async Task<IActionResult> CreateRoleAsync([FromBody] RoleCreateCommand command)
     {
         await RoleCommandHandler.CreateRole(command);
-        return RestAjaxResponse(IsValid, Errors);
+        return Ok(new { IsValid, Errors });
     }
-    
+
     [HttpPut("update/{id}")]
     public async Task<IActionResult> UpdateRoleAsync([FromRoute] ObjectId id, [FromBody] RoleUpdateCommand command)
     {
         await RoleCommandHandler.UpdateRole(id, command);
-        return RestAjaxResponse(IsValid, Errors);
+        return Ok(new { IsValid, Errors });
     }
-    
+
     [HttpDelete("delete/{id}")]
     public async Task<IActionResult> DeleteRoleAsync([FromRoute] ObjectId id)
     {
         var result = await RoleCommandHandler.DeleteRole(id);
-        return RestAjaxResponse(result && IsValid, Errors);
+        return Ok(new { isValid = result && IsValid, Errors });
     }
 }
