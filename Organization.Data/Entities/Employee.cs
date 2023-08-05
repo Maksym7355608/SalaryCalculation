@@ -10,7 +10,7 @@ public class Employee : BaseMongoEntity<int>
     public DateTime DateFrom { get; set; }
     public DateTime? DateTo { get; set; }
     public IEnumerable<Salary> Salaries { get; set; }
-    public int? Benefit { get; set; }
+    public IEnumerable<int> Benefits { get; set; }
     public int Sex { get; set; }
     public int MarriedStatus { get; set; }
     public Bank BankAccount { get; set; }

@@ -7,16 +7,17 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Abstract\" />
-      <Folder Include="Commands\" />
-      <Folder Include="DtoModels\" />
-      <Folder Include="Handlers\" />
       <Folder Include="Mapper\" />
       <Folder Include="Validation\" />
     </ItemGroup>
 
     <ItemGroup>
       <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Organization.Data\Organization.Data.csproj" />
+      <ProjectReference Include="..\SalaryCalculation.Data\SalaryCalculation.Data.csproj" />
     </ItemGroup>
 
 </Project>

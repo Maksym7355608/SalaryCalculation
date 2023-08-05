@@ -1,6 +1,6 @@
-﻿using Identity.Data.Enums;
-using MongoDB.Bson;
+﻿using MongoDB.Bson;
 using SalaryCalculation.Data.BaseModels;
+using SalaryCalculation.Data.Enums;
 
 namespace Identity.App.Commands;
 
