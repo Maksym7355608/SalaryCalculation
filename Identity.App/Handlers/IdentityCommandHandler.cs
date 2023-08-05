@@ -8,6 +8,7 @@ using Identity.App.Commands;
 using Identity.Data.Data;
 using Identity.Data.Entities;
 using Identity.Data.Enums;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -17,7 +18,7 @@ namespace Identity.App.Handlers;
 
 public class IdentityCommandHandler : BaseIdentityCommandHandler, IIdentityCommandHandler
 {
-    public IdentityCommandHandler(IIdentityUnitOfWork work, IMapper mapper) : base(work, mapper)
+    public IdentityCommandHandler(IIdentityUnitOfWork work, ILogger logger, IMapper mapper) : base(work, logger, mapper)
     {
     }
 
@@ -58,7 +59,7 @@ public class IdentityCommandHandler : BaseIdentityCommandHandler, IIdentityComma
             var roles = user.Roles.ToList();
             roles.RemoveAll(x => x == roleId);
             user.Roles = roles;
-            await Work.GetCollection<User>(nameof(User)).ReplaceOneAsync(x => x.Id == userId, user);
+            await Work.GetCollection<User>(nameof(User)).DeleteOneAsync(x => x.Id == userId);
         }
     }
 

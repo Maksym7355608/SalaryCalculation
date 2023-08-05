@@ -14,9 +14,4 @@ public abstract class BaseController : ControllerBase
     {
         Mapper = mapper;
     }
-    
-    public JsonResult RestAjaxResponse(bool success, string[]? errors = null, object data = null)
-    {
-        return new JsonResult(new {success = success, errors = errors, data = data});
-    }
 }

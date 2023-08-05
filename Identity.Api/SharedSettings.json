@@ -1,0 +1,22 @@
+{
+  "MongoDbConnectionString": "mongodb+srv://maksiko:MaksiKo2023@clustermaksiko.ys2upfa.mongodb.net/",
+  "IdentityDbName": "identity",
+  "OrganizationDbName": "organization",
+  "SheduleDbName": "shedule",
+  "CalculationDbName": "calculation",
+  "DictionaryDbName": "dictionary",
+  "WorkflowDbName": "workflow",
+  "Identity_API": "http://localhost:5300",
+  "Organization_API": "http://localhost:5100",
+  "Shedule_API": "http://localhost:5200",
+  "Calculation_API": "http://localhost:5217",
+  "Dictionary_API": "http://localhost:5400",
+  "Reports_API": "http://localhost:5401",
+  "JwtSettings": {
+    "SecretKey": "MySuPeRSyCrETKeY6768962345457865HaSHTop",
+    "Issuer": "SalaryCalculation",
+    "Audience": "SalaryCalculationUsers",
+    "ExpirationInMinutes": 60
+  },
+  "Rabbit": "host=localhost;timeout=60;requestedHeartbeat=30"
+}
