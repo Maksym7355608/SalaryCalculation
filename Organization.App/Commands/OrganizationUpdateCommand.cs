@@ -5,6 +5,7 @@ namespace Organization.App.Commands;
 
 public class OrganizationUpdateCommand : BaseCommand
 {
+    
     public string Code { get; set; }
     public string Name { get; set; }
     public long Edrpou { get; set; }

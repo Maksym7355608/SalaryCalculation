@@ -10,4 +10,4 @@ public class OrganizationUnitUpdateCommand : BaseCommand
 
 public class OrganizationUnitCreateCommand : OrganizationUnitUpdateCommand { }
 
-public class OrganizationUnitSearchCommand : OrganizationUpdateCommand { }
+public class OrganizationUnitSearchCommand : OrganizationUnitUpdateCommand { }
