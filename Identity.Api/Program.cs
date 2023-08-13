@@ -43,6 +43,7 @@ builder.Services.AddRabbitMessageBus(builder.Configuration);
 
 builder.Services.AddMongoIdentityUnitOfWork(builder.Configuration);
 builder.Services.AddAutoMapper(typeof(IdentityAutoMapperProfile));
+builder.Services.AddCommandHandlers();
 
 var app = builder.Build();
 

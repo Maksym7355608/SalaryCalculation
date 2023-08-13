@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Identity.App.Abstract;
+using Identity.App.Handlers;
 using Identity.Data.Data;
 using SalaryCalculation.Data;
 using SalaryCalculation.Data.Infrastructure;
@@ -23,5 +25,12 @@ public static class ServiceCollectionExtensions
     {
         var connectionString = configuration.GetValue<string>("Rabbit");
         return services.AddSingleton<IMessageBroker>(provider => new RabbitMqMessageBroker(connectionString));
+    }
+
+    public static IServiceCollection AddCommandHandlers(this IServiceCollection services)
+    {
+        services.AddScoped<IIdentityCommandHandler, IdentityCommandHandler>();
+        services.AddScoped<IRoleCommandHandler, RoleCommandHandler>();
+        return services;
     }
 }

@@ -4,6 +4,6 @@ namespace Organization.App.Abstract;
 
 public interface IManagerCommandHandler
 {
-    Task AddManagerToOrganizationAsync(ManagerAddCommand command);
-    Task RemoveManagerFromOrganizationAsync(int organizationId);
+    Task<bool> AddManagerToOrganizationAsync(ManagerAddCommand command);
+    Task<bool> RemoveManagerFromOrganizationAsync(int organizationId);
 }

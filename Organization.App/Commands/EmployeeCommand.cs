@@ -4,7 +4,12 @@ using SalaryCalculation.Data.BaseModels;
 
 namespace Organization.App.Commands;
 
-public class EmployeeUpdateCommand : BaseCommand
+public class EmployeeUpdateCommand : EmployeeCreateCommand
+{
+    public int Id { get; set; }
+}
+
+public class EmployeeCreateCommand : BaseCommand
 {
     public long RollNumber { get; set; }
     public string Name { get; set; }
@@ -18,14 +23,9 @@ public class EmployeeUpdateCommand : BaseCommand
     public BankDto BankAccount { get; set; }
     public IEnumerable<ContactDto> Contacts { get; set; }
 
-    public IdNamePair OrganizationId { get; set; }
-    public IdNamePair OrganizationUnitId { get; set; }
+    public IdNamePair Organization { get; set; }
+    public IdNamePair OrganizationUnit { get; set; }
     public IdNamePair Position { get; set; }
-}
-
-public class EmployeeCreateCommand : EmployeeUpdateCommand
-{
-    
 }
 
 public class EmployeeSearchCommand : BaseCommand
@@ -34,8 +34,8 @@ public class EmployeeSearchCommand : BaseCommand
     public long? RollNumber { get; set; }
     public DateTime? DateFrom { get; set; }
     public DateTime? DateTo { get; set; }
-    public int? OrganizationUnit { get; set; }
-    public int? Position { get; set; }
+    public int? OrganizationUnitId { get; set; }
+    public int? PositionId { get; set; }
     public decimal? SalaryFrom { get; set; }
     public decimal? SalaryTo { get; set; }
 }

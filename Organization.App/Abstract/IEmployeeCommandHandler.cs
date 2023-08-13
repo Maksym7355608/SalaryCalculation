@@ -15,7 +15,7 @@ public interface IEmployeeCommandHandler
 
     //progress
     Task<string> MassCreateEmployeesAsync(EmployeeMassCreateCommand command);
-    Task<string> MassCreateEmployeesAsync(EmployeeMassUpdateCommand command);
+    Task<string> MassUpdateEmployeesAsync(EmployeeMassUpdateCommand command);
     Task<string> MassDeleteEmployeesAsync(EmployeeMassDeleteCommand command);
 
 }

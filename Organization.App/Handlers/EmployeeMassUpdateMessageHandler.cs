@@ -1,6 +1,18 @@
-﻿namespace Organization.App.Handlers;
+﻿using AutoMapper;
+using Microsoft.Extensions.Logging;
+using Organization.App.Commands.Messages;
+using Organization.Data.Data;
 
-public class EmployeeMassUpdateMessageHandler
+namespace Organization.App.Handlers;
+
+public class EmployeeMassUpdateMessageHandler : BaseOrganizationMessageHandler<EmployeeMassUpdateMessage>
 {
-    
+    public EmployeeMassUpdateMessageHandler(IOrganizationUnitOfWork work, ILogger logger, IMapper mapper) : base(work, logger, mapper)
+    {
+    }
+
+    public override async Task HandleAsync(EmployeeMassUpdateMessage msg)
+    {
+        throw new NotImplementedException();
+    }
 }
