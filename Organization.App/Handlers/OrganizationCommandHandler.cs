@@ -16,7 +16,7 @@ namespace Organization.App.Handlers;
 
 public class OrganizationCommandHandler : BaseOrganizationCommandHandler, IOrganizationCommandHandler
 {
-    public OrganizationCommandHandler(IOrganizationUnitOfWork work, ILogger logger, IMapper mapper) : base(work, logger, mapper)
+    public OrganizationCommandHandler(IOrganizationUnitOfWork work, ILogger<OrganizationCommandHandler> logger, IMapper mapper) : base(work, logger, mapper)
     {
     }
 

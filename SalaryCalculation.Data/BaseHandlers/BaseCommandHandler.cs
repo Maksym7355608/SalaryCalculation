@@ -8,9 +8,9 @@ public abstract class BaseCommandHandler
 {
     protected IMapper Mapper { get; }
     protected IUnitOfWork Work { get; }
-    protected ILogger Logger { get; }
+    protected ILogger<BaseCommandHandler> Logger { get; }
 
-    public BaseCommandHandler(IUnitOfWork work, ILogger logger, IMapper mapper)
+    public BaseCommandHandler(IUnitOfWork work, ILogger<BaseCommandHandler> logger, IMapper mapper)
     {
         Work = work;
         Mapper = mapper;

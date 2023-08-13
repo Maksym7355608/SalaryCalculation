@@ -7,6 +7,7 @@ using Microsoft.OpenApi.Models;
 using Serilog;
 using AutoMapper;
 using Identity.App.Mapper;
+using SalaryCalculation.Shared.Extensions.ApiExtensions;
 
 var builder = WebApplication.CreateBuilder(args);
 

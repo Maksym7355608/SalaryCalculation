@@ -9,7 +9,7 @@ namespace Organization.App.Handlers;
 
 public class EmployeeMassCreateMessageHandler : BaseOrganizationMessageHandler<EmployeeMassCreateMessage>
 {
-    public EmployeeMassCreateMessageHandler(IOrganizationUnitOfWork work, ILogger logger, IMapper mapper) : base(work, logger, mapper)
+    public EmployeeMassCreateMessageHandler(IOrganizationUnitOfWork work, ILogger<EmployeeMassCreateMessageHandler> logger, IMapper mapper) : base(work, logger, mapper)
     {
     }
 

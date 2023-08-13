@@ -7,7 +7,7 @@ namespace Organization.App.Handlers;
 
 public class EmployeeMassDeleteMessageHandler : BaseOrganizationMessageHandler<EmployeeMassDeleteMessage>
 {
-    public EmployeeMassDeleteMessageHandler(IOrganizationUnitOfWork work, ILogger logger, IMapper mapper) : base(work, logger, mapper)
+    public EmployeeMassDeleteMessageHandler(IOrganizationUnitOfWork work, ILogger<EmployeeMassDeleteMessageHandler> logger, IMapper mapper) : base(work, logger, mapper)
     {
     }
 

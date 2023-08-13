@@ -6,11 +6,11 @@ namespace Identity.Data.Data;
 
 public class IdentityUnitOfWork : UnitOfWork, IIdentityUnitOfWork
 {
-    public IdentityUnitOfWork(string connectionString, IMessageBroker broker) : base(connectionString, broker)
+    public IdentityUnitOfWork(string connectionString, string databaseName, IMessageBroker broker) : base(connectionString, databaseName, broker)
     {
     }
 
-    public IdentityUnitOfWork(MongoUrl connectionUrl, IMessageBroker broker) : base(connectionUrl, broker)
+    public IdentityUnitOfWork(MongoUrl connectionUrl, string databaseName, IMessageBroker broker) : base(connectionUrl, databaseName, broker)
     {
     }
 }

@@ -8,14 +8,14 @@ public class UnitOfWork : IUnitOfWork
 
     public IMessageBroker MessageBroker { get; }
 
-    public UnitOfWork(string connectionString, IMessageBroker broker) : this(new MongoUrl(connectionString), broker)
+    public UnitOfWork(string connectionString, string databaseName, IMessageBroker broker) : this(new MongoUrl(connectionString), databaseName, broker)
     { }
 
-    public UnitOfWork(MongoUrl connectionUrl, IMessageBroker broker)
+    public UnitOfWork(MongoUrl connectionUrl, string databaseName, IMessageBroker broker)
     {
         MessageBroker = broker;
         var client = new MongoClient(connectionUrl);
-        Database = client.GetDatabase(connectionUrl.DatabaseName);
+        Database = client.GetDatabase(databaseName);
     }
     
     public IMongoCollection<T> GetCollection<T>()

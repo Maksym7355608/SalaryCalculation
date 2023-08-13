@@ -18,7 +18,7 @@ namespace Identity.App.Handlers;
 
 public class IdentityCommandHandler : BaseIdentityCommandHandler, IIdentityCommandHandler
 {
-    public IdentityCommandHandler(IIdentityUnitOfWork work, ILogger logger, IMapper mapper) : base(work, logger, mapper)
+    public IdentityCommandHandler(IIdentityUnitOfWork work, ILogger<IdentityCommandHandler> logger, IMapper mapper) : base(work, logger, mapper)
     {
     }
 

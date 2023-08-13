@@ -5,7 +5,6 @@ using Organization.App.Abstract;
 using Organization.App.Commands;
 using Organization.Data.Data;
 using Organization.Data.Entities;
-using SalaryCalculation.Data.BaseModels;
 using SalaryCalculation.Shared.Common.Validation;
 using Org = Organization.Data.Entities.Organization;
 
@@ -13,7 +12,7 @@ namespace Organization.App.Handlers;
 
 public class ManagerCommandHandler : BaseOrganizationCommandHandler, IManagerCommandHandler
 {
-    public ManagerCommandHandler(IOrganizationUnitOfWork work, ILogger logger, IMapper mapper) : base(work, logger, mapper)
+    public ManagerCommandHandler(IOrganizationUnitOfWork work, ILogger<ManagerCommandHandler> logger, IMapper mapper) : base(work, logger, mapper)
     {
     }
 

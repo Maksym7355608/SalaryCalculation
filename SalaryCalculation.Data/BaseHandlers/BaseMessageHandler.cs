@@ -8,9 +8,9 @@ public abstract class BaseMessageHandler<TMessage> where TMessage : BaseMessage
 {
     protected IMapper Mapper { get; }
     protected IUnitOfWork Work { get; }
-    protected ILogger Logger { get; }
+    protected ILogger<BaseMessageHandler<TMessage>> Logger { get; }
 
-    public BaseMessageHandler(IUnitOfWork work, ILogger logger, IMapper mapper)
+    public BaseMessageHandler(IUnitOfWork work, ILogger<BaseMessageHandler<TMessage>> logger, IMapper mapper)
     {
         Work = work;
         Mapper = mapper;

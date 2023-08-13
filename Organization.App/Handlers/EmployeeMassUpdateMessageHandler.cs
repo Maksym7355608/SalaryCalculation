@@ -7,7 +7,7 @@ namespace Organization.App.Handlers;
 
 public class EmployeeMassUpdateMessageHandler : BaseOrganizationMessageHandler<EmployeeMassUpdateMessage>
 {
-    public EmployeeMassUpdateMessageHandler(IOrganizationUnitOfWork work, ILogger logger, IMapper mapper) : base(work, logger, mapper)
+    public EmployeeMassUpdateMessageHandler(IOrganizationUnitOfWork work, ILogger<EmployeeMassUpdateMessageHandler> logger, IMapper mapper) : base(work, logger, mapper)
     {
     }
 

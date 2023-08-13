@@ -8,7 +8,7 @@ namespace Organization.App.Handlers;
 public class BaseOrganizationCommandHandler : BaseCommandHandler
 {
     protected new IOrganizationUnitOfWork Work;
-    public BaseOrganizationCommandHandler(IOrganizationUnitOfWork work, ILogger logger, IMapper mapper) : base(work, logger, mapper)
+    public BaseOrganizationCommandHandler(IOrganizationUnitOfWork work, ILogger<BaseOrganizationCommandHandler> logger, IMapper mapper) : base(work, logger, mapper)
     {
     }
 }
