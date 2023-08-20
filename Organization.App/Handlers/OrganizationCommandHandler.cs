@@ -192,4 +192,27 @@ public class OrganizationCommandHandler : BaseOrganizationCommandHandler, IOrgan
             x.OrganizationId == organizationId && x.OrganizationUnitId == organizationUnitId && x.Id == positionId);
         return result.DeletedCount > 0;
     }
+
+    public async Task<IEnumerable<OrganizationDto>> GetOrganizationsAsync()
+    {
+        return Mapper.Map<IEnumerable<OrganizationDto>>(await Work.GetCollection<Org>(nameof(Org)).Find(Builders<Org>.Filter.Empty).ToListAsync());
+    }
+
+    public async Task<OrganizationUnitDto> GetOrganizationUnitAsync(int organizationId, int id)
+    {
+        var orgUnit = await Work.GetCollection<OrganizationUnit>(nameof(OrganizationUnit))
+            .Find(x => x.OrganizationId == organizationId && x.Id == id).FirstOrDefaultAsync();
+        if (orgUnit == null)
+            throw new EntityNotFoundException(id.ToString());
+        return Mapper.Map<OrganizationUnitDto>(orgUnit);
+    }
+
+    public async Task<PositionDto> GetPositionAsync(int organizationId, int organizationUnitId, int id)
+    {
+        var orgUnit = await Work.GetCollection<Position>(nameof(Position))
+            .Find(x => x.OrganizationId == organizationId && x.OrganizationUnitId == organizationUnitId && x.Id == id).FirstOrDefaultAsync();
+        if (orgUnit == null)
+            throw new EntityNotFoundException(id.ToString());
+        return Mapper.Map<PositionDto>(orgUnit);
+    }
 }

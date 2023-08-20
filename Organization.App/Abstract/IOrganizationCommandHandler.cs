@@ -58,4 +58,8 @@ public interface IOrganizationCommandHandler
     /// Видаляє посаду в організації за заданим ідентифікатором.
     /// </summary>
     Task<bool> DeletePositionAsync(int organizationId, int organizationUnitId, int positionId);
+
+    Task<IEnumerable<OrganizationDto>> GetOrganizationsAsync();
+    Task<OrganizationUnitDto> GetOrganizationUnitAsync(int organizationId, int id);
+    Task<PositionDto> GetPositionAsync(int organizationId, int organizationUnitId, int id);
 }
