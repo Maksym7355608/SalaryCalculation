@@ -1,0 +1,17 @@
+﻿using Schedule.Data.Enums;
+
+namespace Schedule.App.Dto;
+
+public class DayDto
+{
+    public EWeekDay WeekDay { get; set; }
+
+    public int Week { get; set; }
+}
+
+public class TimeDto
+{
+    public string TimeValue => $"{Hour}:{Minutes}";
+    public int Hour { get; set; }
+    public int Minutes { get; set; }
+}

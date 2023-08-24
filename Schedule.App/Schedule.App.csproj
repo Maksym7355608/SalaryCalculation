@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net7.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <RootNamespace>Schedule.App</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\SalaryCalculation.Data\SalaryCalculation.Data.csproj" />
+      <ProjectReference Include="..\Schedule.Data\Schedule.Data.csproj" />
+    </ItemGroup>
+
+</Project>

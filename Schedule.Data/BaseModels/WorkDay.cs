@@ -1,8 +1,8 @@
 ﻿namespace Schedule.Data.BaseModels;
 
-public class WorkDay
+public class WorkDayDetail
 {
-    public IEnumerable<int> DaysOfWeek { get; set; }
+    public IEnumerable<Day> DaysOfWeek { get; set; }
 
     public Time StartTime { get; set; }
 
@@ -19,4 +19,18 @@ public class WorkDay
     public Time EndTimeInHoliday { get; set; }
 
     public bool IsEndTimeInHolidayNextDay { get; set; }
+    
+    public bool IsLaunchPaid { get; set; }
+    
+    public int LaunchTime { get; set; }
+}
+
+public class Day
+{
+    /// <summary>
+    /// EWeekDay
+    /// </summary>
+    public int WeekDay { get; set; }
+
+    public int Week { get; set; }
 }
