@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace Identity.Data.Enums;
+namespace SalaryCalculation.Data.Enums;
 
 public enum EPermission
 {

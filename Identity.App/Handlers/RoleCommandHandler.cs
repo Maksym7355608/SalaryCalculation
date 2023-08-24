@@ -13,7 +13,7 @@ namespace Identity.App.Handlers;
 
 public class RoleCommandHandler : BaseIdentityCommandHandler, IRoleCommandHandler
 {
-    public RoleCommandHandler(IIdentityUnitOfWork work, ILogger logger, IMapper mapper) : base(work, logger, mapper)
+    public RoleCommandHandler(IIdentityUnitOfWork work, ILogger<RoleCommandHandler> logger, IMapper mapper) : base(work, logger, mapper)
     { }
     
     public async Task CreateRole(RoleCreateCommand command)

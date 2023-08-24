@@ -7,18 +7,18 @@ using Identity.App.Abstract;
 using Identity.App.Commands;
 using Identity.Data.Data;
 using Identity.Data.Entities;
-using Identity.Data.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using SalaryCalculation.Data.Enums;
 using SalaryCalculation.Shared.Extensions.EnumExtensions;
 
 namespace Identity.App.Handlers;
 
 public class IdentityCommandHandler : BaseIdentityCommandHandler, IIdentityCommandHandler
 {
-    public IdentityCommandHandler(IIdentityUnitOfWork work, ILogger logger, IMapper mapper) : base(work, logger, mapper)
+    public IdentityCommandHandler(IIdentityUnitOfWork work, ILogger<IdentityCommandHandler> logger, IMapper mapper) : base(work, logger, mapper)
     {
     }
 

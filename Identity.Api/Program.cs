@@ -7,6 +7,7 @@ using Microsoft.OpenApi.Models;
 using Serilog;
 using AutoMapper;
 using Identity.App.Mapper;
+using SalaryCalculation.Shared.Extensions.ApiExtensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -43,6 +44,7 @@ builder.Services.AddRabbitMessageBus(builder.Configuration);
 
 builder.Services.AddMongoIdentityUnitOfWork(builder.Configuration);
 builder.Services.AddAutoMapper(typeof(IdentityAutoMapperProfile));
+builder.Services.AddCommandHandlers();
 
 var app = builder.Build();
 
