@@ -26,4 +26,6 @@ public class Regime : BaseMongoEntity<int>
     public DateTime? StartDateInPreviousYear { get; set; }
 
     public DateTime? StartDateInNextYear { get; set; }
+
+    public int OrganizationId { get; set; }
 }

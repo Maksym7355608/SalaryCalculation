@@ -11,8 +11,8 @@ public interface IScheduleCommandHandler
     Task<bool> UpdateRegimeAsync(RegimeUpdateCommand command);
     Task<bool> DeleteRegimeAsync(int id);
 
-    Task<WorkDayDetailDto> GetWorkDayRegimeAsync(int regimeId);
-    Task<bool> UpdateWorkDayRegimeAsync(WorkDayRegimeUpdateCommand command);
+    Task<WorkDayDetailDto> GetWorkDaysRegimeAsync(int regimeId);
+    Task<bool> UpdateWorkDayRegimeAsync(int regimeId, WorkDayRegimeUpdateCommand command);
 
     Task<IEnumerable<PeriodCalendarDto>> GetPeriodsCalendarByEmployeeAsync(int employeeId);
     Task<IEnumerable<PeriodCalendarDto>> SearchPeriodsCalendarAsync(PeriodCalendarSearchCommand command);
