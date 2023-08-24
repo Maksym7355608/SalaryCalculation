@@ -10,5 +10,6 @@ public class BaseOrganizationCommandHandler : BaseCommandHandler
     protected new IOrganizationUnitOfWork Work;
     public BaseOrganizationCommandHandler(IOrganizationUnitOfWork work, ILogger<BaseOrganizationCommandHandler> logger, IMapper mapper) : base(work, logger, mapper)
     {
+        Work = work;
     }
 }

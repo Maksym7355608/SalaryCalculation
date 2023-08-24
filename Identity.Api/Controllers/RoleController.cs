@@ -21,20 +21,20 @@ public class RoleController : BaseIdentityController
     public async Task<IActionResult> CreateRoleAsync([FromBody] RoleCreateCommand command)
     {
         await RoleCommandHandler.CreateRole(command);
-        return Ok(new { IsValid, Errors });
+        return Ok(new AjaxResponse { IsSuccess = IsValid, Errors = Errors });
     }
 
     [HttpPut("update/{id}")]
     public async Task<IActionResult> UpdateRoleAsync([FromRoute] ObjectId id, [FromBody] RoleUpdateCommand command)
     {
         await RoleCommandHandler.UpdateRole(id, command);
-        return Ok(new { IsValid, Errors });
+        return Ok(new AjaxResponse { IsSuccess = IsValid, Errors = Errors });
     }
 
     [HttpDelete("delete/{id}")]
     public async Task<IActionResult> DeleteRoleAsync([FromRoute] ObjectId id)
     {
         var result = await RoleCommandHandler.DeleteRole(id);
-        return Ok(new { isValid = result && IsValid, Errors });
+        return Ok(new AjaxResponse { IsSuccess = result && IsValid, Errors = Errors });
     }
 }

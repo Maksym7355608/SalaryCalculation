@@ -6,6 +6,7 @@ using MongoDB.Driver;
 using Organization.App.Abstract;
 using Organization.App.Commands;
 using Organization.App.DtoModels;
+using Organization.Data.BaseModels;
 using Organization.Data.Data;
 using Organization.Data.Entities;
 using SalaryCalculation.Data.Enums;
@@ -38,7 +39,7 @@ public class OrganizationCommandHandler : BaseOrganizationCommandHandler, IOrgan
             throw new EntityNotFoundException(organizationId.ToString());
 
         var dto = Mapper.Map<OrganizationDto>(organization);
-        dto.Permissions = organizationPermissions.Select(x => (EPermission)x);
+        dto.Permissions = organizationPermissions.Cast<EPermission>();
         return dto;
     }
 
@@ -87,17 +88,44 @@ public class OrganizationCommandHandler : BaseOrganizationCommandHandler, IOrgan
 
     public async Task CreateOrganizationAsync(OrganizationCreateCommand command)
     {
-        var organization = Mapper.Map<Org>(command);
+        var organization = new Org()
+        {
+            Code = command.Code,
+            Name = command.Name,
+            Address = command.Address,
+            FactAddress = command.FactAddress,
+            Accountant = command.Accountant,
+            BankAccounts = Mapper.Map<IEnumerable<Bank>>(command.BankAccounts),
+            Chief = command.Chief,
+            Edrpou = command.Edrpou
+        };
         if (Work.GetCollection<Org>(nameof(Org)).Find(x => x.Code == organization.Code)
             .Any())
             throw new DuplicateNameException("Organization with the same code exist");
         await Work.GetCollection<Org>(nameof(Org))
             .InsertOneAsync(organization);
+        var organizationPermissions = new OrganizationPermissions()
+        {
+            OrganizationId = Work.GetCollection<Org>().Find(x => x.Code == organization.Code).First().Id,
+            Permissions = new[] { (int)EPermission.RoleControl },
+        };
+        await Work.GetCollection<OrganizationPermissions>()
+            .InsertOneAsync(organizationPermissions);
     }
 
     public async Task<bool> UpdateOrganizationAsync(OrganizationUpdateCommand command)
     {
-        var organization = Mapper.Map<Org>(command);
+        var organization = new Org()
+        {
+            Code = command.Code,
+            Name = command.Name,
+            Address = command.Address,
+            FactAddress = command.FactAddress,
+            Accountant = command.Accountant,
+            BankAccounts = Mapper.Map<IEnumerable<Bank>>(command.BankAccounts),
+            Chief = command.Chief,
+            Edrpou = command.Edrpou
+        };
         if (!Work.GetCollection<Org>(nameof(Org)).Find(x => x.Code == organization.Code)
             .Any())
             throw new EntityNotFoundException(organization.Code);
@@ -110,6 +138,14 @@ public class OrganizationCommandHandler : BaseOrganizationCommandHandler, IOrgan
     public async Task<bool> DeleteOrganizationAsync(int organizationId)
     {
         var result = await Work.GetCollection<Org>(nameof(Org)).DeleteOneAsync(x => x.Id == organizationId);
+        await Work.GetCollection<OrganizationPermissions>()
+            .DeleteOneAsync(x => x.OrganizationId == organizationId);
+        await Work.GetCollection<OrganizationUnit>()
+            .DeleteManyAsync(x => x.OrganizationId == organizationId);
+        await Work.GetCollection<Position>()
+            .DeleteManyAsync(x => x.OrganizationId == organizationId);
+        await Work.GetCollection<Employee>()
+            .DeleteManyAsync(x => x.Organization.Id == organizationId);
         return result.DeletedCount > 0;
     }
 
@@ -161,6 +197,13 @@ public class OrganizationCommandHandler : BaseOrganizationCommandHandler, IOrgan
     {
         var result = await Work.GetCollection<OrganizationUnit>(nameof(OrganizationUnit))
             .DeleteOneAsync(x => x.OrganizationId == organizationId && x.Id == organizationUnitId);
+        await Work.GetCollection<OrganizationUnit>()
+            .UpdateManyAsync(x => x.OrganizationUnitId == organizationUnitId,
+                Builders<OrganizationUnit>.Update.Set(x => x.OrganizationUnitId, null));
+        await Work.GetCollection<Position>()
+            .DeleteManyAsync(x => x.OrganizationId == organizationId && x.OrganizationUnitId == organizationUnitId);
+        await Work.GetCollection<Employee>()
+            .DeleteManyAsync(x => x.Organization.Id == organizationId && x.OrganizationUnit.Id == organizationUnitId);
         return result.DeletedCount > 0;
     }
 
@@ -190,6 +233,7 @@ public class OrganizationCommandHandler : BaseOrganizationCommandHandler, IOrgan
     {
         var result = await Work.GetCollection<Position>(nameof(Position)).DeleteOneAsync(x =>
             x.OrganizationId == organizationId && x.OrganizationUnitId == organizationUnitId && x.Id == positionId);
+        await Work.GetCollection<Employee>().DeleteManyAsync(x => x.Position.Id == positionId);
         return result.DeletedCount > 0;
     }
 

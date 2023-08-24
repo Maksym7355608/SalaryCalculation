@@ -14,4 +14,11 @@ public abstract class BaseController : ControllerBase
     {
         Mapper = mapper;
     }
+    
+    public class AjaxResponse
+    {
+        public bool IsSuccess { get; set; }
+        public string[]? Errors { get; set; }
+        public object Data { get; set; }
+    }
 }

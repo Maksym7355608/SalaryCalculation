@@ -29,14 +29,14 @@ public class IdentityController : BaseIdentityController
             return BadRequest(new { IsValid, Errors });
         }
 
-        return Ok(new { IsValid, Errors, data = token });
+        return Ok(new AjaxResponse{ IsSuccess = IsValid, Errors = Errors, Data = token });
     }
 
     [HttpPost("create")]
     public async Task<IActionResult> CreateUserAsync([FromBody] UserCreateCommand command)
     {
         await IdentityCommandHandler.CreateUserAsync(command);
-        return Ok(new { IsValid, Errors });
+        return Ok(new AjaxResponse { IsSuccess = IsValid, Errors = Errors });
     }
 
     [Authorize]
@@ -44,7 +44,7 @@ public class IdentityController : BaseIdentityController
     public async Task<IActionResult> UpdateUserAsync([FromBody] UserUpdateCommand command)
     {
         await IdentityCommandHandler.UpdateUserAsync(command);
-        return Ok(new { IsValid, Errors });
+        return Ok(new AjaxResponse { IsSuccess = IsValid, Errors = Errors });
     }
 
     [Authorize]
@@ -52,7 +52,7 @@ public class IdentityController : BaseIdentityController
     public async Task<IActionResult> DeleteUserAsync([FromBody] ObjectId id)
     {
         await IdentityCommandHandler.DeleteUserAsync(id);
-        return Ok(new { IsValid, Errors });
+        return Ok(new AjaxResponse { IsSuccess = IsValid, Errors = Errors });
     }
 
     [Authorize]
@@ -60,7 +60,7 @@ public class IdentityController : BaseIdentityController
     public async Task<IActionResult> AddUserRoleAsync([FromRoute] ObjectId userId, [FromRoute] ObjectId roleId)
     {
         await IdentityCommandHandler.AddRoleToUserAsync(userId, roleId);
-        return Ok(new { IsValid, Errors });
+        return Ok(new AjaxResponse { IsSuccess = IsValid, Errors = Errors });
     }
 
     [Authorize]
@@ -68,6 +68,6 @@ public class IdentityController : BaseIdentityController
     public async Task<IActionResult> RemoveUserRoleAsync([FromRoute] ObjectId userId, [FromRoute] ObjectId roleId)
     {
         await IdentityCommandHandler.RemoveRoleFromUserAsync(userId, roleId);
-        return Ok(new { IsValid, Errors });
+        return Ok(new AjaxResponse { IsSuccess = IsValid, Errors = Errors });
     }
 }

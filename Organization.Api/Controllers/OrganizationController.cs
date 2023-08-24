@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Organization.App.Abstract;
 using Organization.App.Commands;
+using SalaryCalculation.Data.Enums;
 using SalaryCalculation.Shared.Common.Attributes;
 using Serilog.Events;
 using SerilogTimings;
@@ -69,6 +70,22 @@ public class OrganizationsController : BaseOrganizationController
             return Ok(new AjaxResponse { IsSuccess = true });
         else
             return BadRequest(new AjaxResponse { IsSuccess = false, Errors = Errors });
+    }
+
+    [HttpPut("{organizationId}/permissions/update")]
+    public async Task<IActionResult> SetOrganizationPermissions([FromRoute] int organizationId,
+        [FromBody] IEnumerable<int> permissions)
+    {
+        var cmd = new OrganizationPermissionUpdateCommand()
+        {
+            OrganizationId = organizationId,
+            Permissions = permissions.Cast<EPermission>()
+        };
+        var updated = await OrganizationCommandHandler.UpdateOrganizationPermissionsAsync(cmd);
+        if (updated)
+            return Ok(new AjaxResponse { IsSuccess = true });
+        else
+            return BadRequest(new AjaxResponse{IsSuccess = false, Errors = Errors});
     }
 
     #region Organization Units
@@ -186,11 +203,4 @@ public class OrganizationsController : BaseOrganizationController
     }
 
     #endregion
-}
-
-public class AjaxResponse
-{
-    public bool IsSuccess { get; set; }
-    public string[]? Errors { get; set; }
-    public object Data { get; set; }
 }
