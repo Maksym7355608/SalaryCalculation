@@ -89,7 +89,7 @@ public class ScheduleCommandHandler : BaseScheduleCommandHandler, IScheduleComma
             throw new EntityNotFoundException("Regime with id {0} not found", regimeId.ToString());
 
         var res = await Work.GetCollection<Regime>()
-            .UpdateOneAsync(x => x.Id == regimeId, Builders<Regime>.Update.Set(x => x.WorkDayDetails, workDaysRegime));
+            .UpdateOneAsync(x => x.Id == regimeId, Builders<Regime>.Update.Set($"{nameof(Regime)}.WorkDayDetails.", workDaysRegime));//TODO
         return res.ModifiedCount > 0;
     }
 

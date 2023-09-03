@@ -24,12 +24,7 @@ public class WorkDaySearchCommand : BaseCommand
     public int OrganizationId { get; set; }
 }
 
-public class WorkDaysSettingFilter : RestDaysSettingFilter
-{
-    public new EDayType Type => EDayType.Work;
-}
-
-public class RestDaysSettingFilter : BaseCommand
+public class DaysSettingFilter : BaseCommand
 {
     public EDayType Type { get; set; }
     public DateTime DateFrom { get; set; }

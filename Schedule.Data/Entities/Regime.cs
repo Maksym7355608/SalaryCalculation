@@ -14,7 +14,7 @@ public class Regime : BaseMongoEntity<int>
 
     public int DaysCount { get; set; }
 
-    public WorkDayDetail WorkDayDetails { get; set; }
+    public IEnumerable<WorkDayDetail> WorkDayDetails { get; set; }
 
     public IEnumerable<Day> RestDayDetails { get; set; }
 

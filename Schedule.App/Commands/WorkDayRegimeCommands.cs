@@ -5,6 +5,7 @@ namespace Schedule.App.Commands;
 
 public class WorkDayRegimeUpdateCommand : BaseCommand
 {
+    public int WorkDayRegimeId { get; set; }
     public IEnumerable<DayDto> DaysOfWeek { get; set; }
 
     public TimeDto StartTime { get; set; }

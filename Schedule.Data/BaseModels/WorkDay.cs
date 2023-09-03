@@ -28,9 +28,10 @@ public class WorkDayDetail
 public class Day
 {
     /// <summary>
-    /// EWeekDay
+    /// enum - DayOfWeek
     /// </summary>
     public int WeekDay { get; set; }
 
     public int Week { get; set; }
+    public int DayOfCircle { get; set; }
 }
