@@ -71,7 +71,7 @@ public class ScheduleCommandHandler : BaseScheduleCommandHandler, IScheduleComma
         return result.DeletedCount > 0;
     }
 
-    public async Task<WorkDayDetailDto> GetWorkDaysRegimeAsync(int regimeId)
+    public async Task<IEnumerable<WorkDayDetailDto>> GetWorkDaysRegimeAsync(int regimeId)
     {
         var workDaysRegime = await Work.GetCollection<Regime>()
             .Find(x => x.Id == regimeId)
@@ -79,7 +79,7 @@ public class ScheduleCommandHandler : BaseScheduleCommandHandler, IScheduleComma
             .FirstOrDefaultAsync();
         if (workDaysRegime == null)
             throw new EntityNotFoundException("Regime with id {0} not found", regimeId.ToString());
-        return Mapper.Map<WorkDayDetailDto>(workDaysRegime);
+        return Mapper.Map<IEnumerable<WorkDayDetailDto>>(workDaysRegime);
     }
 
     public async Task<bool> UpdateWorkDayRegimeAsync(int regimeId, WorkDayRegimeUpdateCommand command)

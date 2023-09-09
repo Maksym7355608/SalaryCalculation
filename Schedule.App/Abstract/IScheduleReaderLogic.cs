@@ -6,5 +6,5 @@ public interface IScheduleReaderLogic
 {
     Task<bool> CalculatePeriodCalendarAsync(int employeeId, int period, int regimeId);
     Task<string> MassCalculatePeriodCalendarAsync(PeriodCalendarMassCalculateCommand command);
-    Task<bool> QuickSettingDays(DaysSettingFilter filter);
+    Task<bool> QuickSettingDaysAsync(DaysSettingFilter filter);
 }

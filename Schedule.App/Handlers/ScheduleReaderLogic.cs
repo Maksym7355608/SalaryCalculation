@@ -103,7 +103,7 @@ public class ScheduleReaderLogic : BaseScheduleCommandHandler, IScheduleReaderLo
     }
 
 
-    public async Task<bool> QuickSettingDays(DaysSettingFilter filter)
+    public async Task<bool> QuickSettingDaysAsync(DaysSettingFilter filter)
     {
         var regimes = await GetUsedRegimesAsync(filter);
         var workDays = await CreateDaysAsync(regimes, filter);
