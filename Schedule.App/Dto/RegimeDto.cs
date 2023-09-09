@@ -27,7 +27,7 @@ public class CalculationRegimeDto
 {
     public int RegimeId { get; set; }
     public int DaysCount { get; set; }
-    public IEnumerable<WorkDayDetailDto> WorkDays { get; set; } //пн-пт / 1-2
+    public IEnumerable<WorkDayDetailDto> WorkDayDetails { get; set; } //пн-пт / 1-2
     public IEnumerable<DayDto> RestDays { get; set; } // сб-нд / 3-4
     public bool IsCircle { get; set; }
     public DateTime StartDateInCurrentYear { get; set; }

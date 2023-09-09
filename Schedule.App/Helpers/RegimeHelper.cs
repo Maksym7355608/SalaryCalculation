@@ -40,7 +40,7 @@ public static class RegimeHelper
 
     public static Dictionary<int, bool> GetRegimeDaysCircle(CalculationRegimeDto regime)
     {
-        return regime.WorkDays.SelectMany(x => x.DaysOfWeek)
+        return regime.WorkDayDetails.SelectMany(x => x.DaysOfWeek)
             .Select(workDay => new RegimeDay()
             {
                 IsWork = true,

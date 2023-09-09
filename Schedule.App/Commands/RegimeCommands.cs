@@ -13,7 +13,7 @@ public class RegimeCreateCommand : BaseCommand
 
     public int DaysCount { get; set; }
 
-    public WorkDayDetailDto WorkDayDetails { get; set; }
+    public IEnumerable<WorkDayDetailDto> WorkDayDetails { get; set; }
 
     public IEnumerable<DayDto> RestDayDetails { get; set; }
 

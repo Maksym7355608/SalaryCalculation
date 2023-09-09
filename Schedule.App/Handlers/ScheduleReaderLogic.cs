@@ -1,8 +1,6 @@
-﻿using System.Globalization;
-using AutoMapper;
+﻿using AutoMapper;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using Newtonsoft.Json;
 using Organization.Data.Data;
 using Organization.Data.Entities;
@@ -109,8 +107,13 @@ public class ScheduleReaderLogic : BaseScheduleCommandHandler, IScheduleReaderLo
     {
         var regimes = await GetUsedRegimesAsync(filter);
         var workDays = await CreateDaysAsync(regimes, filter);
-        //TODO: заінсертити нові дні які вже є, оновити вже записані дні
-        return false;
+        var builder = Builders<EmpDay>.Filter;
+        await DeleteExistingDatesAsync(workDays.Select(x => x.EmployeeId), filter);
+
+        await Work.GetCollection<EmpDay>()
+            .InsertManyAsync(Mapper.Map<List<EmpDay>>(workDays));
+        
+        return true;
     }
 
     private async Task<List<EmpDayDto>> CreateDaysAsync(List<CalculationRegimeDto> calculationRegimes,
@@ -169,7 +172,7 @@ public class ScheduleReaderLogic : BaseScheduleCommandHandler, IScheduleReaderLo
 
     private HoursDetailDto CreateHoursFromRegime(CalculationRegimeDto regime, int dayOfCircle, bool isHoliday)
     {
-        var workDayDetails = regime.WorkDays.First(x => x.DaysOfWeek.Any(d => d.DayOfCircle == dayOfCircle));
+        var workDayDetails = regime.WorkDayDetails.First(x => x.DaysOfWeek.Any(d => d.DayOfCircle == dayOfCircle));
         var summaryHours = TimeDto.ConvertToDecimal(
             (workDayDetails.IsEndTimeNextDay ? workDayDetails.EndTime + new TimeDto(24, 0) : workDayDetails.EndTime) -
             workDayDetails.StartTime);
@@ -216,7 +219,7 @@ public class ScheduleReaderLogic : BaseScheduleCommandHandler, IScheduleReaderLo
             {
                 RegimeId = x.Id,
                 DaysCount = x.DaysCount,
-                WorkDays = Mapper.Map<IEnumerable<WorkDayDetailDto>>(x.WorkDayDetails),
+                WorkDayDetails = Mapper.Map<IEnumerable<WorkDayDetailDto>>(x.WorkDayDetails),
                 RestDays = Mapper.Map<IEnumerable<DayDto>>(x.RestDayDetails),
                 IsCircle = x.IsCircle,
                 StartDateInNextYear = x.StartDateInNextYear,
@@ -265,6 +268,18 @@ public class ScheduleReaderLogic : BaseScheduleCommandHandler, IScheduleReaderLo
                 throw new HttpRequestException();
             }
         }
+    }
+
+    private Task<DeleteResult> DeleteExistingDatesAsync(IEnumerable<int> empIds, DaysSettingFilter filter)
+    {
+        var builder = Builders<EmpDay>.Filter;
+        var result = Work.GetCollection<EmpDay>()
+            .DeleteManyAsync(builder.In(x => x.EmployeeId, empIds)
+                             & builder.Gte(x => x.Date, filter.DateFrom)
+                             & builder.Lte(x => x.Date, filter.DateTo)
+                             & builder.Eq(x => x.OrganizationId, filter.OrganizationId));
+
+        return result;
     }
 
     private class Holiday
