@@ -7,4 +7,9 @@ public static class MoreLinqExtensions
         foreach (var element in enumerable)
             action(element);
     }
+
+    public static void ParallelForEach<T>(this IEnumerable<T> enumerable, Action<T> action)
+    {
+        enumerable.AsParallel().ForEach(action);
+    }
 }

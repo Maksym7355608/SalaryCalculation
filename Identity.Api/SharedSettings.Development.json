@@ -2,7 +2,7 @@
   "MongoDbConnectionString": "mongodb+srv://maksiko:MaksiKo2023@clustermaksiko.ys2upfa.mongodb.net/",
   "IdentityDbName": "sc_identity",
   "OrganizationDbName": "sc_organization",
-  "SheduleDbName": "sc_shedule",
+  "SсheduleDbName": "sc_shedule",
   "CalculationDbName": "sc_calculation",
   "DictionaryDbName": "sc_dictionary",
   "WorkflowDbName": "sc_workflow",

@@ -1,14 +1,10 @@
-﻿using MongoDB.Bson;
-using SalaryCalculation.Data.BaseModels;
-using Schedule.Data.BaseModels;
+﻿namespace Schedule.App.Dto;
 
-namespace Schedule.Data.Entities;
-
-public class PeriodCalendar : BaseMongoEntity<ObjectId>
+public class PeriodCalendarDto
 {
     public int Period { get; set; }
     public int WorkDays { get; set; }
-    public HoursDetail Hours { get; set; }
+    public HoursDetailDto Hours { get; set; }
     public int VacationDays { get; set; }
     public int SickLeave { get; set; }
     public int EmployeeId { get; set; }

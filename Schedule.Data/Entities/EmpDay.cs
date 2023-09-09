@@ -1,23 +1,17 @@
 ﻿using MongoDB.Bson;
 using SalaryCalculation.Data.BaseModels;
+using Schedule.Data.BaseModels;
 
 namespace Schedule.Data.Entities;
 
-public class Calendar : BaseMongoEntity<ObjectId>
+public class EmpDay : BaseMongoEntity<ObjectId>
 {
-    /// <summary>
-    /// Enum - EWorkType
-    /// </summary>
-    public int WorkType { get; set; }
     /// <summary>
     /// Enum - EDayType
     /// </summary>
     public int DayType { get; set; }
     public DateTime Date { get; set; }
-    public decimal Hours { get; set; }
-    public decimal DayHours { get; set; }
-    public decimal NightHours { get; set; }
-    public decimal HolidayHours { get; set; }
+    public HoursDetail Hours { get; set; }
     public int EmployeeId { get; set; }
     public int OrganizationId { get; set; }
 }

@@ -1,10 +1,9 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
-using SalaryCalculation.Data.BaseModels;
-using Schedule.Data.BaseModels;
+﻿using SalaryCalculation.Data.BaseModels;
+using Schedule.App.Dto;
 
-namespace Schedule.Data.Entities;
+namespace Schedule.App.Commands;
 
-public class Regime : BaseMongoEntity<int>
+public class RegimeCreateCommand : BaseCommand
 {
     public int Code { get; set; }
 
@@ -14,11 +13,10 @@ public class Regime : BaseMongoEntity<int>
 
     public int DaysCount { get; set; }
 
-    public IEnumerable<WorkDayDetail> WorkDayDetails { get; set; }
+    public IEnumerable<WorkDayDetailDto> WorkDayDetails { get; set; }
 
-    public IEnumerable<Day> RestDayDetails { get; set; }
+    public IEnumerable<DayDto> RestDayDetails { get; set; }
 
-    [BsonIgnore]
     public int RestDayCount => RestDayDetails.Count();
 
     public DateTime StartDateInCurrentYear { get; set; }
@@ -26,6 +24,9 @@ public class Regime : BaseMongoEntity<int>
     public DateTime? StartDateInPreviousYear { get; set; }
 
     public DateTime? StartDateInNextYear { get; set; }
+}
 
-    public int OrganizationId { get; set; }
+public class RegimeUpdateCommand : RegimeCreateCommand
+{
+    public int Id { get; set; }
 }

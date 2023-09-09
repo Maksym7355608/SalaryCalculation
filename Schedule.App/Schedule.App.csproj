@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net7.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <RootNamespace>Schedule.App</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Organization.Data\Organization.Data.csproj" />
+      <ProjectReference Include="..\Progress.App\Progress.App.csproj" />
+      <ProjectReference Include="..\SalaryCalculation.Data\SalaryCalculation.Data.csproj" />
+      <ProjectReference Include="..\SalaryCalculation.Shared.Extensions\SalaryCalculation.Shared.Extensions.csproj" />
+      <ProjectReference Include="..\Schedule.Data\Schedule.Data.csproj" />
+    </ItemGroup>
+
+</Project>
