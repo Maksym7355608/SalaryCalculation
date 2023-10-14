@@ -1,8 +1,6 @@
-﻿using SalaryCalculation.Data.BaseModels;
+﻿namespace Calculation.App.Commands;
 
-namespace Calculation.Data.Entities;
-
-public class Operation : BaseMongoEntity<long>
+public class OperationCreateCommand
 {
     public int Code { get; set; }
     public string Name { get; set; }
@@ -12,4 +10,9 @@ public class Operation : BaseMongoEntity<long>
     public int Period { get; set; }
     public int EmployeeId { get; set; }
     public int OrganizationId { get; set; }
+}
+
+public class OperationUpdateCommand : OperationCreateCommand
+{
+    public long Id { get; set; }
 }

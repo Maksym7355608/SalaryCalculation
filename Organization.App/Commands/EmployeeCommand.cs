@@ -11,7 +11,7 @@ public class EmployeeUpdateCommand : EmployeeCreateCommand
 
 public class EmployeeCreateCommand : BaseCommand
 {
-    public long RollNumber { get; set; }
+    public string RollNumber { get; set; }
     public string Name { get; set; }
     public string Surname { get; set; }
     public string Fatherly { get; set; }
