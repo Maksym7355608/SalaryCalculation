@@ -5,7 +5,7 @@ namespace Calculation.Data.Entities;
 public class PaymentCard : BaseMongoEntity<int>
 {
     public int OrganizationId { get; set; }
-    public int EmployeeId { get; set; }
+    public IdNamePair Employee { get; set; }
     public DateTime CalculationDate { get; set; }
     public DateTime? PaymentDate { get; set; }
     public int CalculationPeriod { get; set; }

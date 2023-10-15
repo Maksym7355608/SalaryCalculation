@@ -91,7 +91,7 @@ public class OperationCommandHandler : BaseCalculationCommandHandler, IOperation
 
         if (existingOperation != null)
         {
-            throw new InvalidOperationException("Операція з такими параметрами вже існує");
+            throw new InvalidOperationException("Operation exist");
         }
     
         var operation = Mapper.Map<Operation>(command);
@@ -106,7 +106,7 @@ public class OperationCommandHandler : BaseCalculationCommandHandler, IOperation
 
         if (result.ModifiedCount == 0)
         {
-            throw new InvalidOperationException("Операції з такими параметрами не існує");
+            throw new InvalidOperationException("Operation does not exist");
         }
 
         return true;
