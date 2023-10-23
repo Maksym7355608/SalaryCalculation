@@ -6,6 +6,7 @@ using Calculation.Data;
 using Calculation.Data.Entities;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
+using Progress.App;
 using SalaryCalculation.Data.BaseHandlers;
 using SalaryCalculation.Shared.Common.Validation;
 using SalaryCalculation.Shared.Extensions.PeriodExtensions;
@@ -15,7 +16,7 @@ namespace Calculation.App.Handlers;
 public class PaymentCardCommandHandler : BaseCalculationCommandHandler, IPaymentCardCommandHandler
 {
     private IOperationCommandHandler _operationCommandHandler;
-    
+
     public PaymentCardCommandHandler(ICalculationUnitOfWork work, ILogger<BaseCommandHandler> logger, IMapper mapper,
         IOperationCommandHandler operationCommandHandler) : base(work, logger, mapper)
     {
@@ -71,10 +72,16 @@ public class PaymentCardCommandHandler : BaseCalculationCommandHandler, IPayment
         return paymentCardDtos;
     }
 
-    public async Task CalculatePaymentCardAsync(PaymentCardCalculationCommand command)
+    public async Task<string> CalculatePaymentCardAsync(PaymentCardCalculationCommand command)
     {
-        //TODO: release logic
-        throw new NotImplementedException();
+        var progress = new ProgressCreateMessage()
+        {
+            ProgressId = Guid.NewGuid().ToString(),
+        };
+        await Work.MessageBroker.PublishAsync(progress);
+        var message = Mapper.Map<PaymentCardCalculationMessage>(command);
+        await Work.MessageBroker.PublishAsync(message);
+        return progress.ProgressId;
     }
 
     public async Task<bool> UpdatePaymentCardsAsync(PaymentCardUpdateCommand command)

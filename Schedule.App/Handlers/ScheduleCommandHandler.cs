@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using AutoMapper;
 using Microsoft.Extensions.Logging;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using Organization.Data.Data;
 using Organization.Data.Entities;
@@ -118,15 +119,14 @@ public class ScheduleCommandHandler : BaseScheduleCommandHandler, IScheduleComma
             filterBuilder.Eq(x => x.OrganizationId, command.OrganizationId),
             filterBuilder.Gte(x => x.Period, command.PeriodFrom),
         };
-        if (command.EmployeeNumber.HasValue)
+        if (!string.IsNullOrWhiteSpace(command.EmployeeNumber))
         {
             var employeeId = await _organizationUnitOfWork.GetCollection<Employee>()
-                .Find(x => x.RollNumber == command.EmployeeNumber.Value)
+                .Find(Builders<Employee>.Filter.Regex(x => x.RollNumber, new BsonRegularExpression(command.EmployeeNumber, "b")))
                 .Project(x => x.Id)
                 .FirstOrDefaultAsync();
             if (employeeId == 0)
-                throw new EntityNotFoundException("Employee with roll number {0} was not found",
-                    command.EmployeeNumber.Value.ToString());
+                throw new EntityNotFoundException("Employee with roll number {0} was not found", command.EmployeeNumber);
             definition.Add(filterBuilder.Eq(x => x.EmployeeId, employeeId));
         }
         

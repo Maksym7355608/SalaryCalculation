@@ -1,11 +1,18 @@
 namespace SalaryCalculation.Data.BaseModels;
 
-public class IdNamePair
+public class IdNamePair : IdNamePair<int, string>
 {
-    public int Id { get; set; }
-    public string Name { get; set; }
+    public IdNamePair(int id, string name) : base(id, name)
+    {
+    }
+}
 
-    public IdNamePair(int id, string name)
+public class IdNamePair<T, U>
+{
+    public T Id { get; set; }
+    public U Name { get; set; }
+
+    public IdNamePair(T id, U name)
     {
         Id = id;
         Name = name;

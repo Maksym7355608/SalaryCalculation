@@ -8,7 +8,7 @@ public class PeriodCalendarSearchCommand : BaseCommand
     public int? PeriodTo { get; set; }
     public int? VacationDays { get; set; }
     public int? SickLeave { get; set; }
-    public long? EmployeeNumber { get; set; }
+    public string EmployeeNumber { get; set; }
     public int OrganizationId { get; set; }
     public int? RegimeId { get; set; }
 }

@@ -23,4 +23,12 @@ public static class EnumExtensions
             ?.GetCustomAttribute<DescriptionAttribute>()
             ?.Description ?? value.ToString();
     }
+
+    public static IEnumerable<T> ForEach<T>() where T : Enum
+    {
+        foreach (T value in Enum.GetValues(typeof(T)))
+        {
+            yield return value;
+        }
+    }
 }

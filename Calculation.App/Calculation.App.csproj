@@ -12,8 +12,15 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Calculation.Data\Calculation.Data.csproj" />
+      <ProjectReference Include="..\Dictionary.Models\Dictionary.Models.csproj" />
+      <ProjectReference Include="..\Progress.App\Progress.App.csproj" />
       <ProjectReference Include="..\SalaryCalculation.Data\SalaryCalculation.Data.csproj" />
       <ProjectReference Include="..\SalaryCalculation.Shared.Extensions\SalaryCalculation.Shared.Extensions.csproj" />
+      <ProjectReference Include="..\Schedule.Data\Schedule.Data.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="CoreCLR-NCalc" Version="2.2.113" />
     </ItemGroup>
 
 </Project>
