@@ -4,9 +4,9 @@ using Calculation.Data;
 using Calculation.Data.Entities;
 using Dictionary.Models;
 using Microsoft.Extensions.Logging;
-using MongoDB.Bson;
 using MongoDB.Driver;
 using NCalc;
+using Organization.Data.Data;
 using Organization.Data.Entities;
 using Organization.Data.Enums;
 using SalaryCalculation.Data.BaseHandlers;
@@ -14,31 +14,37 @@ using SalaryCalculation.Data.BaseModels;
 using SalaryCalculation.Shared.Extensions.EnumExtensions;
 using SalaryCalculation.Shared.Extensions.MoreLinq;
 using SalaryCalculation.Shared.Extensions.PeriodExtensions;
+using Schedule.Data.Data;
 using Schedule.Data.Entities;
 
 namespace Calculation.App.Handlers;
 
-public class CalculationSalaryMessageHandler : BaseMessageHandler<PaymentCardCalculationMessage>
+public class CalculationSalaryMessageHandler : BaseMessageHandler<CalculationSalaryMessage>
 {
     protected new ICalculationUnitOfWork Work;
-    public CalculationSalaryMessageHandler(ICalculationUnitOfWork work, ILogger<BaseMessageHandler<PaymentCardCalculationMessage>> logger, IMapper mapper) : base(work, logger, mapper)
+    private readonly IOrganizationUnitOfWork _organizationUnitOfWork;
+    private readonly IScheduleUnitOfWork _scheduleUnitOfWork;
+    public CalculationSalaryMessageHandler(ICalculationUnitOfWork work, ILogger<BaseMessageHandler<CalculationSalaryMessage>> logger, IMapper mapper,
+        IOrganizationUnitOfWork organizationUnitOfWork, IScheduleUnitOfWork scheduleUnitOfWork) : base(work, logger, mapper)
     {
+        _organizationUnitOfWork = organizationUnitOfWork;
+        _scheduleUnitOfWork = scheduleUnitOfWork;
     }
 
-    public override async Task HandleAsync(PaymentCardCalculationMessage msg)
+    public override async Task HandleAsync(CalculationSalaryMessage msg)
     {
         var loadedData = await LoadCacheDataAsync(msg);
         var result = CalculateSalary(loadedData, msg);
     }
 
-    private PaymentCard CalculateSalary(CalculationLoadedData loadedData, PaymentCardCalculationMessage msg)
+    private PaymentCard CalculateSalary(CalculationLoadedData loadedData, CalculationSalaryMessage msg)
     {
         var result = new PaymentCard();
         result.Employee = new IdNamePair(loadedData.Employee.Id, loadedData.Employee.RollNumber);
         result.OrganizationId = msg.OrganizationId;
         result.CalculationDate = DateTime.Now;
         result.CalculationPeriod = msg.Period;
-        result.PayedAmount = EvaluateExpression(loadedData);
+        result.PayedAmount = EvaluateExpression(loadedData); //TODO: доробка логіки для деталізації
         return result;
     }
 
@@ -108,9 +114,9 @@ public class CalculationSalaryMessageHandler : BaseMessageHandler<PaymentCardCal
 
     #region LoadedData
 
-    private async Task<CalculationLoadedData> LoadCacheDataAsync(PaymentCardCalculationMessage msg)
+    private async Task<CalculationLoadedData> LoadCacheDataAsync(CalculationSalaryMessage msg)
     {
-        var formulaTask = LoadFormulaAsync(msg.FormulaId);
+        var formulaTask = LoadFormulasAsync(msg.OrganizationId);
         var employeeTask = LoadEmployeeDataAsync(msg.EmployeeId);
         var periodCalendarTask = LoadPeriodCalendarAsync(msg.EmployeeId, msg.Period);
         var baseAmountTask = LoadBaseAmountsAsync();
@@ -118,12 +124,13 @@ public class CalculationSalaryMessageHandler : BaseMessageHandler<PaymentCardCal
         var regime = await LoadRegimeAsync(periodCalendarTask.Result.RegimeId);
         return new CalculationLoadedData()
         {
-            Formula = formulaTask.Result,
+            Formula = formulaTask.Result.First(x => x.Id == msg.FormulaId),
             Employee = employeeTask.Result,
             Calendar = periodCalendarTask.Result,
             BaseAmounts = baseAmountTask.Result.Concat(GetVariables(employeeTask.Result, periodCalendarTask.Result))
                 .ToDictionary(k => k.ExprName, v => v.Value),
-            Regime = regime
+            Regime = regime,
+            Formulas = formulaTask.Result.ToDictionary(k => k.ExpressionName, v => v.Expression)
         };
     }
 
@@ -164,24 +171,32 @@ public class CalculationSalaryMessageHandler : BaseMessageHandler<PaymentCardCal
             .ToListAsync();
     }
 
-    private Task<Regime> LoadRegimeAsync(int resultRegimeId)
+    private Task<Regime> LoadRegimeAsync(int regimeId)
     {
-        throw new NotImplementedException();
+        return _scheduleUnitOfWork.GetCollection<Regime>()
+            .Find(x => x.Id == regimeId)
+            .FirstOrDefaultAsync();
     }
 
     private Task<PeriodCalendar> LoadPeriodCalendarAsync(int employeeId, int period)
     {
-        throw new NotImplementedException();
+        return _scheduleUnitOfWork.GetCollection<PeriodCalendar>()
+            .Find(x => x.EmployeeId == employeeId && x.Period == period)
+            .FirstOrDefaultAsync();
     }
 
     private Task<Employee> LoadEmployeeDataAsync(int employeeId)
     {
-        throw new NotImplementedException();
+        return _organizationUnitOfWork.GetCollection<Employee>()
+            .Find(x => x.Id == employeeId)
+            .FirstOrDefaultAsync();
     }
 
-    private Task<Formula> LoadFormulaAsync(ObjectId formulaId)
+    private Task<List<Formula>> LoadFormulasAsync(int organizationId)
     {
-        throw new NotImplementedException();
+        return Work.GetCollection<Formula>()
+            .Find(x => x.OrganizationId == organizationId)
+            .ToListAsync();
     }
 
 

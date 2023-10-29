@@ -79,7 +79,7 @@ public class PaymentCardCommandHandler : BaseCalculationCommandHandler, IPayment
             ProgressId = Guid.NewGuid().ToString(),
         };
         await Work.MessageBroker.PublishAsync(progress);
-        var message = Mapper.Map<PaymentCardCalculationMessage>(command);
+        var message = Mapper.Map<CalculationSalaryMessage>(command);
         await Work.MessageBroker.PublishAsync(message);
         return progress.ProgressId;
     }

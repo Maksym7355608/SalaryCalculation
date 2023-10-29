@@ -11,7 +11,7 @@ public class PaymentCardCalculationCommand
     public ObjectId FormulaId { get; set; }
 }
 
-public class PaymentCardCalculationMessage : BaseMessage
+public class CalculationSalaryMessage : BaseMessage
 {
     public int OrganizationId { get; set; }
     public int EmployeeId { get; set; }

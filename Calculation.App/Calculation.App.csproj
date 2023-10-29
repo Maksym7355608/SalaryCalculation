@@ -7,10 +7,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Mapper\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\Calculation.Data\Calculation.Data.csproj" />
       <ProjectReference Include="..\Dictionary.Models\Dictionary.Models.csproj" />
       <ProjectReference Include="..\Progress.App\Progress.App.csproj" />

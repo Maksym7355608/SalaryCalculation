@@ -2,11 +2,15 @@
 using Microsoft.AspNetCore.Mvc;
 using Organization.App.Abstract;
 using Organization.App.Commands;
+using SalaryCalculation.Shared.Common.Attributes;
 using Serilog.Events;
 using SerilogTimings;
 
 namespace Organization.Api.Controllers;
 
+[ApiController]
+[HandleException]
+[Route("api/[controller]")]
 public class EmployeesController : BaseOrganizationController
 {
     public EmployeesController(IMapper mapper, IOrganizationCommandHandler organizationCommandHandler, IManagerCommandHandler managerCommandHandler, IEmployeeCommandHandler employeeCommandHandler) : base(mapper, organizationCommandHandler, managerCommandHandler, employeeCommandHandler)
