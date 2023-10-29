@@ -1,5 +1,6 @@
 ﻿using Calculation.App.Abstract;
 using Calculation.App.Handlers;
+using Calculation.Data;
 using Organization.Data.Data;
 using SalaryCalculation.Data;
 using Schedule.Data.Data;
@@ -26,7 +27,7 @@ public static class ServiceCollectionExtensions
         var dbName = configuration.GetValue<string>("CalculationDbName");
         return services.AddTransient(provider => {
             var bus = provider.GetService<IMessageBroker>();
-            IOrganizationUnitOfWork work = new OrganizationUnitOfWork(cs, dbName, bus);
+            ICalculationUnitOfWork work = new CalculationUnitOfWork(cs, dbName, bus);
 
             return work;
         });

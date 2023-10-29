@@ -24,6 +24,7 @@ builder.Services.AddRabbitMessageBus(builder.Configuration);
 
 builder.Services.AddMongoOrganizationUnitOfWork(builder.Configuration);
 builder.Services.AddMongoScheduleUnitOfWork(builder.Configuration);
+builder.Services.AddCalculationUnitOfWork(builder.Configuration);
 builder.Services.AddAutoMapper(typeof(CalculationAutoMapperProfile));
 builder.Services.AddCommandHandlers();
 

@@ -9,9 +9,11 @@
     <ItemGroup>
       <Content Include="..\Identity.Api\SharedSettings.Development.json">
         <Link>SharedSettings.Development.json</Link>
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
       <Content Include="..\Identity.Api\SharedSettings.json">
         <Link>SharedSettings.json</Link>
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
     </ItemGroup>
 
