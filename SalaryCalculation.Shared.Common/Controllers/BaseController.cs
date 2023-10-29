@@ -20,5 +20,30 @@ public abstract class BaseController : ControllerBase
         public bool IsSuccess { get; set; }
         public string[]? Errors { get; set; }
         public object Data { get; set; }
+
+        public AjaxResponse()
+        {
+            
+        }
+
+        public AjaxResponse(bool isSuccess)
+        {
+            IsSuccess = isSuccess;
+        }
+
+        public AjaxResponse(bool isSuccess, object data): this(isSuccess)
+        {
+            Data = data;
+        }
+
+        public AjaxResponse(bool isSuccess, object data, string[] errors) : this(isSuccess, data)
+        {
+            Errors = errors;
+        }
+
+        public AjaxResponse(bool isSuccess, string[] errors) : this(isSuccess)
+        {
+            Errors = errors;
+        }
     }
 }

@@ -5,7 +5,7 @@ namespace Organization.Data.Entities;
 
 public class Employee : BaseMongoEntity<int>
 {
-    public long RollNumber { get; set; }
+    public string RollNumber { get; set; }
     public Person Name { get; set; }
     public DateTime DateFrom { get; set; }
     public DateTime? DateTo { get; set; }

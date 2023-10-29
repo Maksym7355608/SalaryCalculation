@@ -4,7 +4,7 @@
   "OrganizationDbName": "sc_organization",
   "SсheduleDbName": "sc_shedule",
   "CalculationDbName": "sc_calculation",
-  "DictionaryDbName": "sc_dictionary",
+  "DictionaryDbName": "sc_calculation",
   "WorkflowDbName": "sc_workflow",
   "Identity_API": "http://localhost:5300",
   "Organization_API": "http://localhost:5100",

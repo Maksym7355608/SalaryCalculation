@@ -1,9 +1,10 @@
 ﻿using SalaryCalculation.Data.BaseModels;
 
-namespace Calculation.Data.Entities;
+namespace Calculation.App.DtoModels;
 
-public class PaymentCard : BaseMongoEntity<int>
+public class PaymentCardDto
 {
+    public int Id { get; set; }
     public int OrganizationId { get; set; }
     public IdNamePair Employee { get; set; }
     public DateTime CalculationDate { get; set; }

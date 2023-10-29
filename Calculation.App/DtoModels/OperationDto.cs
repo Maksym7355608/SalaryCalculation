@@ -1,9 +1,8 @@
-﻿using SalaryCalculation.Data.BaseModels;
+﻿namespace Calculation.App.DtoModels;
 
-namespace Calculation.Data.Entities;
-
-public class Operation : BaseMongoEntity<long>
+public class OperationDto
 {
+    public long Id { get; set; }
     public int Code { get; set; }
     public string Name { get; set; }
     public decimal Amount { get; set; }
