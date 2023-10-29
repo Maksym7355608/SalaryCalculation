@@ -12,6 +12,7 @@ using Organization.Data.Enums;
 using SalaryCalculation.Data.BaseHandlers;
 using SalaryCalculation.Data.BaseModels;
 using SalaryCalculation.Shared.Extensions.EnumExtensions;
+using SalaryCalculation.Shared.Extensions.MoreLinq;
 using SalaryCalculation.Shared.Extensions.PeriodExtensions;
 using Schedule.Data.Entities;
 
@@ -43,19 +44,66 @@ public class CalculationSalaryMessageHandler : BaseMessageHandler<PaymentCardCal
 
     private decimal EvaluateExpression(CalculationLoadedData loadedData)
     {
-        var parameters = loadedData.Formula.Expression.Split(@",.()+-/*^\**()\");
-        var expression = new Expression(loadedData.Formula.Expression);
-        foreach (var parameterName in parameters)
+        var evaluatingFormula = GetFullFormula(loadedData);
+        var expression = new Expression(evaluatingFormula.FullFormula);
+        foreach (var parameter in evaluatingFormula.Parameters)
+            expression.Parameters[parameter.Key] = parameter.Value;
+
+        return (decimal)expression.Evaluate();
+    }
+
+    private EvaluatingFormula GetFullFormula(CalculationLoadedData loadedData)
+    {
+        var result = new EvaluatingFormula()
         {
-            if (loadedData.BaseAmounts.TryGetValue(parameterName, out var value))
-                expression.Parameters[parameterName] = value;
+            BaseFormula = loadedData.Formula.Expression,
+            FullFormula = loadedData.Formula.Expression
+        };
+        var parametersDict = new Dictionary<string, decimal>();
+        var parameters = loadedData.Formula.Expression.Split(@",.()+-/*^\**()\");
+
+        foreach (var parameter in parameters)
+        {
+            if (loadedData.BaseAmounts.TryGetValue(parameter, out var value))
+                parametersDict.TryAdd(parameter, value);
             else
             {
-                //TODO: Do for hard expressions
+                var expanded = ExpandParameters(parameter, loadedData);
+                expanded.Parameters.ForEach(p => parametersDict.TryAdd(p.Key, p.Value));
+                result.FullFormula = result.FullFormula.Replace(expanded.ExpressionParameter, expanded.FullFormula);
             }
         }
 
-        return (decimal)expression.Evaluate();
+        result.Parameters = parametersDict;
+        return result;
+    }
+
+    private ExpandedFormula ExpandParameters(string parameter, CalculationLoadedData loadedData)
+    {
+        var result = new ExpandedFormula()
+        {
+            ExpressionParameter = parameter,
+            FullFormula = loadedData.Formula.Expression
+        };
+        loadedData.Formulas.TryGetValue(parameter, out var formula);
+        if (string.IsNullOrWhiteSpace(formula))
+            throw new Exception("Error finding formula");
+        var fParameters = formula.Split(@",.()+-/*^\**()\"); //TODO: do worked regex
+        var fParametersDict = new Dictionary<string, decimal>();
+        foreach (var fParameter in fParameters)
+        {
+            if (loadedData.BaseAmounts.TryGetValue(fParameter, out var value))
+                fParametersDict.TryAdd(fParameter, value);
+            else
+            {
+                var expanded = ExpandParameters(fParameter, loadedData);
+                expanded.Parameters.ForEach(p => fParametersDict.TryAdd(p.Key, p.Value));
+                result.FullFormula = result.FullFormula.Replace(expanded.ExpressionParameter, expanded.FullFormula);
+            }
+        }
+
+        result.Parameters = fParametersDict;
+        return result;
     }
 
     #region LoadedData
@@ -143,6 +191,7 @@ public class CalculationSalaryMessageHandler : BaseMessageHandler<PaymentCardCal
         public Employee Employee { get; set; }
         public PeriodCalendar Calendar { get; set; }
         public Regime Regime { get; set; }
+        public Dictionary<string, string> Formulas { get; set; }
         public Dictionary<string, decimal> BaseAmounts { get; set; }
     }
 
@@ -159,5 +208,22 @@ public class CalculationSalaryMessageHandler : BaseMessageHandler<PaymentCardCal
     }
 
     #endregion
-    
+
+    #region nested Classes
+
+    private class EvaluatingFormula
+    {
+        public string BaseFormula { get; set; }
+        public string FullFormula { get; set; }
+        public Dictionary<string, decimal> Parameters { get; set; }
+    }
+
+    private class ExpandedFormula
+    {
+        public string ExpressionParameter { get; set; }
+        public string FullFormula { get; set; }
+        public Dictionary<string, decimal> Parameters { get; set; }
+    }
+
+    #endregion
 }
