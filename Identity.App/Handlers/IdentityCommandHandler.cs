@@ -5,26 +5,36 @@ using System.Text;
 using AutoMapper;
 using Identity.App.Abstract;
 using Identity.App.Commands;
+using Identity.App.Helpers;
 using Identity.Data.Data;
 using Identity.Data.Entities;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using SalaryCalculation.Data.Enums;
+using SalaryCalculation.Shared.Common.Validation;
 using SalaryCalculation.Shared.Extensions.EnumExtensions;
 
 namespace Identity.App.Handlers;
 
 public class IdentityCommandHandler : BaseIdentityCommandHandler, IIdentityCommandHandler
 {
-    public IdentityCommandHandler(IIdentityUnitOfWork work, ILogger<IdentityCommandHandler> logger, IMapper mapper) : base(work, logger, mapper)
+    private readonly IConfiguration _configuration;
+    
+    public IdentityCommandHandler(IIdentityUnitOfWork work, ILogger<IdentityCommandHandler> logger, IMapper mapper,
+        IConfiguration configuration) : base(work, logger, mapper)
     {
+        _configuration = configuration;
     }
 
     public async Task CreateUserAsync(UserCreateCommand command)
     {
         var newUser = Mapper.Map<User>(command);
+        var encryptor = new PasswordEncryptor(_configuration["JwtSettings:SecretKey"] ?? string.Empty);
+        newUser.Id = ObjectId.GenerateNewId();
+        newUser.PasswordHash = encryptor.EncryptPassword(command.Password);
         await Work.GetCollection<User>(nameof(User)).InsertOneAsync(newUser);
     }
 
@@ -67,7 +77,8 @@ public class IdentityCommandHandler : BaseIdentityCommandHandler, IIdentityComma
     public async Task<string> AuthenticateAsync(string username, string password)
     {
         var user = await Work.GetCollection<User>(nameof(User)).Find(x => x.UserName == username).FirstOrDefaultAsync();
-        if (user != null && VerifyPasswordHash(password, user.PasswordHash))
+        var decryptor =  new PasswordEncryptor(_configuration["JwtSettings:SecretKey"] ?? string.Empty);
+        if (user != null && decryptor.DecryptPassword(user.PasswordHash) == password)
         {
             var roles = await Work.GetCollection<Role>()
                 .Find(x => user.Roles.Contains(x.Id))
@@ -82,30 +93,14 @@ public class IdentityCommandHandler : BaseIdentityCommandHandler, IIdentityComma
         else
         {
             // Authentication failed
-            return null;
+            throw new EntityNotFoundException("User with username {0} or password does not exist", username);
         }
     }
-    
-    private bool VerifyPasswordHash(string password, string storedHash)
-    {
-        using (var hmac = new HMACSHA512())
-        {
-            var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
 
-            for (int i = 0; i < computedHash.Length; i++)
-            {
-                if (computedHash[i] != storedHash[i])
-                    return false;
-            }
-        }
-
-        return true;
-    }
-    
     private string GenerateJwtToken(User user, IEnumerable<RoleForClaim> roles)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.ASCII.GetBytes("secretKey");
+        var key = Encoding.ASCII.GetBytes(_configuration["JwtSettings:SecretKey"] ?? string.Empty);
 
         var claims = new List<Claim>
         {

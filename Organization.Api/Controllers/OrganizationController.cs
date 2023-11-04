@@ -9,9 +9,6 @@ using SerilogTimings;
 
 namespace Organization.Api.Controllers;
 
-[ApiController]
-[HandleException]
-[Route("api/[controller]")]
 public class OrganizationsController : BaseOrganizationController
 {
     public OrganizationsController(IMapper mapper, IOrganizationCommandHandler organizationCommandHandler,
@@ -26,14 +23,14 @@ public class OrganizationsController : BaseOrganizationController
         using var op = Operation.At(LogEventLevel.Debug).Begin("Organization with id {0}", id);
         var organization = await OrganizationCommandHandler.GetOrganizationAsync(id);
         op.Complete();
-        return Ok(new AjaxResponse { IsSuccess = ModelState.IsValid, Errors = Errors, Data = organization });
+        return GetAjaxResponse(IsValid, organization, Errors);
     }
 
     [HttpGet("all")]
     public async Task<IActionResult> GetOrganizationsAsync()
     {
         var organizations = await OrganizationCommandHandler.GetOrganizationsAsync();
-        return Ok(new AjaxResponse { IsSuccess = true, Data = organizations });
+        return GetAjaxResponse(IsValid, organizations, Errors);
     }
 
     [HttpPost("create")]
@@ -42,7 +39,7 @@ public class OrganizationsController : BaseOrganizationController
         using var op = Operation.At(LogEventLevel.Debug).Begin("Organization {0} creating started", command.Name);
         await OrganizationCommandHandler.CreateOrganizationAsync(command);
         op.Complete();
-        return Ok(new AjaxResponse { IsSuccess = true, Errors = Errors});
+        return GetAjaxResponse(IsValid, Errors);
     }
 
     [HttpPut("update/{id}")]
@@ -54,10 +51,7 @@ public class OrganizationsController : BaseOrganizationController
         var updated = await OrganizationCommandHandler.UpdateOrganizationAsync(command);
 
         op.Complete();
-        if (updated)
-            return Ok(new AjaxResponse { IsSuccess = true,  });
-        else
-            return BadRequest(new AjaxResponse { IsSuccess = false, Errors = Errors });
+        return GetAjaxResponse(IsValid && updated, Errors);
     }
 
     [HttpDelete("delete/{id}")]
@@ -66,10 +60,7 @@ public class OrganizationsController : BaseOrganizationController
         using var op = Operation.At(LogEventLevel.Debug).Begin("Organization with id {0} deleting started", id);
         var deleted = await OrganizationCommandHandler.DeleteOrganizationAsync(id);
         op.Complete();
-        if (deleted)
-            return Ok(new AjaxResponse { IsSuccess = true });
-        else
-            return BadRequest(new AjaxResponse { IsSuccess = false, Errors = Errors });
+        return GetAjaxResponse(IsValid && deleted, Errors);
     }
 
     [HttpPut("{organizationId}/permissions/update")]
@@ -82,10 +73,7 @@ public class OrganizationsController : BaseOrganizationController
             Permissions = permissions.Cast<EPermission>()
         };
         var updated = await OrganizationCommandHandler.UpdateOrganizationPermissionsAsync(cmd);
-        if (updated)
-            return Ok(new AjaxResponse { IsSuccess = true });
-        else
-            return BadRequest(new AjaxResponse{IsSuccess = false, Errors = Errors});
+        return GetAjaxResponse(IsValid && updated, Errors);
     }
 
     #region Organization Units
@@ -95,7 +83,7 @@ public class OrganizationsController : BaseOrganizationController
         [FromRoute] int id)
     {
         var unit = await OrganizationCommandHandler.GetOrganizationUnitAsync(organizationId, id);
-        return Ok(new AjaxResponse { IsSuccess = true, Data = unit });
+        return GetAjaxResponse(IsValid, unit);
     }
 
     [HttpGet("{organizationId}/units/search")]
@@ -105,7 +93,7 @@ public class OrganizationsController : BaseOrganizationController
         using var op = Operation.At(LogEventLevel.Debug).Begin("Organization units searching started");
         var units = await OrganizationCommandHandler.SearchOrganizationUnitsAsync(command);
         op.Complete();
-        return Ok(new AjaxResponse { IsSuccess = true, Data = units });
+        return GetAjaxResponse(IsValid, units);
     }
     
     [HttpPost("units/create")]
@@ -114,7 +102,7 @@ public class OrganizationsController : BaseOrganizationController
         using var op = Operation.At(LogEventLevel.Debug).Begin("Organization unit {0} creating started", command.Name);
         await OrganizationCommandHandler.CreateOrganizationUnitAsync(command);
         op.Complete();
-        return Ok(new AjaxResponse { IsSuccess = true, Errors = Errors});
+        return GetAjaxResponse(IsValid, Errors);
     }
 
     [HttpPut("units/update/{id}")]
@@ -126,10 +114,7 @@ public class OrganizationsController : BaseOrganizationController
         var updated = await OrganizationCommandHandler.UpdateOrganizationUnitAsync(command);
 
         op.Complete();
-        if (updated)
-            return Ok(new AjaxResponse { IsSuccess = true,  });
-        else
-            return BadRequest(new AjaxResponse { IsSuccess = false, Errors = Errors });
+        return GetAjaxResponse(IsValid && updated, Errors);
     }
 
     [HttpDelete("{organizationId}/units/delete/{id}")]
@@ -138,10 +123,7 @@ public class OrganizationsController : BaseOrganizationController
         using var op = Operation.At(LogEventLevel.Debug).Begin("Organization with id {0} deleting started", id);
         var deleted = await OrganizationCommandHandler.DeleteOrganizationUnitAsync(organizationId, id);
         op.Complete();
-        if (deleted)
-            return Ok(new AjaxResponse { IsSuccess = true });
-        else
-            return BadRequest(new AjaxResponse { IsSuccess = false, Errors = Errors });
+        return GetAjaxResponse(IsValid && deleted, Errors);
     }
 
     #endregion
@@ -152,8 +134,8 @@ public class OrganizationsController : BaseOrganizationController
     public async Task<IActionResult> GetPositionAsync([FromRoute] int organizationId, [FromRoute] int organizationUnitId,
         [FromRoute] int id)
     {
-        var unit = await OrganizationCommandHandler.GetPositionAsync(organizationId, organizationUnitId, id);
-        return Ok(new AjaxResponse { IsSuccess = true, Data = unit });
+        var position = await OrganizationCommandHandler.GetPositionAsync(organizationId, organizationUnitId, id);
+        return GetAjaxResponse(IsValid, position);
     }
 
     [HttpGet("{organizationId}/positions/search")]
@@ -161,9 +143,9 @@ public class OrganizationsController : BaseOrganizationController
         [FromQuery] PositionSearchCommand command)
     {
         using var op = Operation.At(LogEventLevel.Debug).Begin("Organization units searching started");
-        var units = await OrganizationCommandHandler.SearchPositionsAsync(command);
+        var positions = await OrganizationCommandHandler.SearchPositionsAsync(command);
         op.Complete();
-        return Ok(new AjaxResponse { IsSuccess = true, Data = units });
+        return GetAjaxResponse(IsValid, positions);
     }
     
     [HttpPost("positions/create")]
@@ -172,7 +154,7 @@ public class OrganizationsController : BaseOrganizationController
         using var op = Operation.At(LogEventLevel.Debug).Begin("Organization unit {0} creating started", command.Name);
         await OrganizationCommandHandler.CreatePositionAsync(command);
         op.Complete();
-        return Ok(new AjaxResponse { IsSuccess = true, Errors = Errors});
+        return GetAjaxResponse(IsValid, Errors);
     }
 
     [HttpPut("positions/update/{id}")]
@@ -184,10 +166,7 @@ public class OrganizationsController : BaseOrganizationController
         var updated = await OrganizationCommandHandler.UpdatePositionAsync(command);
 
         op.Complete();
-        if (updated)
-            return Ok(new AjaxResponse { IsSuccess = true,  });
-        else
-            return BadRequest(new AjaxResponse { IsSuccess = false, Errors = Errors });
+        return GetAjaxResponse(IsValid && updated, Errors);
     }
 
     [HttpDelete("{organizationId}/units/{organizationUnitId}/positions/delete/{id}")]
@@ -196,10 +175,7 @@ public class OrganizationsController : BaseOrganizationController
         using var op = Operation.At(LogEventLevel.Debug).Begin("Organization with id {0} deleting started", id);
         var deleted = await OrganizationCommandHandler.DeletePositionAsync(organizationId, organizationUnitId, id);
         op.Complete();
-        if (deleted)
-            return Ok(new AjaxResponse { IsSuccess = true });
-        else
-            return BadRequest(new AjaxResponse { IsSuccess = false, Errors = Errors });
+        return GetAjaxResponse(IsValid && deleted, Errors);
     }
 
     #endregion

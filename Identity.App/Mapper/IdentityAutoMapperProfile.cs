@@ -9,7 +9,8 @@ public class IdentityAutoMapperProfile : Profile
 {
     public IdentityAutoMapperProfile()
     {
-        CreateMap<User, UserUpdateCommand>();
-        CreateMap<Role, RoleDto>();
+        CreateMap<User, UserCreateCommand>().ReverseMap();
+        CreateMap<User, UserUpdateCommand>().ReverseMap();
+        CreateMap<Role, RoleDto>().ReverseMap();
     }
 }

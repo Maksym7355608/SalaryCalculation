@@ -1,9 +1,16 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Organization.App.Abstract;
+using SalaryCalculation.Shared.Common.Attributes;
 using SalaryCalculation.Shared.Common.Controllers;
 
 namespace Organization.Api.Controllers;
 
+[ApiController]
+[ServiceFilter(typeof(HandleExceptionAttribute))]
+[Authorize]
+[Route("api/[controller]")]
 public class BaseOrganizationController : BaseController
 {
     protected readonly IOrganizationCommandHandler OrganizationCommandHandler;
