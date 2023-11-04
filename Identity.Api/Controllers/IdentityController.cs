@@ -5,7 +5,6 @@ using Identity.App.Commands;
 using Identity.Api.Commands;
 using Microsoft.AspNetCore.Authorization;
 using MongoDB.Bson;
-using SalaryCalculation.Shared.Common.Attributes;
 
 namespace Identity.Api.Controllers;
 

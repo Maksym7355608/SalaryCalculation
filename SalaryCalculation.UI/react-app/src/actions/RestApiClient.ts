@@ -1,7 +1,7 @@
 import axios, {AxiosInstance} from 'axios';
 import React from "react";
 
-interface RestApiProps {
+export interface RestApiProps {
     baseUrl : string;
     token : string | null;
 }
@@ -23,13 +23,13 @@ class RestApiClient extends React.Component<RestApiProps, RestApiState>{
             baseURL: props.baseUrl,
         });
 
-        // Додайте перехоплювач запитів для додавання токена авторизації
-        apiClient.interceptors.request.use((config) => {
-            if (props.token) {
-                config.headers['Authorization'] = `Bearer ${props.token}`;
-            }
-            return config;
-        });
+        if (props.token)
+            apiClient.interceptors.request.use((config) => {
+                if (props.token) {
+                    config.headers['Authorization'] = `Bearer ${props.token}`;
+                }
+                return config;
+            });
 
         this.state = {
             apiClient,
@@ -37,23 +37,58 @@ class RestApiClient extends React.Component<RestApiProps, RestApiState>{
     }
 
     // Метод для виконання GET-запиту
-    async get(url : string, config = {}) : Promise<RestResponse> {
-        return (await this.state.apiClient.get<RestResponse>(url, config)).data;
+    async getAsync<K>(url : string, config = {}) : Promise<K | null> {
+        const response = (await this.state.apiClient.delete<RestResponse>(url, config)).data;
+        if(response.isSuccess) {
+            return this.mapData<K>(response.data);
+        } else
+            throw new Error(response.data.errors?.join(', ') || 'Помилка запиту')
     }
 
     // Метод для виконання POST-запиту
-    async post<T>(url : string, data : T, config = {}) : Promise<RestResponse> {
-        return (await this.state.apiClient.post<RestResponse>(url, data, config)).data;
+    async postAsync<K, T>(url : string, data : T, config = {}) : Promise<K | null> {
+        const response = (await this.state.apiClient.delete<RestResponse>(url, config)).data;
+        if(response.isSuccess) {
+            return this.mapData<K>(response.data);
+        } else
+            throw new Error(response.data.errors?.join(', ') || 'Помилка запиту')
+    }
+
+    async postWithoutDataAsync<T>(url : string, data : T, config = {}) : Promise<void> {
+        const response = (await this.state.apiClient.delete<RestResponse>(url, config)).data;
+        if(!response.isSuccess) {
+            throw new Error(response.data.errors?.join(', ') || 'Помилка запиту')
+        }
     }
 
     // Метод для виконання PUT-запиту
-    async put<T>(url : string, data : T, config = {}) : Promise<RestResponse> {
-        return (await this.state.apiClient.put<RestResponse>(url, data, config)).data;
+    async putAsync<T>(url : string, data : T, config = {}) : Promise<boolean> {
+        const response = (await this.state.apiClient.delete<RestResponse>(url, config)).data;
+        if(response.isSuccess) {
+            return response.isSuccess;
+        } else
+            throw new Error(response.data.errors?.join(', ') || 'Помилка запиту')
     }
 
     // Метод для виконання DELETE-запиту
-    async delete(url : string, config = {}) : Promise<RestResponse> {
-        return (await this.state.apiClient.delete<RestResponse>(url, config)).data;
+    async deleteAsync(url : string, config = {}) : Promise<boolean> {
+        const response = (await this.state.apiClient.delete<RestResponse>(url, config)).data;
+        if(response.isSuccess) {
+            return response.isSuccess;
+        } else
+            throw new Error(response.data.errors?.join(', ') || 'Помилка запиту')
+    }
+
+    mapData<T>(response : RestResponse) : T | null {
+        if(response.data)
+        {
+            let data = response.data as T;
+            if(data)
+                return data;
+            else
+                return null;
+        } else
+            return null;
     }
 }
 
