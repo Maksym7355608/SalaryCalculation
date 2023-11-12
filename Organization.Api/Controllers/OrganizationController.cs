@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Organization.App.Abstract;
 using Organization.App.Commands;
@@ -26,10 +28,21 @@ public class OrganizationsController : BaseOrganizationController
         return GetAjaxResponse(IsValid, organization, Errors);
     }
 
+    [AllowAnonymous]
+    [EnableCors("ApiAnonymousCorsPolicy")]
     [HttpGet("all")]
     public async Task<IActionResult> GetOrganizationsAsync()
     {
         var organizations = await OrganizationCommandHandler.GetOrganizationsAsync();
+        return GetAjaxResponse(IsValid, organizations, Errors);
+    }
+
+    [AllowAnonymous]
+    [EnableCors("ApiAnonymousCorsPolicy")]
+    [HttpGet("all/short")]
+    public async Task<IActionResult> GetOrganizationsShortAsync()
+    {
+        var organizations = await OrganizationCommandHandler.GetOrganizationsShortAsync();
         return GetAjaxResponse(IsValid, organizations, Errors);
     }
 

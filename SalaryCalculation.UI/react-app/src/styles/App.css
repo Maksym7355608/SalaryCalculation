@@ -1,0 +1,57 @@
+.screen-auth {
+    background-color: #ffffff;
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: 100%;
+}
+
+.container {
+    background-color: #ffffff;
+    position: relative;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
+
+.btn-primary {
+    background-color: #2277DB;
+    border-color: #2277DB;
+    color: #ffffff;
+}
+
+.btn-primary:hover,
+.btn-primary:active,
+.btn-primary:focus {
+    background-color: #0062cc;
+    border-color: #005cbf;
+    color: #ffffff;
+}
+
+.form-auth {
+    background-color: #E7ECF5;
+    margin-left: 37%;
+    margin-right: 37%;
+    border-radius: 5%;
+}
+
+.text-auth-1 {
+    color: #50505C;
+    font-size: 26px;
+    text-align: center;
+}
+
+.text-auth-2 {
+    color: #868686;
+    font-size: 18px;
+}
+
+.div-link-signup {
+    align-content: end;
+}
+
+.link-signup {
+    color: #848484;
+    align-content: center;
+    font-size: 14px;
+}

@@ -4,10 +4,12 @@ using Identity.App.Abstract;
 using Identity.App.Commands;
 using Identity.Api.Commands;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using MongoDB.Bson;
 
 namespace Identity.Api.Controllers;
 
+[EnableCors("ApiCorsPolicy")]
 public class IdentityController : BaseIdentityController
 {
     public IdentityController(IMapper mapper, IIdentityCommandHandler identityCommandHandler,
@@ -36,9 +38,10 @@ public class IdentityController : BaseIdentityController
     }
 
     [Authorize]
-    [HttpPut("update")]
-    public async Task<IActionResult> UpdateUserAsync([FromBody] UserUpdateCommand command)
+    [HttpPut("update/{id}")]
+    public async Task<IActionResult> UpdateUserAsync([FromRoute] ObjectId id, [FromBody] UserUpdateCommand command)
     {
+        command.Id = id;
         await IdentityCommandHandler.UpdateUserAsync(command);
         return GetAjaxResponse(IsValid, Errors);
     }

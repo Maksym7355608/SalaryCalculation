@@ -1,23 +1,25 @@
 import React from "react";
 import RestApiClient, {RestApiProps} from "./RestApiClient";
-import {AuthentificateUserViewCommand, UserCreateCommand} from "./IdentityCommands/IdentityCommands";
+import {UserCreateCommand} from "./IdentityCommands/IdentityCommands";
 
+let apiClient : RestApiClient;
 
-class IdentityApiClient extends React.Component<RestApiProps, {apiClient : RestApiClient}>{
+class IdentityApiClient extends React.Component<RestApiProps>{
     constructor(props: RestApiProps) {
         super(props);
-        this.setState({
-            apiClient : new RestApiClient(props)
-        });
+        apiClient = new RestApiClient(props);
     }
 
-    async signInAsync(username : string, password : string) : Promise<string> {
-        let result = await this.state.apiClient.postAsync<string, AuthentificateUserViewCommand>("api/identity", {username, password});
-        return result as string;
+    async signInAsync(login : string, password : string) : Promise<string> {
+        const result = await apiClient.postAsync('/api/identity', {login, password});
+        return result.data as string;
     }
 
-    async signUpAsync(command : UserCreateCommand) {
-        let result = await this.state.apiClient.postWithoutDataAsync<UserCreateCommand>("api/identity/create", command);
+    async signUpAsync(command : UserCreateCommand) : Promise<boolean> {
+        const result = await apiClient.postAsync("api/Identity/create", command);
+        return result.isSuccess;
     }
 
 }
+
+export default IdentityApiClient;

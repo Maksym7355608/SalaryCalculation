@@ -46,6 +46,18 @@ builder.Services.AddMongoIdentityUnitOfWork(builder.Configuration);
 builder.Services.AddAutoMapper(typeof(IdentityAutoMapperProfile));
 builder.Services.AddCommandHandlers();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: "ApiCorsPolicy",
+        builder =>
+        {
+            builder.WithOrigins("http://localhost:3000", "https://localhost:3000")
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials();
+        });
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -62,6 +74,7 @@ app.UseSwaggerUI(c =>
 app.UseAuthentication();
 app.UseRouting();
 app.UseAuthorization();
+app.UseCors("ApiCorsPolicy");
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllers();

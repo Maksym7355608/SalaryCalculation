@@ -1,5 +1,5 @@
 export interface AuthentificateUserViewCommand {
-    username : string;
+    login: string;
     password : string;
 }
 
@@ -11,4 +11,5 @@ export interface UserCreateCommand {
     lastName : string;
     phoneNumber : string;
     email : string;
+    organizationId: number;
 }

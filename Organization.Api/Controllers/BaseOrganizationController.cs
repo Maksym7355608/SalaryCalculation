@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Organization.App.Abstract;
 using SalaryCalculation.Shared.Common.Attributes;
@@ -9,6 +10,7 @@ namespace Organization.Api.Controllers;
 
 [ApiController]
 [ServiceFilter(typeof(HandleExceptionAttribute))]
+[EnableCors("ApiCorsPolicy")]
 [Authorize]
 [Route("api/[controller]")]
 public class BaseOrganizationController : BaseController

@@ -6,5 +6,7 @@ namespace Identity.App.Commands;
 
 public class UserUpdateCommand : UserCreateCommand
 {
-    public string Id { get; set; }
+    public ObjectId Id { get; set; }
+    
+    public IEnumerable<RoleDto> Roles { get; set; }
 }

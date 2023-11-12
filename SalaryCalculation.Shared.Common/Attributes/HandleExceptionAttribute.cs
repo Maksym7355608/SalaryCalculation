@@ -19,9 +19,13 @@ public class HandleExceptionAttribute : Attribute, IActionFilter
             // Отримуємо повідомлення про помилку
             var errorMessage = context.Exception.Message;
             
-            if (context.Exception is EntityNotFoundException customException)
+            if (context.Exception is EntityNotFoundException notFoundException)
             {
-                context.ModelState.AddModelError("", customException.Message);
+                context.ModelState.AddModelError("", notFoundException.Message);
+            }
+            else if(context.Exception is EntityExistingException existingException)
+            {
+                context.ModelState.AddModelError("", existingException.Message);
             }
             else
             {

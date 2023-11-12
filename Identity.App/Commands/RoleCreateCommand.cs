@@ -1,6 +1,11 @@
-﻿namespace Identity.App.Commands;
+﻿using SalaryCalculation.Data.BaseModels;
+using SalaryCalculation.Data.Enums;
 
-public class RoleCreateCommand : RoleUpdateCommand
+namespace Identity.App.Commands;
+
+public class RoleCreateCommand : BaseCommand
 {
-    
+    public string Name { get; set; }
+    public int OrganizationId { get; set; }
+    public IEnumerable<EPermission> Permissions { get; set; }
 }

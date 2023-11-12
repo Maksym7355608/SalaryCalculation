@@ -5,8 +5,8 @@ namespace Identity.Data.Entities;
 
 public class User : BaseMongoEntity<ObjectId>
 {
-    public string UserName { get; set; }
-    public string NormalizedUserName => UserName.Normalize();
+    public string Username { get; set; }
+    public string NormalizedUserName => Username.Normalize();
     public string Email { get; set; }
     public string NormalizedEmail => Email.Normalize();
     public bool EmailConfirmed { get; set; }

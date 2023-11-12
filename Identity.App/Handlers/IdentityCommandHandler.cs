@@ -32,6 +32,12 @@ public class IdentityCommandHandler : BaseIdentityCommandHandler, IIdentityComma
     public async Task CreateUserAsync(UserCreateCommand command)
     {
         var newUser = Mapper.Map<User>(command);
+        var existingUsers = await Work.GetCollection<User>()
+            .Find(x => x.Username == command.Username || x.Email == command.Email)
+            .AnyAsync();
+        if (existingUsers)
+            throw new EntityExistingException("Entity with username {0} or email {1} was exist", command.Username,
+                command.Email);
         var encryptor = new PasswordEncryptor(_configuration["JwtSettings:SecretKey"] ?? string.Empty);
         newUser.Id = ObjectId.GenerateNewId();
         newUser.PasswordHash = encryptor.EncryptPassword(command.Password);
@@ -41,7 +47,9 @@ public class IdentityCommandHandler : BaseIdentityCommandHandler, IIdentityComma
     public async Task UpdateUserAsync(UserUpdateCommand command)
     {
         var updatedUser = Mapper.Map<User>(command);
-        await Work.GetCollection<User>(nameof(User)).ReplaceOneAsync(x => x.Id == new ObjectId(command.Id), updatedUser);
+        var encryptor = new PasswordEncryptor(_configuration["JwtSettings:SecretKey"] ?? string.Empty);
+        updatedUser.PasswordHash = encryptor.EncryptPassword(command.Password);
+        await Work.GetCollection<User>(nameof(User)).ReplaceOneAsync(x => x.Id == command.Id, updatedUser);
     }
 
     public async Task DeleteUserAsync(ObjectId userId)
@@ -55,6 +63,8 @@ public class IdentityCommandHandler : BaseIdentityCommandHandler, IIdentityComma
         if (user != null)
         {
             var roles = user.Roles.ToList();
+            if (roles.Contains(roleId))
+                throw new Exception("Role was exist");
             roles.Add(roleId);
             user.Roles = roles;
             await Work.GetCollection<User>(nameof(User)).ReplaceOneAsync(x => x.Id == userId, user);
@@ -68,15 +78,14 @@ public class IdentityCommandHandler : BaseIdentityCommandHandler, IIdentityComma
         {
             var roles = user.Roles.ToList();
             roles.RemoveAll(x => x == roleId);
-            user.Roles = roles;
-            await Work.GetCollection<User>(nameof(User)).DeleteOneAsync(x => x.Id == userId);
+            await Work.GetCollection<User>(nameof(User)).UpdateOneAsync(x => x.Id == userId, Builders<User>.Update.Set(x => x.Roles, roles));
         }
     }
 
 
     public async Task<string> AuthenticateAsync(string username, string password)
     {
-        var user = await Work.GetCollection<User>(nameof(User)).Find(x => x.UserName == username).FirstOrDefaultAsync();
+        var user = await Work.GetCollection<User>(nameof(User)).Find(x => x.Username == username).FirstOrDefaultAsync();
         var decryptor =  new PasswordEncryptor(_configuration["JwtSettings:SecretKey"] ?? string.Empty);
         if (user != null && decryptor.DecryptPassword(user.PasswordHash) == password)
         {
@@ -105,7 +114,7 @@ public class IdentityCommandHandler : BaseIdentityCommandHandler, IIdentityComma
         var claims = new List<Claim>
         {
             new(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new(ClaimTypes.Name, user.UserName),
+            new(ClaimTypes.Name, user.Username),
             new(ClaimTypes.Email, user.Email)
         };
 

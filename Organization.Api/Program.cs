@@ -33,6 +33,28 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:SecretKey"] ?? string.Empty)),
         };
     });
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: "ApiAnonymousCorsPolicy",
+        builder =>
+        {
+            builder.WithOrigins("http://localhost:3000", "https://localhost:3000")
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials();
+        });
+});
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: "ApiCorsPolicy",
+        builder =>
+        {
+            builder.WithOrigins("http://localhost:3000", "https://localhost:3000")
+                .WithHeaders("Content-Type", "Authorization")
+                .AllowAnyMethod()
+                .AllowCredentials();
+        });
+});
 builder.Services.AddAuthorization();
 builder.Services.AddTransient<HandleExceptionAttribute>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -68,6 +90,8 @@ app.UseSwaggerUI(c =>
 app.UseAuthentication();
 app.UseRouting();
 app.UseAuthorization();
+app.UseCors("ApiCorsPolicy");
+app.UseCors("ApiAnonymousCorsPolicy");
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllers();
