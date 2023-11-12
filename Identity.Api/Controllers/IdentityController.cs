@@ -4,14 +4,12 @@ using Identity.App.Abstract;
 using Identity.App.Commands;
 using Identity.Api.Commands;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using MongoDB.Bson;
-using SalaryCalculation.Shared.Common.Attributes;
 
 namespace Identity.Api.Controllers;
 
-[ApiController]
-[HandleException]
-[Route("api/[controller]")]
+[EnableCors("ApiCorsPolicy")]
 public class IdentityController : BaseIdentityController
 {
     public IdentityController(IMapper mapper, IIdentityCommandHandler identityCommandHandler,
@@ -26,25 +24,26 @@ public class IdentityController : BaseIdentityController
         if (string.IsNullOrWhiteSpace(token))
         {
             ModelState.AddModelError("authError", "Incorrect login or password");
-            return BadRequest(new { IsValid, Errors });
+            return GetAjaxResponse(IsValid, Errors);
         }
 
-        return Ok(new AjaxResponse{ IsSuccess = IsValid, Errors = Errors, Data = token });
+        return GetAjaxResponse(IsValid, token, Errors);
     }
 
     [HttpPost("create")]
     public async Task<IActionResult> CreateUserAsync([FromBody] UserCreateCommand command)
     {
         await IdentityCommandHandler.CreateUserAsync(command);
-        return Ok(new AjaxResponse { IsSuccess = IsValid, Errors = Errors });
+        return GetAjaxResponse(IsValid, Errors);
     }
 
     [Authorize]
-    [HttpPut("update")]
-    public async Task<IActionResult> UpdateUserAsync([FromBody] UserUpdateCommand command)
+    [HttpPut("update/{id}")]
+    public async Task<IActionResult> UpdateUserAsync([FromRoute] ObjectId id, [FromBody] UserUpdateCommand command)
     {
+        command.Id = id;
         await IdentityCommandHandler.UpdateUserAsync(command);
-        return Ok(new AjaxResponse { IsSuccess = IsValid, Errors = Errors });
+        return GetAjaxResponse(IsValid, Errors);
     }
 
     [Authorize]
@@ -52,7 +51,7 @@ public class IdentityController : BaseIdentityController
     public async Task<IActionResult> DeleteUserAsync([FromBody] ObjectId id)
     {
         await IdentityCommandHandler.DeleteUserAsync(id);
-        return Ok(new AjaxResponse { IsSuccess = IsValid, Errors = Errors });
+        return GetAjaxResponse(IsValid, Errors);
     }
 
     [Authorize]
@@ -60,7 +59,7 @@ public class IdentityController : BaseIdentityController
     public async Task<IActionResult> AddUserRoleAsync([FromRoute] ObjectId userId, [FromRoute] ObjectId roleId)
     {
         await IdentityCommandHandler.AddRoleToUserAsync(userId, roleId);
-        return Ok(new AjaxResponse { IsSuccess = IsValid, Errors = Errors });
+        return GetAjaxResponse(IsValid, Errors);
     }
 
     [Authorize]
@@ -68,6 +67,6 @@ public class IdentityController : BaseIdentityController
     public async Task<IActionResult> RemoveUserRoleAsync([FromRoute] ObjectId userId, [FromRoute] ObjectId roleId)
     {
         await IdentityCommandHandler.RemoveRoleFromUserAsync(userId, roleId);
-        return Ok(new AjaxResponse { IsSuccess = IsValid, Errors = Errors });
+        return GetAjaxResponse(IsValid, Errors);
     }
 }

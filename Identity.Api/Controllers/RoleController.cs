@@ -7,9 +7,6 @@ using SalaryCalculation.Shared.Common.Attributes;
 
 namespace Identity.Api.Controllers;
 
-[ApiController]
-[HandleException]
-[Route("api/[controller]")]
 public class RoleController : BaseIdentityController
 {
     public RoleController(IMapper mapper, IIdentityCommandHandler identityCommandHandler,
@@ -21,20 +18,20 @@ public class RoleController : BaseIdentityController
     public async Task<IActionResult> CreateRoleAsync([FromBody] RoleCreateCommand command)
     {
         await RoleCommandHandler.CreateRole(command);
-        return Ok(new AjaxResponse { IsSuccess = IsValid, Errors = Errors });
+        return GetAjaxResponse(IsValid, Errors);
     }
 
     [HttpPut("update/{id}")]
     public async Task<IActionResult> UpdateRoleAsync([FromRoute] ObjectId id, [FromBody] RoleUpdateCommand command)
     {
         await RoleCommandHandler.UpdateRole(id, command);
-        return Ok(new AjaxResponse { IsSuccess = IsValid, Errors = Errors });
+        return GetAjaxResponse(IsValid, Errors);
     }
 
     [HttpDelete("delete/{id}")]
     public async Task<IActionResult> DeleteRoleAsync([FromRoute] ObjectId id)
     {
         var result = await RoleCommandHandler.DeleteRole(id);
-        return Ok(new AjaxResponse { IsSuccess = result && IsValid, Errors = Errors });
+        return GetAjaxResponse(IsValid && result, Errors);
     }
 }

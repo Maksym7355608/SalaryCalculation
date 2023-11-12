@@ -9,6 +9,7 @@ using Organization.App.DtoModels;
 using Organization.Data.BaseModels;
 using Organization.Data.Data;
 using Organization.Data.Entities;
+using SalaryCalculation.Data.BaseModels;
 using SalaryCalculation.Data.Enums;
 using SalaryCalculation.Shared.Common.Validation;
 using Org = Organization.Data.Entities.Organization;
@@ -23,7 +24,7 @@ public class OrganizationCommandHandler : BaseOrganizationCommandHandler, IOrgan
 
     public async Task<OrganizationDto> GetOrganizationAsync(int organizationId)
     {
-        var organizationTask = Work.GetCollection<Org>(nameof(Org))
+        var organizationTask = Work.GetCollection<Org>(nameof(Organization.Data.Entities.Organization))
             .Find(x => x.Id == organizationId)
             .FirstOrDefaultAsync();
         var organizationPermissionsTask = Work.GetCollection<OrganizationPermissions>(nameof(OrganizationPermissions))
@@ -99,14 +100,14 @@ public class OrganizationCommandHandler : BaseOrganizationCommandHandler, IOrgan
             Chief = command.Chief,
             Edrpou = command.Edrpou
         };
-        if (Work.GetCollection<Org>(nameof(Org)).Find(x => x.Code == organization.Code)
+        if (Work.GetCollection<Org>(nameof(Organization.Data.Entities.Organization)).Find(x => x.Code == organization.Code)
             .Any())
             throw new DuplicateNameException("Organization with the same code exist");
-        await Work.GetCollection<Org>(nameof(Org))
+        await Work.GetCollection<Org>(nameof(Organization.Data.Entities.Organization))
             .InsertOneAsync(organization);
         var organizationPermissions = new OrganizationPermissions()
         {
-            OrganizationId = Work.GetCollection<Org>().Find(x => x.Code == organization.Code).First().Id,
+            OrganizationId = Work.GetCollection<Org>(nameof(Organization.Data.Entities.Organization)).Find(x => x.Code == organization.Code).First().Id,
             Permissions = new[] { (int)EPermission.RoleControl },
         };
         await Work.GetCollection<OrganizationPermissions>()
@@ -126,10 +127,10 @@ public class OrganizationCommandHandler : BaseOrganizationCommandHandler, IOrgan
             Chief = command.Chief,
             Edrpou = command.Edrpou
         };
-        if (!Work.GetCollection<Org>(nameof(Org)).Find(x => x.Code == organization.Code)
+        if (!Work.GetCollection<Org>(nameof(Organization.Data.Entities.Organization)).Find(x => x.Code == organization.Code)
             .Any())
             throw new EntityNotFoundException(organization.Code);
-        var result = await Work.GetCollection<Org>(nameof(Org))
+        var result = await Work.GetCollection<Org>(nameof(Organization.Data.Entities.Organization))
             .UpdateOneAsync(x => x.Code == organization.Code, Builders<Org>.Update
                 .Set(x => x, organization));
         return result.ModifiedCount > 0;
@@ -137,7 +138,7 @@ public class OrganizationCommandHandler : BaseOrganizationCommandHandler, IOrgan
 
     public async Task<bool> DeleteOrganizationAsync(int organizationId)
     {
-        var result = await Work.GetCollection<Org>(nameof(Org)).DeleteOneAsync(x => x.Id == organizationId);
+        var result = await Work.GetCollection<Org>(nameof(Organization.Data.Entities.Organization)).DeleteOneAsync(x => x.Id == organizationId);
         await Work.GetCollection<OrganizationPermissions>()
             .DeleteOneAsync(x => x.OrganizationId == organizationId);
         await Work.GetCollection<OrganizationUnit>()
@@ -152,7 +153,7 @@ public class OrganizationCommandHandler : BaseOrganizationCommandHandler, IOrgan
     public async Task<bool> UpdateOrganizationPermissionsAsync(OrganizationPermissionUpdateCommand command)
     {
         bool result;
-        if (!Work.GetCollection<Org>(nameof(Org)).Find(x => x.Id == command.OrganizationId)
+        if (!Work.GetCollection<Org>(nameof(Organization.Data.Entities.Organization)).Find(x => x.Id == command.OrganizationId)
                 .Any())
             throw new EntityNotFoundException(command.OrganizationId.ToString());
         if (Work.GetCollection<OrganizationPermissions>().Find(x => x.OrganizationId == command.OrganizationId)
@@ -239,7 +240,14 @@ public class OrganizationCommandHandler : BaseOrganizationCommandHandler, IOrgan
 
     public async Task<IEnumerable<OrganizationDto>> GetOrganizationsAsync()
     {
-        return Mapper.Map<IEnumerable<OrganizationDto>>(await Work.GetCollection<Org>(nameof(Org)).Find(Builders<Org>.Filter.Empty).ToListAsync());
+        return Mapper.Map<IEnumerable<OrganizationDto>>(await Work.GetCollection<Org>(nameof(Organization.Data.Entities.Organization)).Find(Builders<Org>.Filter.Empty).ToListAsync());
+    }
+    
+    public async Task<IEnumerable<IdNamePair>> GetOrganizationsShortAsync()
+    {
+        var result = await Work.GetCollection<Org>(nameof(Organization.Data.Entities.Organization)).Find(Builders<Org>.Filter.Empty)
+            .Project(org => new { org.Id, org.Name }).ToListAsync();
+        return result.Select(x => new IdNamePair(x.Id, x.Name));
     }
 
     public async Task<OrganizationUnitDto> GetOrganizationUnitAsync(int organizationId, int id)

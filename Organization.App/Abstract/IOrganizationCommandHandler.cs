@@ -1,5 +1,6 @@
 ﻿using Organization.App.Commands;
 using Organization.App.DtoModels;
+using SalaryCalculation.Data.BaseModels;
 
 namespace Organization.App.Abstract;
 
@@ -60,6 +61,7 @@ public interface IOrganizationCommandHandler
     Task<bool> DeletePositionAsync(int organizationId, int organizationUnitId, int positionId);
 
     Task<IEnumerable<OrganizationDto>> GetOrganizationsAsync();
+    Task<IEnumerable<IdNamePair>> GetOrganizationsShortAsync();
     Task<OrganizationUnitDto> GetOrganizationUnitAsync(int organizationId, int id);
     Task<PositionDto> GetPositionAsync(int organizationId, int organizationUnitId, int id);
 }

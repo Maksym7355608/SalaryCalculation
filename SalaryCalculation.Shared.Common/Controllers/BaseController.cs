@@ -14,7 +14,31 @@ public abstract class BaseController : ControllerBase
     {
         Mapper = mapper;
     }
+
+    [NonAction]
+    public JsonResult GetAjaxResponse(bool isSuccess)
+    {
+        return new JsonResult(new AjaxResponse(isSuccess));
+    }
     
+    [NonAction]
+    public JsonResult GetAjaxResponse(bool isSuccess, object data)
+    {
+        return new JsonResult(new AjaxResponse(isSuccess, data));
+    }
+    
+    [NonAction]
+    public JsonResult GetAjaxResponse(bool isSuccess, object data, string[] errors)
+    {
+        return new JsonResult(new AjaxResponse(isSuccess, data, errors));
+    }
+    
+    [NonAction]
+    public JsonResult GetAjaxResponse(bool isSuccess, string[] errors)
+    {
+        return new JsonResult(new AjaxResponse(isSuccess, errors));
+    }
+
     public class AjaxResponse
     {
         public bool IsSuccess { get; set; }

@@ -1,12 +1,11 @@
-using System.Net;
 using System.Text;
 using Identity.Api.CollectionExtensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
-using AutoMapper;
 using Identity.App.Mapper;
+using SalaryCalculation.Shared.Common.Attributes;
 using SalaryCalculation.Shared.Extensions.ApiExtensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -34,7 +33,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:SecretKey"] ?? string.Empty)),
         };
     });
-
+builder.Services.AddAuthorization();
+builder.Services.AddTransient<HandleExceptionAttribute>();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Identity API", Version = "v1" });
@@ -45,6 +45,18 @@ builder.Services.AddRabbitMessageBus(builder.Configuration);
 builder.Services.AddMongoIdentityUnitOfWork(builder.Configuration);
 builder.Services.AddAutoMapper(typeof(IdentityAutoMapperProfile));
 builder.Services.AddCommandHandlers();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: "ApiCorsPolicy",
+        builder =>
+        {
+            builder.WithOrigins("http://localhost:3000", "https://localhost:3000")
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials();
+        });
+});
 
 var app = builder.Build();
 
@@ -59,8 +71,12 @@ app.UseSwaggerUI(c =>
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "Identity API v1");
 });
 
-app.UseAuthorization();
-
-app.MapControllers();
+app.UseAuthentication();
 app.UseRouting();
+app.UseAuthorization();
+app.UseCors("ApiCorsPolicy");
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers();
+});
 app.Run();
