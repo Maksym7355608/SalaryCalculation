@@ -51,10 +51,19 @@ builder.Services.AddCors(options =>
     options.AddPolicy(name: "ApiCorsPolicy",
         builder =>
         {
-            builder.WithOrigins("http://localhost:3000", "https://localhost:3000")
-                .AllowAnyHeader()
-                .AllowAnyMethod()
-                .AllowCredentials();
+            builder.AllowAnyOrigin()
+                .WithHeaders("Accept", "Content-Type")
+                .AllowAnyMethod();
+        });
+});
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: "ApiAuthorizedCorsPolicy",
+        builder =>
+        {
+            builder.AllowAnyOrigin()
+                .WithHeaders("Accept", "Content-Type", "Authorization")
+                .AllowAnyMethod();
         });
 });
 
@@ -71,10 +80,11 @@ app.UseSwaggerUI(c =>
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "Identity API v1");
 });
 
-app.UseAuthentication();
 app.UseRouting();
-app.UseAuthorization();
 app.UseCors("ApiCorsPolicy");
+app.UseCors("ApiAuthorizedCorsPolicy");
+app.UseAuthentication();
+app.UseAuthorization();
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllers();

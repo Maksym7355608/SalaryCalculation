@@ -5,6 +5,7 @@ using System.Text;
 using AutoMapper;
 using Identity.App.Abstract;
 using Identity.App.Commands;
+using Identity.App.DtoModels;
 using Identity.App.Helpers;
 using Identity.Data.Data;
 using Identity.Data.Entities;
@@ -13,6 +14,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using SalaryCalculation.Data.BaseModels;
 using SalaryCalculation.Data.Enums;
 using SalaryCalculation.Shared.Common.Validation;
 using SalaryCalculation.Shared.Extensions.EnumExtensions;
@@ -83,7 +85,7 @@ public class IdentityCommandHandler : BaseIdentityCommandHandler, IIdentityComma
     }
 
 
-    public async Task<string> AuthenticateAsync(string username, string password)
+    public async Task<AuthorizationDto> AuthenticateAsync(string username, string password)
     {
         var user = await Work.GetCollection<User>(nameof(User)).Find(x => x.Username == username).FirstOrDefaultAsync();
         var decryptor =  new PasswordEncryptor(_configuration["JwtSettings:SecretKey"] ?? string.Empty);
@@ -92,12 +94,27 @@ public class IdentityCommandHandler : BaseIdentityCommandHandler, IIdentityComma
             var roles = await Work.GetCollection<Role>()
                 .Find(x => user.Roles.Contains(x.Id))
                 .Project<RoleForClaim>(Builders<Role>.Projection
+                    .Include(x => x.Id)
                     .Include(x => x.Name)
                     .Include(x => x.Permissions))
                 .ToListAsync();
             // Generate and return the JWT token
             var token = GenerateJwtToken(user, roles);
-            return token;
+            return new AuthorizationDto()
+            {
+                Token = token,
+                User = new AuthorizedUserDto()
+                {
+                    Email = user.Email,
+                    FirstName = user.FirstName,
+                    MiddleName = user.MiddleName,
+                    LastName = user.LastName,
+                    OrganizationId = user.OrganizationId,
+                    Username = username,
+                    Roles = roles.Select(role => new IdNamePair<string, string>(role.Id.ToString(), role.Name)).ToArray(),
+                    Permissions = roles.SelectMany(x => x.Permissions).Distinct().ToArray()
+                }
+            };
         }
         else
         {
@@ -115,7 +132,8 @@ public class IdentityCommandHandler : BaseIdentityCommandHandler, IIdentityComma
         {
             new(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new(ClaimTypes.Name, user.Username),
-            new(ClaimTypes.Email, user.Email)
+            new(ClaimTypes.Email, user.Email),
+            new("Organization", user.OrganizationId.ToString()),
         };
 
         claims.AddRange(roles.SelectMany(role => role.Permissions.Select(x => new Claim(ClaimTypes.Role, ((EPermission)x).GetDescription()))));
@@ -132,6 +150,6 @@ public class IdentityCommandHandler : BaseIdentityCommandHandler, IIdentityComma
         return tokenHandler.WriteToken(token);
     }
 
-    private record RoleForClaim(string Name, IEnumerable<int> Permissions);
+    private record RoleForClaim(ObjectId Id, string Name, IEnumerable<int> Permissions);
 
 }

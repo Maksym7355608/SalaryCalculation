@@ -1,4 +1,5 @@
 ﻿using Identity.App.Commands;
+using Identity.App.DtoModels;
 using MongoDB.Bson;
 
 namespace Identity.App.Abstract;
@@ -43,6 +44,6 @@ public interface IIdentityCommandHandler
     /// <param name="username">Ім'я користувача.</param>
     /// <param name="password">Пароль користувача.</param>
     /// <returns>Bearer token для авторизації користувача.</returns>
-    Task<string> AuthenticateAsync(string username, string password);
+    Task<AuthorizationDto> AuthenticateAsync(string username, string password);
 }
 

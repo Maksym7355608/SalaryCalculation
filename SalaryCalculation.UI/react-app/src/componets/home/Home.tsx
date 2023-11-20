@@ -1,16 +1,13 @@
-import {Component} from "react";
+import BasePageModel from "../BasePageModel";
+import withLayout from './Layout';
 
-interface HomeComponentProps {
-    token: string;
-}
+class Home extends BasePageModel {
 
-class Home extends Component<HomeComponentProps, any> {
-    constructor(props: HomeComponentProps) {
-        super(props);
-    }
+
     render() {
-        return undefined;
+        return (<></>
+        );
     }
 }
 
-export default Home;
+export default withLayout(Home);

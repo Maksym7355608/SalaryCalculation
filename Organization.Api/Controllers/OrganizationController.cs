@@ -46,6 +46,8 @@ public class OrganizationsController : BaseOrganizationController
         return GetAjaxResponse(IsValid, organizations, Errors);
     }
 
+    [AllowAnonymous]
+    [EnableCors("ApiAnonymousCorsPolicy")]
     [HttpPost("create")]
     public async Task<IActionResult> CreateOrganizationAsync([FromBody] OrganizationCreateCommand command)
     {

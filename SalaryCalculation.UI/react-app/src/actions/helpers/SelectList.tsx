@@ -1,5 +1,5 @@
-import {IdNamePair} from "../../componets/identity/Singup";
 import {Component} from "react";
+import {IdNamePair} from "../../models/BaseModels";
 
 interface SelectListProps {
     useEmpty: boolean;
@@ -7,6 +7,7 @@ interface SelectListProps {
     selectName: string;
     items: IdNamePair[];
 }
+
 export default class SelectList extends Component<SelectListProps> {
     constructor(props: SelectListProps) {
         super(props);
@@ -15,7 +16,8 @@ export default class SelectList extends Component<SelectListProps> {
     render() {
         return (
             <select id={this.props.selectName} className="form-control">
-                {this.props.useEmpty && <option value={-1} key={-1}>{this.props.emptyName ? this.props.emptyName : "--- Оберіть опцію ---"}</option> }
+                {this.props.useEmpty && <option value={-1}
+                                                key={-1}>{this.props.emptyName ? this.props.emptyName : "--- Оберіть опцію ---"}</option>}
                 {this.props.items.map(item => {
                     return (
                         <option value={item.id} key={item.id}>{item.name}</option>
