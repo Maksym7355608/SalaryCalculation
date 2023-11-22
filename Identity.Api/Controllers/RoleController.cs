@@ -1,12 +1,16 @@
 ﻿using AutoMapper;
 using Identity.App.Abstract;
 using Identity.App.Commands;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 using SalaryCalculation.Shared.Common.Attributes;
 
 namespace Identity.Api.Controllers;
 
+[EnableCors("ApiAuthorizedCorsPolicy")]
+[Authorize]
 public class RoleController : BaseIdentityController
 {
     public RoleController(IMapper mapper, IIdentityCommandHandler identityCommandHandler,

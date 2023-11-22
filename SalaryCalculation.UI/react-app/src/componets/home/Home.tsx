@@ -1,15 +1,15 @@
-import {Component} from "react";
+import BasePageModel from "../BasePageModel";
 
-interface HomeComponentProps {
-    token: string;
-}
+class Home extends BasePageModel {
 
-class Home extends Component<HomeComponentProps, any> {
-    constructor(props: HomeComponentProps) {
-        super(props);
+    componentDidMount() {
+        document.title = "Пошук працівників";
     }
+
     render() {
-        return undefined;
+        return (
+            <div className="display-1">Home Page</div>
+        );
     }
 }
 

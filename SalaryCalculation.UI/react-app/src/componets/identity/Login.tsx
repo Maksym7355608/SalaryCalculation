@@ -1,21 +1,26 @@
 import {Component} from "react";
 import {Link} from "react-router-dom";
+import $ from 'jquery';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import IdentityApiClient from "../../actions/IdentityApiClient";
-import {RestApiProps} from "../../actions/RestApiClient";
+import IdentityApiClient from "../../actions/rest/IdentityApiClient";
 
-
-const baseUrl = "http://localhost:5300"; //TODO: get valid url in config file
 class Login extends Component {
-    async logInAsync(event: any) {
-        event.preventDefault();
-        const username = event.target.username.value as string;
-        const password = event.target.password.value as string;
 
-        const identityApiClient = new IdentityApiClient({baseUrl: baseUrl} as RestApiProps);
-        const token1 = await identityApiClient.signInAsync(username, password);
-        localStorage.setItem("token", token1);
-        window.location.reload();
+    componentDidMount() {
+        document.title = "Вхід";
+    }
+
+    logInAsync = (event : any) => {
+        event.preventDefault();
+        const username = $('#username').val() as string;
+        const password = $('#password').val() as string;
+
+        const identityApiClient = new IdentityApiClient();
+        identityApiClient.signInAsync(username, password).then(res => {
+            const userModel = res;
+            localStorage.setItem("token", userModel.token);
+            localStorage.setItem("user", JSON.stringify(userModel));
+        }).finally(() => window.location.reload());
     }
 
     render() {
@@ -24,7 +29,7 @@ class Login extends Component {
                 <div className="container">
                     <div className="text-end">укр/eng</div>
                     <div className="text-auth-1 pt-5 pb-2">Вхід у систему</div>
-                    <form className="form-auth p-5">
+                    <form className="form-auth p-5" onSubmit={(event) => this.logInAsync(event)}>
                         <div className="form-group mb-2">
                             <label htmlFor="username" className="form-label text-auth-2">Логін</label>
                             <input type="text" id="username" className="form-control" placeholder="Введіть логін"/>
@@ -35,13 +40,15 @@ class Login extends Component {
                         </div>
                         <div className="btn-group w-100 mt-3 d-flex justify-content-between">
                             <div className="div-btn-login">
-                                <button className="btn btn-primary" onSubmit={(event) => this.logInAsync(event)}>
+                                <button type="submit" className="btn btn-primary">
                                     Вхід
                                 </button>
                             </div>
                             <div className="div-link-signup">
                                 <Link to="/signup" className="link-signup">Реєстрація</Link>
                             </div>
+                            <span id="requestInvalid" className="text-danger"></span>
+                            <span id="responseInvalid" className="text-danger"></span>
                         </div>
                     </form>
                 </div>

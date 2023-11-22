@@ -12,5 +12,7 @@ public class IdentityAutoMapperProfile : Profile
         CreateMap<User, UserCreateCommand>().ReverseMap();
         CreateMap<User, UserUpdateCommand>().ReverseMap();
         CreateMap<Role, RoleDto>().ReverseMap();
+        CreateMap<Role, RoleCreateCommand>().ReverseMap();
+        CreateMap<Role, RoleUpdateCommand>().ReverseMap();
     }
 }
