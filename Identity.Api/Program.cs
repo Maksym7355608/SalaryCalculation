@@ -7,10 +7,20 @@ using Serilog;
 using Identity.App.Mapper;
 using SalaryCalculation.Shared.Common.Attributes;
 using SalaryCalculation.Shared.Extensions.ApiExtensions;
+using Serilog.Events;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.ConfigureSettings("SharedSettings");
+builder.Host.UseSerilog((hostingContext, loggerConfiguration) =>
+    loggerConfiguration.ReadFrom.Configuration(hostingContext.Configuration));
+
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Debug()
+    .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+    .MinimumLevel.Override("System", LogEventLevel.Information)
+    .Enrich.FromLogContext()
+    .CreateLogger();
 
 // Add services to the container.
 builder.Services.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(dispose: true));

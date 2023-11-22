@@ -17,6 +17,8 @@
 
     <ItemGroup>
       <PackageReference Include="CoreCLR-NCalc" Version="2.2.113" />
+      <PackageReference Include="Serilog.Extensions.Logging" Version="7.0.0" />
+      <PackageReference Include="Serilog.Settings.Configuration" Version="7.0.0" />
     </ItemGroup>
 
 </Project>
