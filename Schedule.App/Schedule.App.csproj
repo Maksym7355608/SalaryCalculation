@@ -15,4 +15,9 @@
       <ProjectReference Include="..\Schedule.Data\Schedule.Data.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Serilog.Extensions.Logging" Version="7.0.0" />
+      <PackageReference Include="Serilog.Settings.Configuration" Version="7.0.0" />
+    </ItemGroup>
+
 </Project>

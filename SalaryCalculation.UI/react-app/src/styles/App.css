@@ -55,3 +55,9 @@
     align-content: center;
     font-size: 14px;
 }
+
+.form-search {
+    background-color: #DAE3EB;
+    margin-left: -2vh;
+    margin-right: -2vh;
+}

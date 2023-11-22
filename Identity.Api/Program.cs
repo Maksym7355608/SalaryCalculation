@@ -7,10 +7,20 @@ using Serilog;
 using Identity.App.Mapper;
 using SalaryCalculation.Shared.Common.Attributes;
 using SalaryCalculation.Shared.Extensions.ApiExtensions;
+using Serilog.Events;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.ConfigureSettings("SharedSettings");
+builder.Host.UseSerilog((hostingContext, loggerConfiguration) =>
+    loggerConfiguration.ReadFrom.Configuration(hostingContext.Configuration));
+
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Debug()
+    .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+    .MinimumLevel.Override("System", LogEventLevel.Information)
+    .Enrich.FromLogContext()
+    .CreateLogger();
 
 // Add services to the container.
 builder.Services.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(dispose: true));
@@ -18,21 +28,9 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            // Налаштування параметрів перевірки токена
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
-            ValidAudience = builder.Configuration["JwtSettings:Audience"],
-            IssuerSigningKey =
-                new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:SecretKey"] ?? string.Empty)),
-        };
-    });
+builder.AddJwtAuthentication();
+builder.Services.AddAllowCors();
+
 builder.Services.AddAuthorization();
 builder.Services.AddTransient<HandleExceptionAttribute>();
 builder.Services.AddSwaggerGen(c =>

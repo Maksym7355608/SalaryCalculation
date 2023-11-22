@@ -140,6 +140,8 @@ public class IdentityCommandHandler : BaseIdentityCommandHandler, IIdentityComma
 
         var tokenDescriptor = new SecurityTokenDescriptor
         {
+            Audience = _configuration["JwtSettings:Audience"],
+            Issuer = _configuration["JwtSettings:Issuer"],
             Subject = new ClaimsIdentity(claims),
             Expires = DateTime.UtcNow.AddMinutes(30),
             SigningCredentials =

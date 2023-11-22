@@ -10,4 +10,9 @@
       <ProjectReference Include="..\SalaryCalculation.Data\SalaryCalculation.Data.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Serilog.Extensions.Logging" Version="7.0.0" />
+      <PackageReference Include="Serilog.Settings.Configuration" Version="7.0.0" />
+    </ItemGroup>
+
 </Project>

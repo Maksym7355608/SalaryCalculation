@@ -22,7 +22,9 @@ class RestApiClient extends React.Component<RestApiProps> {
         headers.set('Accept', '*/*');
         headers.set('Content-Type', 'application/json');
         if (this.props.token)
+        {
             headers.set('Authorization', `Bearer ${this.props.token}`);
+        }
         this.config = {
             baseURL: props.baseUrl,
             headers: headers,
