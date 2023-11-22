@@ -63,5 +63,9 @@ public interface IOrganizationCommandHandler
     Task<IEnumerable<OrganizationDto>> GetOrganizationsAsync();
     Task<IEnumerable<IdNamePair>> GetOrganizationsShortAsync();
     Task<OrganizationUnitDto> GetOrganizationUnitAsync(int organizationId, int id);
+    Task<IEnumerable<OrganizationUnitDto>> GetOrganizationUnitsAsync(int organizationId);
+    Task<IEnumerable<IdNamePair>> GetOrganizationUnitsShortAsync(int organizationId);
     Task<PositionDto> GetPositionAsync(int organizationId, int organizationUnitId, int id);
+    Task<IEnumerable<PositionDto>> GetPositionsAsync(int organizationId, int? organizationUnitId);
+    Task<IEnumerable<IdNamePair>> GetPositionsShortAsync(int organizationId, int? organizationUnitId);
 }

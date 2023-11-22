@@ -19,18 +19,17 @@ class App extends Component {
         let menu = new Menu({}).getMenuItemsWithLinks();
         return (
             <>
-                <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
                 <Router>
                     <Routes>
                         <Route path="/login" element={isUserAuthenticated ? <Navigate to="/"/> : <Login/>}/>
                         <Route path="/signup" element={<Signup/>}/>
                         <Route path="/" element={<Layout/>}>
-                            <Route index element={isUserAuthenticated ? <Home/> : <Navigate to="/login"/>}/>
+                            <Route key={0} index element={isUserAuthenticated ? <Home/> : <Navigate to="/login"/>}/>
                             <Route path="/user/settings" element={<UserSettings />}/>
                             <Route path="/settings" element={<MainSettings />}/>
                             <Route path="*" element={<NotFound/>}/>
                             {menu.map(item =>
-                                <Route path={item.link} element={item.page}/>
+                                <Route key={item.id} path={item.link} element={item.page}/>
                             )}
                         </Route>
                     </Routes>

@@ -10,7 +10,6 @@ namespace Organization.Api.Controllers;
 
 [ApiController]
 [ServiceFilter(typeof(HandleExceptionAttribute))]
-[EnableCors("ApiCorsPolicy")]
 [Authorize]
 [Route("api/[controller]")]
 public class BaseOrganizationController : BaseController

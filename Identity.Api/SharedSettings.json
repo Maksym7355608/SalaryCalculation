@@ -16,15 +16,15 @@
     "SecretKey": "MySuPeRSyCrETKeY6768962345457865HaSHTop",
     "Issuer": "http://localhost:5300",
     "Audience": "http://localhost:3000",
-    "ExpirationInMinutes": 60
+    "ExpirationInMinutes": 600
   },
   "Rabbit": "host=localhost;timeout=60;requestedHeartbeat=30",
   "Serilog": {
     "MinimumLevel": {
-      "Default": "Information",
+      "Default": "Debug",
       "Override": {
-        "Microsoft": "Warning",
-        "System": "Warning"
+        "Microsoft": "Information",
+        "System": "Information"
       },
       "Using": [ "Serilog.Sinks.Console" ]
     },

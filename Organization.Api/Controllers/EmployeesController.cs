@@ -30,8 +30,8 @@ public class EmployeesController : BaseOrganizationController
         return GetAjaxResponse(IsValid, employees, Errors);
     }
 
-    [HttpGet("search")]
-    public async Task<IActionResult> SearchEmployeesAsync([FromQuery] EmployeeSearchCommand command)
+    [HttpPost("search")]
+    public async Task<IActionResult> SearchEmployeesAsync([FromBody] EmployeeSearchCommand command)
     {
         var employees = await EmployeeCommandHandler.SearchEmployeesAsync(command);
         return GetAjaxResponse(IsValid, employees, Errors);

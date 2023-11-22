@@ -1,8 +1,13 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using System.Text;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json.Serialization;
 using Organization.Data.Data;
 using SalaryCalculation.Data;
 using SalaryCalculation.Data.BaseHandlers;
@@ -14,6 +19,40 @@ namespace SalaryCalculation.Shared.Extensions.ApiExtensions;
 
 public static class ApiConfigurationServiceExtensions
 {
+    public static AuthenticationBuilder AddJwtAuthentication(this WebApplicationBuilder builder)
+    {
+        return builder.Services.AddAuthentication(x =>
+            {
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    // Налаштування параметрів перевірки токена
+                    ValidateIssuer = true,
+                    ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
+                    ValidateAudience = true,
+                    ValidAudience = builder.Configuration["JwtSettings:Audience"],
+                    ValidateLifetime = true,
+                    IssuerSigningKey =
+                        new SymmetricSecurityKey(
+                            Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:SecretKey"]!)),
+                };
+            });
+    }
+
+    public static IServiceCollection AddAllowCors(this IServiceCollection services)
+    {
+        services.AddCors(c =>
+        {
+            c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+        });
+        return services;
+    }
+    
     public static IServiceCollection AddBusBackgroundService<TEvent, THandler>(this IServiceCollection services)
         where TEvent : BaseMessage
         where THandler : BaseMessageHandler<TEvent>

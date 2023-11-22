@@ -259,12 +259,54 @@ public class OrganizationCommandHandler : BaseOrganizationCommandHandler, IOrgan
         return Mapper.Map<OrganizationUnitDto>(orgUnit);
     }
 
+    public async Task<IEnumerable<OrganizationUnitDto>> GetOrganizationUnitsAsync(int organizationId)
+    {
+        var orgUnit = await Work.GetCollection<OrganizationUnit>(nameof(OrganizationUnit))
+            .Find(x => x.OrganizationId == organizationId)
+            .ToListAsync();
+        if (orgUnit == null)
+            throw new EntityNotFoundException("Organization units with organization id: {0} was not found", organizationId.ToString());
+        return Mapper.Map<IEnumerable<OrganizationUnitDto>>(orgUnit);
+    }
+
+    public async Task<IEnumerable<IdNamePair>> GetOrganizationUnitsShortAsync(int organizationId)
+    {
+        var orgUnit = await Work.GetCollection<OrganizationUnit>(nameof(OrganizationUnit))
+            .Find(x => x.OrganizationId == organizationId)
+            .Project(x => new {x.Id, x.Name})
+            .ToListAsync();
+        if (orgUnit == null)
+            throw new EntityNotFoundException("Organization units with organization id: {0} was not found", organizationId.ToString());
+        return orgUnit.Select(x => new IdNamePair(x.Id, x.Name));
+    }
+
     public async Task<PositionDto> GetPositionAsync(int organizationId, int organizationUnitId, int id)
     {
-        var orgUnit = await Work.GetCollection<Position>(nameof(Position))
+        var position = await Work.GetCollection<Position>(nameof(Position))
             .Find(x => x.OrganizationId == organizationId && x.OrganizationUnitId == organizationUnitId && x.Id == id).FirstOrDefaultAsync();
-        if (orgUnit == null)
+        if (position == null)
             throw new EntityNotFoundException(id.ToString());
-        return Mapper.Map<PositionDto>(orgUnit);
+        return Mapper.Map<PositionDto>(position);
+    }
+
+    public async Task<IEnumerable<PositionDto>> GetPositionsAsync(int organizationId, int? organizationUnitId)
+    {
+        var positions = await Work.GetCollection<Position>(nameof(Position))
+            .Find(x => x.OrganizationId == organizationId && (!organizationUnitId.HasValue || x.OrganizationUnitId == organizationUnitId))
+            .Project(x => new {x.Id, x.Name})
+            .ToListAsync();
+        if (positions == null)
+            throw new EntityNotFoundException("Positions with organization id: {0} was not found", organizationId.ToString());
+        return Mapper.Map<IEnumerable<PositionDto>>(positions);
+    }
+
+    public async Task<IEnumerable<IdNamePair>> GetPositionsShortAsync(int organizationId, int? organizationUnitId)
+    {
+        var positions = await Work.GetCollection<Position>(nameof(Position))
+            .Find(x => x.OrganizationId == organizationId && (!organizationUnitId.HasValue || x.OrganizationUnitId == organizationUnitId))
+            .ToListAsync();
+        if (positions == null)
+            throw new EntityNotFoundException("Positions with organization id: {0} was not found", organizationId.ToString());
+        return positions.Select(x => new IdNamePair(x.Id, x.Name));
     }
 }

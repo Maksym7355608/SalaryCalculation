@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 using Organization.App.Abstract;
 using Organization.App.Commands;
 using SalaryCalculation.Data.Enums;
-using SalaryCalculation.Shared.Common.Attributes;
 using Serilog.Events;
 using SerilogTimings;
 
@@ -29,7 +28,6 @@ public class OrganizationsController : BaseOrganizationController
     }
 
     [AllowAnonymous]
-    [EnableCors("ApiAnonymousCorsPolicy")]
     [HttpGet("all")]
     public async Task<IActionResult> GetOrganizationsAsync()
     {
@@ -38,7 +36,6 @@ public class OrganizationsController : BaseOrganizationController
     }
 
     [AllowAnonymous]
-    [EnableCors("ApiAnonymousCorsPolicy")]
     [HttpGet("all/short")]
     public async Task<IActionResult> GetOrganizationsShortAsync()
     {
@@ -47,7 +44,6 @@ public class OrganizationsController : BaseOrganizationController
     }
 
     [AllowAnonymous]
-    [EnableCors("ApiAnonymousCorsPolicy")]
     [HttpPost("create")]
     public async Task<IActionResult> CreateOrganizationAsync([FromBody] OrganizationCreateCommand command)
     {
@@ -100,8 +96,22 @@ public class OrganizationsController : BaseOrganizationController
         var unit = await OrganizationCommandHandler.GetOrganizationUnitAsync(organizationId, id);
         return GetAjaxResponse(IsValid, unit);
     }
+    
+    [HttpGet("{organizationId}/units")]
+    public async Task<IActionResult> GetOrganizationUnitsAsync([FromRoute] int organizationId)
+    {
+        var units = await OrganizationCommandHandler.GetOrganizationUnitsAsync(organizationId);
+        return GetAjaxResponse(IsValid, units);
+    }
+    
+    [HttpGet("{organizationId}/units/short")]
+    public async Task<IActionResult> GetOrganizationUnitsShortAsync([FromRoute] int organizationId)
+    {
+        var units = await OrganizationCommandHandler.GetOrganizationUnitsShortAsync(organizationId);
+        return GetAjaxResponse(IsValid, units);
+    }
 
-    [HttpGet("{organizationId}/units/search")]
+    [HttpPost("{organizationId}/units/search")]
     public async Task<IActionResult> SearchOrganizationUnitsAsync([FromRoute] int organizationId,
         [FromQuery] OrganizationUnitSearchCommand command)
     {
@@ -152,8 +162,22 @@ public class OrganizationsController : BaseOrganizationController
         var position = await OrganizationCommandHandler.GetPositionAsync(organizationId, organizationUnitId, id);
         return GetAjaxResponse(IsValid, position);
     }
+    
+    [HttpGet("{organizationId}/positions/{organizationUnitId:int?}")]
+    public async Task<IActionResult> GetPositionsAsync([FromRoute] int organizationId, [FromRoute] int? organizationUnitId)
+    {
+        var position = await OrganizationCommandHandler.GetPositionsAsync(organizationId, organizationUnitId);
+        return GetAjaxResponse(IsValid, position);
+    }
+    
+    [HttpGet("{organizationId}/positions/short/{organizationUnitId:int?}")]
+    public async Task<IActionResult> GetPositionsShortAsync([FromRoute] int organizationId, [FromRoute] int? organizationUnitId)
+    {
+        var position = await OrganizationCommandHandler.GetPositionsShortAsync(organizationId, organizationUnitId);
+        return GetAjaxResponse(IsValid, position);
+    }
 
-    [HttpGet("{organizationId}/positions/search")]
+    [HttpPost("{organizationId}/positions/search")]
     public async Task<IActionResult> SearchPositionAsync([FromRoute] int organizationId,
         [FromQuery] PositionSearchCommand command)
     {

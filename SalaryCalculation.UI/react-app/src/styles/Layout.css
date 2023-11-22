@@ -32,6 +32,12 @@
     font-size: 20px;
 }
 
+.nav-log-out {
+    font-size: 20px;
+    border: none;
+    color: #404040;
+}
+
 .menu-item {
     text-decoration: none;
     color: white;

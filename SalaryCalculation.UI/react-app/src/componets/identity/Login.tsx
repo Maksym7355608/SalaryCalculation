@@ -1,7 +1,6 @@
 import {Component} from "react";
 import {Link} from "react-router-dom";
 import $ from 'jquery';
-import 'bootstrap/dist/css/bootstrap.min.css';
 import IdentityApiClient from "../../actions/rest/IdentityApiClient";
 
 class Login extends Component {

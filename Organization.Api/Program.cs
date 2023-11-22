@@ -2,6 +2,7 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Newtonsoft.Json.Serialization;
 using Organization.Api.CollectionExtensions;
 using Organization.App.Commands.Messages;
 using Organization.App.Handlers;
@@ -28,48 +29,9 @@ Log.Logger = new LoggerConfiguration()
 builder.Services.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(dispose: true));
 builder.Services.AddControllers();
 
-builder.Services.AddAuthentication(x =>
-    {
-        x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-        x.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-    })
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            // Налаштування параметрів перевірки токена
-            ValidateIssuer = true,
-            ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
-            ValidateAudience = true, 
-            ValidAudience = builder.Configuration["JwtSettings:Audience"],
-            ValidateLifetime = true,
-            IssuerSigningKey =
-                new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:SecretKey"]!)),
-        };
-    });
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy(name: "ApiAnonymousCorsPolicy",
-        builder =>
-        {
-            builder.WithOrigins("http://localhost:3000", "https://localhost:3000")
-                .AllowAnyHeader()
-                .AllowAnyMethod()
-                .AllowCredentials();
-        });
-});
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy(name: "ApiCorsPolicy",
-        builder =>
-        {
-            builder.WithOrigins("http://localhost:3000", "https://localhost:3000")
-                .WithHeaders("Accept", "Content-Type", "Authorization")
-                .AllowAnyMethod()
-                .AllowCredentials();
-        });
-});
+builder.AddJwtAuthentication();
+builder.Services.AddAllowCors();
+
 builder.Services.AddAuthorization();
 builder.Services.AddTransient<HandleExceptionAttribute>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -105,8 +67,7 @@ app.UseSwaggerUI(c =>
 app.UseAuthentication();
 app.UseRouting();
 app.UseAuthorization();
-app.UseCors("ApiCorsPolicy");
-app.UseCors("ApiAnonymousCorsPolicy");
+app.UseCors(options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllers();
