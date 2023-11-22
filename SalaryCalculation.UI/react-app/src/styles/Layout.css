@@ -1,0 +1,62 @@
+.inbox {
+    height: 100%;
+    width: 100%;
+    display: grid;
+    background-color: #E7ECF5;
+}
+
+.menu {
+    background-color: #004281;
+}
+
+.main {
+    height: 90%;
+}
+
+.navbar-center {
+    display: flex;
+    align-items: center; /* Вирівнює елементи по вертикалі */
+    justify-content: center; /* Вирівнює елементи по горизонталі */
+    color: #404040;
+}
+
+.nav-page-name {
+    font-size: 26px;
+}
+
+.nav-user {
+    font-size: 20px;
+}
+
+.nav-localization {
+    font-size: 20px;
+}
+
+.menu-item {
+    text-decoration: none;
+    color: white;
+    font-size: 22px;
+    margin-right: 20px;
+    margin-top: 15px;
+}
+
+.active {
+    color: #FF8A35;
+}
+
+.menu-item:hover {
+    color: #FF8A35;
+}
+
+li {
+    margin-left: -3vh;
+    margin-right: -20px;
+    margin-top: 4vh;
+}
+ul {
+    list-style: none;
+}
+
+.settings-link {
+    margin-top: 25vh;
+}

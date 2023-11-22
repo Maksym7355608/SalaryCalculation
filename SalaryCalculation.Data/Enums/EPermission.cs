@@ -28,5 +28,7 @@ public enum EPermission
     [Description("View dictionary")]
     ViewDictionary = 11,
     [Description("Create documents")]
-    CreateDocuments = 12
+    CreateDocuments = 12,
+    [Description("Create organization")]
+    CreateOrganization = 13,
 }

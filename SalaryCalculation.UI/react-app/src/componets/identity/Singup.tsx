@@ -12,8 +12,6 @@ interface SignupComponentState {
     organizations: IdNamePair[];
 }
 
-const organizationUrl = "http://localhost:5100";
-
 class Signup extends Component<any, SignupComponentState> {
 
     constructor() {
@@ -25,6 +23,7 @@ class Signup extends Component<any, SignupComponentState> {
     }
 
     componentDidMount() {
+        document.title = "Реєстрація";
         if (this.state.loaded)
             return;
         const organizationRestClient = new OrganizationApiClient();
@@ -36,7 +35,7 @@ class Signup extends Component<any, SignupComponentState> {
         });
     }
 
-    async signUpAsync(event: any): Promise<boolean> {
+    async signUpAsync(event: any) {
         event.preventDefault();
         const username = event.target.username.value as string;
         const password = event.target.password.value as string;
@@ -52,7 +51,7 @@ class Signup extends Component<any, SignupComponentState> {
             return false;
 
         const identityRestClient = new IdentityApiClient();
-        return await identityRestClient.signUpAsync({
+        identityRestClient.signUpAsync({
             username: username,
             password: password,
             firstName: firstName,
@@ -61,6 +60,9 @@ class Signup extends Component<any, SignupComponentState> {
             email: email,
             phoneNumber: phone,
             organizationId: organization
+        }).then(response => {
+            if (response)
+                redirect('/login');
         });
     }
 
@@ -70,7 +72,7 @@ class Signup extends Component<any, SignupComponentState> {
                 <div className="container">
                     <div className="text-end">укр/eng</div>
                     <div className="text-auth-1 pt-3 pb-2">Реєстрація</div>
-                    <form className="form-auth p-3">
+                    <form className="form-auth p-3" onSubmit={(event) => this.signUpAsync(event)}>
                         <div className="form-group mb-1">
                             <label htmlFor="username" className="form-label text-auth-2">Логін</label>
                             <input type="text" id="username" className="form-control" placeholder="Введіть логін"/>
@@ -114,8 +116,7 @@ class Signup extends Component<any, SignupComponentState> {
                         </div>
                         <div className="btn-group w-100 mt-2 d-flex justify-content-center">
                             <div className="div-btn-login">
-                                <button className="btn btn-primary" onSubmit={(event) => this.signUpAsync(event)
-                                    .then(r => r ? redirect('/login') : null)}>
+                                <button className="btn btn-primary">
                                     Реєстрація
                                 </button>
                             </div>

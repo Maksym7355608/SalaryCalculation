@@ -1,6 +1,6 @@
 import BasePageModel from "../BasePageModel";
 import {EPermission} from "../../models/BaseModels";
-import {Link} from "react-router-dom";
+import {NavLink} from "react-router-dom";
 import React, {ReactElement} from "react";
 import {OrganizationSettings} from "../organization/OrganizationSettings";
 
@@ -32,22 +32,22 @@ export default class Menu extends BasePageModel {
             let item : MenuItem | undefined;
             switch (permission) {
                 case EPermission.organizationSettings :
-                    item = this.getItem(permission, <OrganizationSettings organization={this.user.organization}/>, "Налаштування організації", "fa-wrench", `/organization/${this.user.organization}/settings`);
+                    item = this.getItem(permission, <OrganizationSettings organization={this.user.organization}/>, "Налаштування організації", "build_circle", `/organization/${this.user.organization}/settings`);
                     break;
                 case EPermission.searchEmployees :
-                    item = this.getItem(permission, <OrganizationSettings organization={this.user.organization}/>,"Пошук працівників", "fa-user-group", `/employees/search`);
+                    item = this.getItem(permission, <OrganizationSettings organization={this.user.organization}/>,"Пошук працівників", "group", `/`);
                     break;
                 case EPermission.searchSchedules :
-                    item = this.getItem(permission, <OrganizationSettings organization={this.user.organization}/>,"Табелювання", "fa-calendar", `/schedule/search`);
+                    item = this.getItem(permission, <OrganizationSettings organization={this.user.organization}/>,"Табелювання", "calendar_today", `/schedule/search`);
                     break;
                 case EPermission.viewCalculation :
-                    item = this.getItem(permission, <OrganizationSettings organization={this.user.organization}/>,"Розрахунок", "fa-calculator", `/calculation/search`);
+                    item = this.getItem(permission, <OrganizationSettings organization={this.user.organization}/>,"Розрахунок", "calculate", `/calculation/search`);
                     break;
                 case EPermission.viewDictionary :
-                    item = this.getItem(permission, <OrganizationSettings organization={this.user.organization}/>,"Довідник", "fa-book", `/dictionary`);
+                    item = this.getItem(permission, <OrganizationSettings organization={this.user.organization}/>,"Довідник", "feed", `/dictionary`);
                     break;
                 case EPermission.createDocuments :
-                    item = this.getItem(permission, <OrganizationSettings organization={this.user.organization}/>,"Звітність", "fa-chart-simple", `/reports`);
+                    item = this.getItem(permission, <OrganizationSettings organization={this.user.organization}/>,"Звітність", "insert_chart", `/reports`);
                     break;
                 default:
                     item = undefined;
@@ -60,15 +60,25 @@ export default class Menu extends BasePageModel {
     render() {
         let items = this.getMenuItemsWithLinks();
         return (
-            <div className="dropdown-menu">
+            <div>
                 <ul>
+                    <li>
+                        <NavLink to="/user/settings" className="menu-item">
+                            <i className="material-icons">account_circle</i>  {`${this.user.firstName} ${this.user.lastName}`}
+                        </NavLink>
+                    </li>
                     {items.map(item =>
                         <li key={item.id}>
-                            <Link to={item.link} className="menu-item">
-                                <i className={`fa ${item.icon}`}/> {item.text}
-                            </Link>
+                            <NavLink to={item.link} className="menu-item">
+                                <i className="material-icons">{item.icon}</i>  {item.text}
+                            </NavLink>
                         </li>
                     )}
+                    <li className="settings-link">
+                        <NavLink to="/settings" className="menu-item">
+                            <i className="material-icons">settings</i> Налаштування
+                        </NavLink>
+                    </li>
                 </ul>
             </div>
         );

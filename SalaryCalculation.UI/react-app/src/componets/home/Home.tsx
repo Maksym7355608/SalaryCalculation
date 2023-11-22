@@ -1,13 +1,16 @@
 import BasePageModel from "../BasePageModel";
-import withLayout from './Layout';
 
 class Home extends BasePageModel {
 
+    componentDidMount() {
+        document.title = "Пошук працівників";
+    }
 
     render() {
-        return (<></>
+        return (
+            <div className="display-1">Home Page</div>
         );
     }
 }
 
-export default withLayout(Home);
+export default Home;

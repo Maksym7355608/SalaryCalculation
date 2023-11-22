@@ -5,6 +5,11 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import IdentityApiClient from "../../actions/rest/IdentityApiClient";
 
 class Login extends Component {
+
+    componentDidMount() {
+        document.title = "Вхід";
+    }
+
     logInAsync = (event : any) => {
         event.preventDefault();
         const username = $('#username').val() as string;
