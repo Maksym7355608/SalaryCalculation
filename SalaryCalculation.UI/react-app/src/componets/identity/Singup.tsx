@@ -2,7 +2,6 @@ import {Component} from "react";
 import {redirect} from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import IdentityApiClient from "../../actions/rest/IdentityApiClient";
-import RestApiClient, {RestApiProps} from "../../actions/rest/RestApiClient";
 import SelectList from "../../actions/helpers/SelectList";
 import {IdNamePair} from "../../models/BaseModels";
 import {OrganizationApiClient} from "../../actions/rest/OrganizationApiClient";

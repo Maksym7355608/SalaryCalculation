@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import {BrowserRouter as Router, Navigate, Route, Routes} from "react-router-dom";
 import './styles/App.css';
 import './styles/Layout.css';
+import {PrimeReactProvider} from 'primereact/api';
 
 import Login from "./componets/identity/Login";
 import Signup from "./componets/identity/Singup";
@@ -18,7 +19,7 @@ class App extends Component {
     render() {
         let menu = new Menu({}).getMenuItemsWithLinks();
         return (
-            <>
+            <PrimeReactProvider>
                 <Router>
                     <Routes>
                         <Route path="/login" element={isUserAuthenticated ? <Navigate to="/"/> : <Login/>}/>
@@ -29,12 +30,12 @@ class App extends Component {
                             <Route path="/settings" element={<MainSettings />}/>
                             <Route path="*" element={<NotFound/>}/>
                             {menu.map(item =>
-                                <Route key={item.id} path={item.link} element={item.page}/>
+                                <Route key={item.id} path={item.ref} element={item.page}/>
                             )}
                         </Route>
                     </Routes>
                 </Router>
-            </>
+            </PrimeReactProvider>
         );
     }
 }

@@ -1,7 +1,7 @@
 
 const Footer = () => {
     return (
-        <div className="row w-100">
+        <div className="row w-100 d-flex">
             <div className="mt-4 text-center w-100">
                 MaksiKo @2023
             </div>
