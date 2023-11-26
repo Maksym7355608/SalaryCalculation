@@ -1,7 +1,6 @@
 import React from "react";
 import $ from 'jquery';
-import axios, {AxiosHeaders, AxiosInstance, AxiosRequestConfig, AxiosResponse} from 'axios';
-import {STATUS_CODES} from "http";
+import axios, {AxiosHeaders, AxiosRequestConfig, AxiosResponse} from 'axios';
 
 export interface RestApiProps {
     baseUrl: string;
@@ -28,7 +27,7 @@ class RestApiClient extends React.Component<RestApiProps> {
         this.config = {
             baseURL: props.baseUrl,
             headers: headers,
-            timeout: 3000,
+            timeout: 30000,
             responseType: "json",
             timeoutErrorMessage: "timeout exception"
         };

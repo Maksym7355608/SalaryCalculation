@@ -50,6 +50,11 @@
     align-content: end;
 }
 
+.link {
+    color: #848484;
+    font-size: 24px;
+}
+
 .link-signup {
     color: #848484;
     align-content: center;
@@ -60,4 +65,12 @@
     background-color: #DAE3EB;
     margin-left: -2vh;
     margin-right: -2vh;
+}
+
+.data-table {
+    background-color: #2277DB;
+}
+
+.data-table thead {
+    background-color: #004281;
 }

@@ -23,6 +23,7 @@ public class OrganizationDto
 
 public class OrganizationUnitDto
 {
+    public int Id { get; set; }
     public string Name { get; set; }
     public int OrganizationId { get; set; }
     public int? OrganizationUnitId { get; set; }
@@ -30,6 +31,7 @@ public class OrganizationUnitDto
 
 public class PositionDto
 {
+    public int Id { get; set; }
     public string Name { get; set; }
     public int OrganizationId { get; set; }
     public int OrganizationUnitId { get; set; }

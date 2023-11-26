@@ -18,6 +18,7 @@ namespace Organization.App.Handlers;
 
 public class OrganizationCommandHandler : BaseOrganizationCommandHandler, IOrganizationCommandHandler
 {
+    private readonly int[] _basePermissionsList = Enum.GetValues<EPermission>().Cast<int>().ToArray();
     public OrganizationCommandHandler(IOrganizationUnitOfWork work, ILogger<OrganizationCommandHandler> logger, IMapper mapper) : base(work, logger, mapper)
     {
     }
@@ -91,6 +92,7 @@ public class OrganizationCommandHandler : BaseOrganizationCommandHandler, IOrgan
     {
         var organization = new Org()
         {
+            Id = (int)Work.GetCollection<Org>(nameof(Organization.Data.Entities.Organization)).Find(Builders<Org>.Filter.Empty).CountDocuments(),
             Code = command.Code,
             Name = command.Name,
             Address = command.Address,
@@ -107,8 +109,8 @@ public class OrganizationCommandHandler : BaseOrganizationCommandHandler, IOrgan
             .InsertOneAsync(organization);
         var organizationPermissions = new OrganizationPermissions()
         {
-            OrganizationId = Work.GetCollection<Org>(nameof(Organization.Data.Entities.Organization)).Find(x => x.Code == organization.Code).First().Id,
-            Permissions = new[] { (int)EPermission.RoleControl },
+            OrganizationId = organization.Id,
+            Permissions = _basePermissionsList,
         };
         await Work.GetCollection<OrganizationPermissions>()
             .InsertOneAsync(organizationPermissions);
@@ -118,6 +120,7 @@ public class OrganizationCommandHandler : BaseOrganizationCommandHandler, IOrgan
     {
         var organization = new Org()
         {
+            Id = command.Id,
             Code = command.Code,
             Name = command.Name,
             Address = command.Address,
@@ -125,14 +128,13 @@ public class OrganizationCommandHandler : BaseOrganizationCommandHandler, IOrgan
             Accountant = command.Accountant,
             BankAccounts = Mapper.Map<IEnumerable<Bank>>(command.BankAccounts),
             Chief = command.Chief,
-            Edrpou = command.Edrpou
+            Edrpou = command.Edrpou,
         };
         if (!Work.GetCollection<Org>(nameof(Organization.Data.Entities.Organization)).Find(x => x.Code == organization.Code)
             .Any())
             throw new EntityNotFoundException(organization.Code);
         var result = await Work.GetCollection<Org>(nameof(Organization.Data.Entities.Organization))
-            .UpdateOneAsync(x => x.Code == organization.Code, Builders<Org>.Update
-                .Set(x => x, organization));
+            .ReplaceOneAsync(x => x.Id == organization.Id, organization);
         return result.ModifiedCount > 0;
     }
 
@@ -175,6 +177,9 @@ public class OrganizationCommandHandler : BaseOrganizationCommandHandler, IOrgan
     public async Task CreateOrganizationUnitAsync(OrganizationUnitCreateCommand command)
     {
         var organizationUnit = Mapper.Map<OrganizationUnit>(command);
+        var lastId = Work.GetCollection<OrganizationUnit>(nameof(OrganizationUnit)).Find(Builders<OrganizationUnit>.Filter.Empty)
+            .CountDocuments();
+        organizationUnit.Id = (int)lastId;
         if (Work.GetCollection<OrganizationUnit>(nameof(OrganizationUnit)).Find(x => x.Name == organizationUnit.Name)
             .Any())
             throw new DuplicateNameException("Organization unit with the same name exist");
@@ -185,12 +190,13 @@ public class OrganizationCommandHandler : BaseOrganizationCommandHandler, IOrgan
     public async Task<bool> UpdateOrganizationUnitAsync(OrganizationUnitUpdateCommand command)
     {
         var organizationUnit = Mapper.Map<OrganizationUnit>(command);
-        if (!Work.GetCollection<OrganizationUnit>(nameof(OrganizationUnit)).Find(x => x.Name == organizationUnit.Name)
+        if (!Work.GetCollection<OrganizationUnit>(nameof(OrganizationUnit)).Find(x => x.Id == organizationUnit.Id)
                 .Any())
             throw new EntityNotFoundException(organizationUnit.Name);
         var result = await Work.GetCollection<OrganizationUnit>(nameof(OrganizationUnit))
-            .UpdateOneAsync(x => x.Name == organizationUnit.Name, Builders<OrganizationUnit>.Update
-                .Set(x => x, organizationUnit));
+            .UpdateOneAsync(x => x.Id == organizationUnit.Id, Builders<OrganizationUnit>.Update
+                .Set(x => x.Name, organizationUnit.Name)
+                .Set(x => x.OrganizationUnitId, organizationUnit.OrganizationUnitId));
         return result.ModifiedCount > 0;
     }
 
@@ -211,6 +217,9 @@ public class OrganizationCommandHandler : BaseOrganizationCommandHandler, IOrgan
     public async Task CreatePositionAsync(PositionCreateCommand command)
     {
         var position = Mapper.Map<Position>(command);
+        var lastId = Work.GetCollection<Position>().Find(Builders<Position>.Filter.Empty)
+            .CountDocuments();
+        position.Id = (int)lastId;
         if (Work.GetCollection<Position>(nameof(Position)).Find(x => x.Name == position.Name)
             .Any())
             throw new DuplicateNameException("Position with the same name exist");
@@ -220,13 +229,14 @@ public class OrganizationCommandHandler : BaseOrganizationCommandHandler, IOrgan
 
     public async Task<bool> UpdatePositionAsync(PositionUpdateCommand command)
     {
-        var organization = Mapper.Map<Position>(command);
-        if (!Work.GetCollection<Position>(nameof(Position)).Find(x => x.Name == organization.Name)
+        var position = Mapper.Map<Position>(command);
+        if (!Work.GetCollection<Position>(nameof(Position)).Find(x => x.Id == position.Id)
                 .Any())
-            throw new EntityNotFoundException(organization.Name);
+            throw new EntityNotFoundException(position.Name);
         var result = await Work.GetCollection<Position>(nameof(Position))
-            .UpdateOneAsync(x => x.Name == organization.Name, Builders<Position>.Update
-                .Set(x => x, organization));
+            .UpdateOneAsync(x => x.Id == position.Id, Builders<Position>.Update
+                .Set(x => x.Name, position.Name)
+                .Set(x => x.OrganizationUnitId, position.OrganizationUnitId));
         return result.ModifiedCount > 0;
     }
 
@@ -293,7 +303,6 @@ public class OrganizationCommandHandler : BaseOrganizationCommandHandler, IOrgan
     {
         var positions = await Work.GetCollection<Position>(nameof(Position))
             .Find(x => x.OrganizationId == organizationId && (!organizationUnitId.HasValue || x.OrganizationUnitId == organizationUnitId))
-            .Project(x => new {x.Id, x.Name})
             .ToListAsync();
         if (positions == null)
             throw new EntityNotFoundException("Positions with organization id: {0} was not found", organizationId.ToString());

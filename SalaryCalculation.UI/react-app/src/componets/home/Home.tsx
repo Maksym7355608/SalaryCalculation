@@ -4,7 +4,7 @@ import SelectList from "../../actions/helpers/SelectList";
 import {EPermission, IdNamePair} from "../../models/BaseModels";
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
-import TableCell, { tableCellClasses } from '@mui/material/TableCell';
+import TableCell, {tableCellClasses} from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
@@ -13,7 +13,7 @@ import {EmployeeShortModel} from "../../models/ShortModels";
 import {styled} from "@mui/material";
 import {EmployeeSearchCommand} from "../../actions/commands/OrganizationCommands";
 import $ from 'jquery';
-import { EmployeeDto } from "../../models/DTO";
+import {EmployeeDto} from "../../models/DTO";
 
 interface HomeState {
     isLoaded: boolean;

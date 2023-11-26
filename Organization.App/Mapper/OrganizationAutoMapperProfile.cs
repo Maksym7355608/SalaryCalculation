@@ -12,6 +12,7 @@ public class OrganizationAutoMapperProfile : Profile
 {
     public OrganizationAutoMapperProfile()
     {
+        CreateMap<Org, OrganizationShortDto>().ReverseMap();
         CreateMap<Org, OrganizationDto>()
             .ForMember(x => x.Manager,
                 y => y.MapFrom(x =>
@@ -39,15 +40,17 @@ public class OrganizationAutoMapperProfile : Profile
             .ReverseMap();
         CreateMap<Bank, BankDto>().ReverseMap();
 
-        CreateMap<OrganizationUnit, OrganizationUnitDto>();
-        CreateMap<OrganizationUnit, OrganizationUnitUpdateCommand>();
+        CreateMap<OrganizationUnit, OrganizationUnitDto>().ReverseMap();
+        CreateMap<OrganizationUnit, OrganizationUnitUpdateCommand>().ReverseMap();
+        CreateMap<OrganizationUnit, OrganizationUnitCreateCommand>().ReverseMap();
 
-        CreateMap<Position, PositionDto>();
-        CreateMap<Position, PositionUpdateCommand>();
+        CreateMap<Position, PositionDto>().ReverseMap();
+        CreateMap<Position, PositionUpdateCommand>().ReverseMap();
+        CreateMap<Position, PositionCreateCommand>().ReverseMap();
 
-        CreateMap<Employee, EmployeeDto>();
-        CreateMap<Employee, EmployeeCreateCommand>();
-        CreateMap<Employee, EmployeeUpdateCommand>();
+        CreateMap<Employee, EmployeeDto>().ReverseMap();
+        CreateMap<Employee, EmployeeCreateCommand>().ReverseMap();
+        CreateMap<Employee, EmployeeUpdateCommand>().ReverseMap();
         CreateMap<Employee, Manager>()
             .ForMember(x => x.EmployeeId, m => m.MapFrom(y => y.Id))
             .ForMember(x => x.RollNumber, m => m.MapFrom(y => y.RollNumber))

@@ -10,18 +10,20 @@ interface MenuItem{
     text: string;
     icon: string;
     link: string;
+    ref: string;
     parentId: number | undefined;
 }
 
 export default class Menu extends BasePageModel {
 
-    private getItem(id : number, page: ReactElement, text : string, icon : string, link : string, parentId : number | undefined = undefined) : MenuItem  {
+    private getItem(id : number, page: ReactElement, text : string, icon : string, link : string, ref: string, parentId : number | undefined = undefined) : MenuItem  {
         return {
             id: id,
             page: page,
             text: text,
             icon: icon,
             link: link,
+            ref: ref,
             parentId: parentId
         };
     }
@@ -32,22 +34,22 @@ export default class Menu extends BasePageModel {
             let item : MenuItem | undefined;
             switch (permission) {
                 case EPermission.organizationSettings :
-                    item = this.getItem(permission, <OrganizationSettings organization={this.user.organization}/>, "Налаштування організації", "build_circle", `/organization/${this.user.organization}/settings`);
+                    item = this.getItem(permission, <OrganizationSettings id={this.user.organization}/>, "Налаштування \nорганізації", "build_circle", `/organization/${this.user.organization}/settings`, `/organization/:id/settings`);
                     break;
                 case EPermission.searchEmployees :
-                    item = this.getItem(permission, <OrganizationSettings organization={this.user.organization}/>,"Пошук працівників", "group", `/`);
+                    item = this.getItem(permission, <OrganizationSettings id={this.user.organization}/>,"Пошук працівників", "group", `/`, '/');
                     break;
                 case EPermission.searchSchedules :
-                    item = this.getItem(permission, <OrganizationSettings organization={this.user.organization}/>,"Табелювання", "calendar_today", `/schedule/search`);
+                    item = this.getItem(permission, <OrganizationSettings id={this.user.organization}/>,"Табелювання", "calendar_today", `/schedule/search`, `/schedule/search`);
                     break;
                 case EPermission.viewCalculation :
-                    item = this.getItem(permission, <OrganizationSettings organization={this.user.organization}/>,"Розрахунок", "calculate", `/calculation/search`);
+                    item = this.getItem(permission, <OrganizationSettings id={this.user.organization}/>,"Розрахунок", "calculate", `/calculation/search`, `/calculation/search`);
                     break;
                 case EPermission.viewDictionary :
-                    item = this.getItem(permission, <OrganizationSettings organization={this.user.organization}/>,"Довідник", "feed", `/dictionary`);
+                    item = this.getItem(permission, <OrganizationSettings id={this.user.organization}/>,"Довідник", "feed", `/dictionary`, `/dictionary`);
                     break;
                 case EPermission.createDocuments :
-                    item = this.getItem(permission, <OrganizationSettings organization={this.user.organization}/>,"Звітність", "insert_chart", `/reports`);
+                    item = this.getItem(permission, <OrganizationSettings id={this.user.organization}/>,"Звітність", "insert_chart", `/reports`, `/reports`);
                     break;
                 default:
                     item = undefined;
@@ -61,7 +63,7 @@ export default class Menu extends BasePageModel {
         let items = this.getMenuItemsWithLinks();
         return (
             <div>
-                <ul>
+                <ul className="position-relative">
                     <li>
                         <NavLink to="/user/settings" className="menu-item">
                             <i className="material-icons">account_circle</i>  {`${this.user.firstName} ${this.user.lastName}`}

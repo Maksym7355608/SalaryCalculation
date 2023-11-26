@@ -1,4 +1,4 @@
-import {IdNamePair} from "./BaseModels";
+import {EPermission, IdNamePair} from "./BaseModels";
 import {EBenefit, EMarriedStatus, ESex} from "./Enums";
 
 export interface EmployeeDto {
@@ -42,4 +42,32 @@ export interface BankDto {
     account: string;
     iban: string;
     mfo: number;
+}
+
+export interface OrganizationDto {
+    id: number;
+    code: string;
+    name: string;
+    edrpou: number;
+    address: string;
+    factAddress: string;
+    bankAccounts: BankDto[];
+    chief: IdNamePair;
+    accountant: IdNamePair;
+    manager?: IdNamePair;
+    permissions: EPermission[];
+}
+
+export interface OrganizationUnitDto {
+    id: number;
+    name: string;
+    organizationId: number;
+    organizationUnitId?: number;
+}
+
+export interface PositionDto {
+    id: number;
+    name: string;
+    organizationId: number;
+    organizationUnitId: number;
 }

@@ -5,10 +5,18 @@ import {EPermission, UserModel} from "../models/BaseModels";
 export default class BasePageModel<T = {}, U = {}> extends Component<T, U> {
     protected readonly token = localStorage.getItem('token') as string
     protected readonly restClient : RestUnitOfWork;
-    protected user : UserModel = JSON.parse(localStorage.getItem('user') as string) as UserModel;
+    protected readonly user : UserModel;
     constructor(props: T) {
         super(props);
+        this.token = localStorage.getItem('token') as string;
+        //if(!this.token)
+            //window.location.href = '/login'; Неясно що з цим робити
+        this.user = JSON.parse(localStorage.getItem('user') as string) as UserModel;
         this.restClient = new RestUnitOfWork();
+    }
+
+    componentDidUpdate() {
+        //this.clearErrors();
     }
 
     protected hasPermission(permission: EPermission) : boolean {
