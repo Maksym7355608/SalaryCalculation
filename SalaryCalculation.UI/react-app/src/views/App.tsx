@@ -12,6 +12,7 @@ import Signup from "../componets/identity/Singup";
 import {NotFound} from "../componets/notFound/NotFound";
 import Layout from "../componets/layout/Layout";
 import {AuthLayout} from "../componets/layout/AuthLayout";
+import {PrivateRoute} from "./PrivateRoute";
 
 const App = () => {
     const isUserAuthenticated = !!localStorage.getItem('token');
@@ -30,7 +31,7 @@ const App = () => {
                         <Route path="/signup" element={<AuthLayout title="Реєстрація">
                             <Signup/>
                         </AuthLayout>}/>
-                        {/*TODO: make list private routes*/}
+                        <Route path='/' element={<PrivateRoute/>}/>
                     </Routes>
                 </Router>
             </PrimeReactProvider>
