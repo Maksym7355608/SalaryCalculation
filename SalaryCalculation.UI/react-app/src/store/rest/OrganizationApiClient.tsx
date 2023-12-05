@@ -1,7 +1,7 @@
 import {Component} from "react";
 import RestApiClient, {RestApiProps} from "./RestApiClient";
 import {IdNamePair} from "../../models/BaseModels";
-import {EmployeeSearchCommand} from "../commands/OrganizationCommands";
+import {EmployeeSearchCommand} from "../../models/commands/OrganizationCommands";
 import {EmployeeDto, OrganizationDto, OrganizationUnitDto, PositionDto} from "../../models/DTO";
 
 

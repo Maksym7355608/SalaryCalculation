@@ -1,7 +1,8 @@
 import {EPermission, UserModel} from "../../models/BaseModels";
 import React, {ReactElement} from "react";
-import {OrganizationSettings} from "../organization/OrganizationSettings";
+import {OrganizationSettings} from "../../views/organization/OrganizationSettings";
 import {NavLink} from "react-router-dom";
+import Home from "../../views/home/Home";
 
 interface MenuItem{
     id: number;
@@ -63,10 +64,10 @@ export function InitMenu() : MenuItem[] {
         let item : MenuItem | undefined;
         switch (permission) {
             case EPermission.organizationSettings :
-                item = getItem(permission, <OrganizationSettings id={user.organization}/>, "Налаштування \nорганізації", "build_circle", `/organization/${user.organization}/settings`, `/organization/:id/settings`);
+                item = getItem(permission, <OrganizationSettings id={user.organization}/>, "Налаштування організації", "build_circle", `/organization/${user.organization}/settings`, `/organization/:id/settings`);
                 break;
             case EPermission.searchEmployees :
-                item = getItem(permission, <OrganizationSettings id={user.organization}/>,"Пошук працівників", "group", `/`, '/');
+                item = getItem(permission, <Home/>,"Пошук працівників", "group", `/`, '/');
                 break;
             case EPermission.searchSchedules :
                 item = getItem(permission, <OrganizationSettings id={user.organization}/>,"Табелювання", "calendar_today", `/schedule/search`, `/schedule/search`);

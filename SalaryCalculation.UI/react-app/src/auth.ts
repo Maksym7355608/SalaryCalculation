@@ -12,9 +12,10 @@ export const authenticateAsync = async(token : string) => {
 
 export const login = async(token : string) => {
     localStorage.setItem("token", token);
+    browserHistory.push('/');
 };
 
 export const logout = () => {
-    localStorage.removeItem("token");
+    localStorage.clear()
     browserHistory.push("/login");
 };

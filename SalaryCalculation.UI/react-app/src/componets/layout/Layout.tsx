@@ -1,6 +1,6 @@
-import Header from "../home/Header";
-import Footer from "../home/Footer";
-import Menu from "../home/Menu";
+import Header from "./Header";
+import Footer from "./Footer";
+import {Menu} from "./Menu";
 import React from "react";
 import {Col, Container, Row} from 'react-bootstrap';
 import {useNavigate} from "react-router-dom";

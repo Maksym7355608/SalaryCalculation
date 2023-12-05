@@ -1,6 +1,6 @@
 import React from "react";
 import RestApiClient, {RestApiProps} from "./RestApiClient";
-import {UserCreateCommand} from "../commands/IdentityCommands";
+import {UserCreateCommand} from "../../models/commands/IdentityCommands";
 import {UserModel} from "../../models/BaseModels";
 
 class IdentityApiClient extends React.Component {

@@ -1,5 +1,5 @@
 import {Component} from "react";
-import {RestUnitOfWork} from "../actions/rest/RestUnitOfWork";
+import {RestUnitOfWork} from "../store/rest/RestUnitOfWork";
 import {EPermission, UserModel} from "../models/BaseModels";
 
 export default class BasePageModel<T = {}, U = {}> extends Component<T, U> {

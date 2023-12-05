@@ -6,22 +6,22 @@ import '../styles/Layout.css';
 import {PrimeReactProvider} from 'primereact/api';
 
 import store from "../store";
-import browserHistory from "../browserHistory";
-import Login from "../componets/identity/Login";
-import Signup from "../componets/identity/Singup";
-import {NotFound} from "../componets/notFound/NotFound";
+import Login from "./identity/Login";
+import Signup from "./identity/Singup";
+import {NotFound} from "./notFound/NotFound";
 import Layout from "../componets/layout/Layout";
 import {AuthLayout} from "../componets/layout/AuthLayout";
-import {PrivateRoute} from "./PrivateRoute";
+import {InitMenu} from "../componets/layout/Menu";
 
 const App = () => {
     const isUserAuthenticated = !!localStorage.getItem('token');
+    const menuItems = InitMenu()
     return (
         <Provider store={store}>
             <PrimeReactProvider>
                 <Router>
                     <Routes>
-                        <Route path="*" element={isUserAuthenticated ? <NotFound/> :
+                        <Route path="*" element={!isUserAuthenticated ? <NotFound/> :
                             <Layout title="Not Found">
                                 <NotFound/>
                             </Layout>}/>
@@ -31,37 +31,14 @@ const App = () => {
                         <Route path="/signup" element={<AuthLayout title="Реєстрація">
                             <Signup/>
                         </AuthLayout>}/>
-                        <Route path='/' element={<PrivateRoute/>}/>
+                        {
+                            menuItems.map(item =>
+                                <Route key={item.id} path={item.ref} element={<Layout title={item.text}>{item.page}</Layout>}/>
+                        )}
                     </Routes>
                 </Router>
             </PrimeReactProvider>
         </Provider>
     );
 }
-
-/*class App1 extends Component {
-    render() {
-        let menu = new Menu({}).getMenuItemsWithLinks();
-        return (
-            <PrimeReactProvider>
-                <Router navigator={browserHistory} location={isUserAuthenticated ? "/" : "/login"}>
-                    <Routes>
-                        <Route path="/login" element={isUserAuthenticated ? <Navigate to="/"/> : <Login/>}/>
-                        <Route path="/signup" element={<Signup/>}/>
-                        <Route path="/" element={<Layout/>}>
-                            <Route key={0} index element={isUserAuthenticated ? <Home/> : <Navigate to="/login"/>}/>
-                            <Route path="/user/settings" element={<UserSettings />}/>
-                            <Route path="/settings" element={<MainSettings />}/>
-                            <Route path="*" element={<NotFound/>}/>
-                            {menu.map(item =>
-                                <Route key={item.id} path={item.ref} element={item.page}/>
-                            )}
-                        </Route>
-                    </Routes>
-                </Router>
-            </PrimeReactProvider>
-        );
-    }
-}*/
-
 export default App;
