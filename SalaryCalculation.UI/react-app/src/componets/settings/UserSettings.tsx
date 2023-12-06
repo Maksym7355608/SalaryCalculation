@@ -1,11 +1,7 @@
-import BasePageModel from "../BasePageModel";
+export function UserSettings() {
+    return (
+        <div>
 
-export class UserSettings extends BasePageModel {
-    render() {
-        return (
-            <div>
-
-            </div>
-        );
-    }
+        </div>
+    );
 }

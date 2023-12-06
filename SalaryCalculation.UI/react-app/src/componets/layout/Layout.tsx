@@ -1,11 +1,22 @@
 import Header from "./Header";
 import Footer from "./Footer";
-import Menu from "./Menu";
+import {Menu} from "./Menu";
 import React from "react";
-import {Outlet} from "react-router-dom";
 import {Col, Container, Row} from 'react-bootstrap';
+import {useNavigate} from "react-router-dom";
 
-const Layout = () => {
+export interface LayoutProps {
+    title: string;
+    children: any;
+}
+
+const Layout : React.FC<LayoutProps> = ({title, children}) => {
+    const navigate = useNavigate();
+    if(!localStorage.getItem("token"))
+    {
+        navigate("/login");
+        return null;
+    }
     return (
         <div className="vh-100 w-100 h-100 d-flex">
             <Container fluid className="inbox">
@@ -15,9 +26,9 @@ const Layout = () => {
                     </Col>
                     <Col md={10} className="main">
                         <main>
-                            <Header/>
+                            <Header title={title}/>
                             <div className="inbox">
-                                <Outlet/>
+                                { children }
                                 <span id="requestInvalid" className="text-danger"></span>
                                 <span id="responseInvalid" className="text-danger"></span>
                             </div>

@@ -52,8 +52,8 @@ export interface OrganizationDto {
     address: string;
     factAddress: string;
     bankAccounts: BankDto[];
-    chief: IdNamePair;
-    accountant: IdNamePair;
+    chief?: IdNamePair;
+    accountant?: IdNamePair;
     manager?: IdNamePair;
     permissions: EPermission[];
 }
