@@ -1,6 +1,6 @@
 import {Component} from "react";
 import RestApiClient, {RestApiProps} from "./RestApiClient";
-import {IdNamePair} from "../../models/BaseModels";
+import {EPermission, IdNamePair} from "../../models/BaseModels";
 import {EmployeeSearchCommand} from "../../models/commands/OrganizationCommands";
 import {EmployeeDto, OrganizationDto, OrganizationUnitDto, PositionDto} from "../../models/DTO";
 
@@ -33,6 +33,11 @@ export class OrganizationApiClient extends Component {
         if (response.isSuccess)
             organizations = this.apiClient.mapData<IdNamePair[]>(response) as IdNamePair[];
         return organizations;
+    }
+
+    async updateOrganizationPermissionsAsync(organizationId: number, permissions: EPermission[]): Promise<boolean> {
+        const response = await this.apiClient.putAsync(`/api/organizations/${organizationId}/permissions/set`, {permissions});
+        return response.isSuccess;
     }
 
     async getOrganizationUnitsAsync(organizationId: number) : Promise<OrganizationUnitDto[]> {
@@ -125,5 +130,36 @@ export class OrganizationApiClient extends Component {
 
     async deletePositionAsync(organizationId: number, organizationUnitId: number, id: number) : Promise<void> {
         await this.apiClient.deleteAsync(`/api/organizations/${organizationId}/units/${organizationUnitId}/positions/delete/${id}`);
+    }
+
+    async createOrganizationAsync(organization: OrganizationDto) {
+        const response = await this.apiClient.postAsync(`/api/organizations/create`, {
+            code: organization.code,
+            name: organization.name,
+            edrpou: organization.edrpou,
+            address: organization.address,
+            factAddress: organization.factAddress,
+            bankAccounts: organization.bankAccounts,
+            chief: organization.chief,
+            accountant: organization.accountant,
+            manager: organization.manager
+        });
+        return response.isSuccess;
+    }
+
+    async updateOrganizationAsync(organization: OrganizationDto) {
+        const response = await this.apiClient.putAsync(`/api/organizations/update`, {
+            id: organization.id,
+            code: organization.code,
+            name: organization.name,
+            edrpou: organization.edrpou,
+            address: organization.address,
+            factAddress: organization.factAddress,
+            bankAccounts: organization.bankAccounts,
+            chief: organization.chief,
+            accountant: organization.accountant,
+            manager: organization.manager
+        });
+        return response.isSuccess;
     }
 }

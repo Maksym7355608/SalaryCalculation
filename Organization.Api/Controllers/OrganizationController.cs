@@ -74,7 +74,7 @@ public class OrganizationsController : BaseOrganizationController
         return GetAjaxResponse(IsValid && deleted, Errors);
     }
 
-    [HttpPut("{organizationId}/permissions/update")]
+    [HttpPut("{organizationId}/permissions/set")]
     public async Task<IActionResult> SetOrganizationPermissions([FromRoute] int organizationId,
         [FromBody] IEnumerable<int> permissions)
     {

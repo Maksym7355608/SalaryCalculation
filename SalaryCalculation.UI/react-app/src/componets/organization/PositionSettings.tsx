@@ -23,7 +23,7 @@ const PositionSettings: React.FC<{units: OrganizationUnitDto[]}> = ({units}) => 
             .then(result => {
                 setPositions(result);
             });
-    });
+    }, [restClient.organization]);
 
     const handleChangeState = (show: boolean, type: EModalType, id?: number) => {
         if(id)
