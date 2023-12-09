@@ -25,3 +25,9 @@ export enum EMarriedStatus{
     civilMarried = 3,
     divorced = 4
 }
+
+export enum EContactKind {
+    phone = 1,
+    email,
+    telegram
+}

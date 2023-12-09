@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import {OrganizationDto} from "../../models/DTO";
 import {Table} from "react-bootstrap";
 import {SubmitHandler, useForm} from "react-hook-form";
-import {RestUnitOfWork} from "../../store/rest/RestUnitOfWork";
+import RestUnitOfWork from "../../store/rest/RestUnitOfWork";
 import {user} from "../../store/actions";
 
 const OrganizationPermissions = () => {

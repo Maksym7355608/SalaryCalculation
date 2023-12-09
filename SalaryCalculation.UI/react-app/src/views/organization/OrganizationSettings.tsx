@@ -2,7 +2,7 @@ import {OrganizationUnitDto} from "../../models/DTO";
 import {Col, Container, Row} from "react-bootstrap";
 import "primereact/resources/themes/lara-light-indigo/theme.css";
 import {useEffect, useState} from "react";
-import {RestUnitOfWork} from "../../store/rest/RestUnitOfWork";
+import RestUnitOfWork from "../../store/rest/RestUnitOfWork";
 import {user} from "../../store/actions";
 import UnitSettings from "../../componets/organization/UnitSettings";
 import PositionSettings from "../../componets/organization/PositionSettings";

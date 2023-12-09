@@ -2,7 +2,7 @@ import {useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import SelectList from "../../componets/helpers/SelectList";
-import {OrganizationApiClient} from "../../store/rest/OrganizationApiClient";
+import OrganizationApiClient from "../../store/rest/OrganizationApiClient";
 import {SubmitHandler, useForm} from "react-hook-form";
 import {SignUpForm, SignupState} from "../../models/identity/identity";
 import { signUp } from "../../store/identity";
@@ -90,8 +90,8 @@ export default function SignUp() {
                     </div>
                     <div className="form-group mb-1">
                         <label htmlFor="organization" className="form-label text-auth-2">Організація</label>
-                        <SelectList {...register('organization', {required: true})}
-                                    useEmpty={false} emptyName={undefined} selectName="organization"
+                        <SelectList register='organization'
+                                    useEmpty={false} emptyName={undefined} id="organization"
                                     items={state.organizations}/>
                     </div>
                     <div className="btn-group w-100 mt-2 d-flex justify-content-center">

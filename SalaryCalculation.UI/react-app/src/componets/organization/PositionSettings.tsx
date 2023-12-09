@@ -2,10 +2,10 @@ import React, {useEffect, useState} from "react";
 import {OrganizationUnitDto, PositionDto} from "../../models/DTO";
 import {Button, Form} from "react-bootstrap";
 import {handleError, user} from "../../store/actions";
-import {RestUnitOfWork} from "../../store/rest/RestUnitOfWork";
+import RestUnitOfWork from "../../store/rest/RestUnitOfWork";
 import {CustomModalDialog, EModalType} from "../helpers/CustomModalDialog";
 import {useForm} from "react-hook-form";
-import {CustomDataTable} from "../helpers/CustomDataTable";
+import CustomDataTable from "../helpers/CustomDataTable";
 import SelectList from "../helpers/SelectList";
 
 const PositionSettings: React.FC<{units: OrganizationUnitDto[]}> = ({units}) => {
@@ -70,12 +70,12 @@ const PositionSettings: React.FC<{units: OrganizationUnitDto[]}> = ({units}) => 
         const shortUnits = units.map(o => {return {id: o.id, name: o.name}}) ?? [];
         const createBody = [
             {id: 'pos-name', label: "Назва", control: <Form.Control {...register('name')} type="text" placeholder="Введіть назву посади"/>},
-            {id: 'pos-units', label: "Підрозділ", control: <SelectList {...register('parent')} selectName={"units"} useEmpty={true} emptyName='Оберіть батьківський підрозділ' items={shortUnits}/>},
+            {id: 'pos-units', label: "Підрозділ", control: <SelectList register='parent' id={"units"} useEmpty={true} emptyName='Оберіть батьківський підрозділ' items={shortUnits}/>},
         ];
         const editBody = [
             {id: 'edit-pos-id', control: <Form.Control {...register('id')} type='number' value={selected?.id} hidden={true} id='edit-pos-id'/>},
             {id: 'edit-pos', label: "Назва", control: <Form.Control {...register('name')} type="text" placeholder="Введіть назву посади" defaultValue={selected?.name}/>},
-            {id: 'edit-units', label: "Підрозділ", control: <SelectList {...register('parent')} selectName={"units"} useEmpty={true} emptyName='Оберіть батьківський підрозділ' items={shortUnits} value={selected?.organizationUnitId}/>},
+            {id: 'edit-units', label: "Підрозділ", control: <SelectList register='parent' id={"units"} useEmpty={true} emptyName='Оберіть батьківський підрозділ' items={shortUnits} value={selected?.organizationUnitId}/>},
         ];
         const deleteBody = [
             {id: 'delete-pos-id', control: <Form.Control {...register('id')} id={'delete-pos-id'} type='number' value={selected?.id} hidden={true}/>},
@@ -135,7 +135,7 @@ const PositionSettings: React.FC<{units: OrganizationUnitDto[]}> = ({units}) => 
             setPositions(current);
             setShowEditModal(false);
 
-            restClient.organization.updateOrganizationUnitAsync(updated)
+            restClient.organization.updatePositionAsync(updated)
                 .then(() => {
                     console.log('position successfully updated')
                 });

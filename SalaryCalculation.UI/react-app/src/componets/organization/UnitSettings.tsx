@@ -1,10 +1,10 @@
 import React, {useState} from "react";
 import {OrganizationUnitDto} from "../../models/DTO";
-import {RestUnitOfWork} from "../../store/rest/RestUnitOfWork";
+import RestUnitOfWork from "../../store/rest/RestUnitOfWork";
 import {handleError, user} from "../../store/actions";
 import {CustomModalDialog, EModalType} from "../helpers/CustomModalDialog";
 import {Button, Form} from "react-bootstrap";
-import {CustomDataTable} from "../helpers/CustomDataTable";
+import CustomDataTable from "../helpers/CustomDataTable";
 import SelectList from "../helpers/SelectList";
 import {useForm} from "react-hook-form";
 
@@ -63,12 +63,12 @@ const UnitSettings: React.FC<{units: OrganizationUnitDto[]}> = ({units}) => {
         const shortUnits = organizationUnits.map(o => {return {id: o.id, name: o.name}}) ?? [];
         const createBody = [
             {id: 'unitName', label: "Назва", control: <Form.Control {...register('name')} type="text" placeholder="Введіть назву посади"/>},
-            {id: 'units', label: "Підрозділ", control: <SelectList {...register('parent')} selectName={"units"} useEmpty={true} emptyName='Оберіть батьківський підрозділ' items={shortUnits}/>},
+            {id: 'units', label: "Підрозділ", control: <SelectList register='parent' id={"units"} useEmpty={true} emptyName='Оберіть батьківський підрозділ' items={shortUnits}/>},
         ];
         const editBody = [
             {id: 'edit-unit-id', control: <Form.Control {...register('id')} type='number' value={selected?.id} hidden={true} id='edit-unit-id'/>},
             {id: 'edit-unitName', label: "Назва", control: <Form.Control {...register('name')} type="text" placeholder="Введіть назву посади" defaultValue={selected?.name}/>},
-            {id: 'edit-units', label: "Підрозділ", control: <SelectList {...register('parent')} selectName={"units"} useEmpty={true} emptyName='Оберіть батьківський підрозділ' items={shortUnits} value={selected?.organizationUnitId}/>},
+            {id: 'edit-units', label: "Підрозділ", control: <SelectList register='parent' id={"units"} useEmpty={true} emptyName='Оберіть батьківський підрозділ' items={shortUnits} value={selected?.organizationUnitId}/>},
         ];
         const deleteBody = [
             {id: 'delete-unit-id', control: <Form.Control {...register('id')} id={'delete-unit-id'} type='number' value={selected?.id} hidden={true}/>}

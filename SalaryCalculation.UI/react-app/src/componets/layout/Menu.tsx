@@ -5,6 +5,7 @@ import {NavLink} from "react-router-dom";
 import Home from "../../views/home/Home";
 import OrganizationPermissions from "../../views/organization/OrganizationPermissions";
 import {Organization} from "../../views/organization/Organization";
+import Employee from "../../views/employees/Employee";
 
 interface MenuItem{
     id: number | string;
@@ -75,6 +76,9 @@ export function InitMenu() : MenuItem[] {
                 break;
             case EPermission.searchEmployees :
                 item = [getItem(permission, <Home/>,"Пошук працівників", `/`, "group", '/')];
+                break;
+            case EPermission.createEmployees:
+                item = [getItem(permission, <Employee/>, "Управління працівниками", `/employees/:id`)];
                 break;
             case EPermission.searchSchedules :
                 item = [getItem(permission, <OrganizationSettings/>,"Табелювання", `/schedule/search`, "calendar_today", `/schedule/search`)];
