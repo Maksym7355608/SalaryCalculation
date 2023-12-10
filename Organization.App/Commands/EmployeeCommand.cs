@@ -4,28 +4,38 @@ using SalaryCalculation.Data.BaseModels;
 
 namespace Organization.App.Commands;
 
-public class EmployeeUpdateCommand : EmployeeCreateCommand
+public class EmployeeBaseCommand : BaseCommand
 {
-    public int Id { get; set; }
-}
-
-public class EmployeeCreateCommand : BaseCommand
-{
-    public string RollNumber { get; set; }
     public string Name { get; set; }
     public string Surname { get; set; }
     public string Fatherly { get; set; }
-    public DateTime DateFrom { get; set; }
+    public string NameGenitive { get; set; }
+    public string ShortName { get; set; }
     public decimal Salary { get; set; }
     public IEnumerable<EBenefit> Benefits { get; set; }
-    public ESex Sex { get; set; }
     public EMarriedStatus MarriedStatus { get; set; }
     public BankDto BankAccount { get; set; }
-    public IEnumerable<ContactDto> Contacts { get; set; }
+    public string Phone { get; set; }
+    public string Email { get; set; }
+    public string Telegram { get; set; }
+    public int OrganizationUnitId { get; set; }
+    public int PositionId { get; set; }
+    public int RegimeId { get; set; }
+}
 
-    public IdNamePair Organization { get; set; }
-    public IdNamePair OrganizationUnit { get; set; }
-    public IdNamePair Position { get; set; }
+public class EmployeeUpdateCommand : EmployeeBaseCommand
+{
+    public int Id { get; set; }
+    public DateTime? DateSalaryUpdated { get; set; }
+    public DateTime? DateTo { get; set; }
+}
+
+public class EmployeeCreateCommand : EmployeeBaseCommand
+{
+    public string RollNumber { get; set; }
+    public DateTime DateFrom { get; set; }
+    public ESex Sex { get; set; }
+    public int OrganizationId { get; set; }
 }
 
 public class EmployeeSearchCommand : BaseCommand

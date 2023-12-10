@@ -1,0 +1,40 @@
+﻿services:
+  organization.api:
+    image: organization.api
+    build:
+      context: .
+      dockerfile: Organization.Api/Dockerfile
+    ports:
+      - 5100:80
+
+  identity.api:
+    image: identity.api
+    build:
+      context: .
+      dockerfile: Identity.Api/Dockerfile
+    ports:
+      - 5300:80
+
+  schedule.api:
+    image: schedule.api
+    build:
+      context: .
+      dockerfile: Schedule.API/Dockerfile
+    ports:
+      - 5200:80
+        
+  calculation.api:
+    image: calculation.api
+    build:
+      context: .
+      dockerfile: Calculation.API/Dockerfile
+    ports:
+      - 5217:80
+
+  dictionary.api:
+    image: dictionary.api
+    build:
+      context: .
+      dockerfile: Dictionary.API/Dockerfile
+    ports:
+      - 5400:80

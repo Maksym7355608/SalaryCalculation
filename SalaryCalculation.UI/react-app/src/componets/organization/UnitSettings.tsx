@@ -1,22 +1,29 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {OrganizationUnitDto} from "../../models/DTO";
-import {RestUnitOfWork} from "../../store/rest/RestUnitOfWork";
+import RestUnitOfWork from "../../store/rest/RestUnitOfWork";
 import {handleError, user} from "../../store/actions";
 import {CustomModalDialog, EModalType} from "../helpers/CustomModalDialog";
 import {Button, Form} from "react-bootstrap";
-import {CustomDataTable} from "../helpers/CustomDataTable";
+import CustomDataTable from "../helpers/CustomDataTable";
 import SelectList from "../helpers/SelectList";
 import {useForm} from "react-hook-form";
 
 const UnitSettings: React.FC<{units: OrganizationUnitDto[]}> = ({units}) => {
     const {register} = useForm<any>();
-    const [organizationUnits, setUnits] = useState<OrganizationUnitDto[]>(units);
+    const [organizationUnits, setUnits] = useState<OrganizationUnitDto[]>([...units]);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [selected, setSelected] = useState<OrganizationUnitDto | undefined>(undefined)
 
     const restClient = new RestUnitOfWork();
+    useEffect(() => {
+        if (units.length == 0)
+            restClient.organization.getOrganizationUnitsAsync(user().organization)
+                .then(result => {
+                    setUnits(result);
+                })
+    }, []);
 
     const handleChangeState = (show: boolean, type: EModalType, id?: number) => {
         if(id)
@@ -63,12 +70,12 @@ const UnitSettings: React.FC<{units: OrganizationUnitDto[]}> = ({units}) => {
         const shortUnits = organizationUnits.map(o => {return {id: o.id, name: o.name}}) ?? [];
         const createBody = [
             {id: 'unitName', label: "Назва", control: <Form.Control {...register('name')} type="text" placeholder="Введіть назву посади"/>},
-            {id: 'units', label: "Підрозділ", control: <SelectList {...register('parent')} selectName={"units"} useEmpty={true} emptyName='Оберіть батьківський підрозділ' items={shortUnits}/>},
+            {id: 'units', label: "Підрозділ", control: <SelectList register='parent' id={"units"} useEmpty={true} emptyName='Оберіть батьківський підрозділ' items={shortUnits}/>},
         ];
         const editBody = [
             {id: 'edit-unit-id', control: <Form.Control {...register('id')} type='number' value={selected?.id} hidden={true} id='edit-unit-id'/>},
             {id: 'edit-unitName', label: "Назва", control: <Form.Control {...register('name')} type="text" placeholder="Введіть назву посади" defaultValue={selected?.name}/>},
-            {id: 'edit-units', label: "Підрозділ", control: <SelectList {...register('parent')} selectName={"units"} useEmpty={true} emptyName='Оберіть батьківський підрозділ' items={shortUnits} value={selected?.organizationUnitId}/>},
+            {id: 'edit-units', label: "Підрозділ", control: <SelectList register='parent' id={"units"} useEmpty={true} emptyName='Оберіть батьківський підрозділ' items={shortUnits} value={selected?.organizationUnitId}/>},
         ];
         const deleteBody = [
             {id: 'delete-unit-id', control: <Form.Control {...register('id')} id={'delete-unit-id'} type='number' value={selected?.id} hidden={true}/>}
@@ -88,7 +95,7 @@ const UnitSettings: React.FC<{units: OrganizationUnitDto[]}> = ({units}) => {
             const newUnit : OrganizationUnitDto = {
                 name: data.name,
                 organizationUnitId : data.parent != -1 ? data.parent : null,
-                organizationId : user.organization
+                organizationId : user().organization
             } as OrganizationUnitDto;
             setUnits([...organizationUnits, newUnit]);
             restClient.organization.createOrganizationUnitAsync(newUnit)
@@ -108,7 +115,7 @@ const UnitSettings: React.FC<{units: OrganizationUnitDto[]}> = ({units}) => {
             }
             const updated = {
                 id: data.id,
-                organizationId: user.organization,
+                organizationId: user().organization,
                 organizationUnitId: data.parent != -1 ? data.parent : null,
                 name: data.name
             }
@@ -134,7 +141,7 @@ const UnitSettings: React.FC<{units: OrganizationUnitDto[]}> = ({units}) => {
         }
 
         const handleDelete = (data : any) => {
-            restClient.organization.deleteOrganizationUnitAsync(user.organization, data.id)
+            restClient.organization.deleteOrganizationUnitAsync(user().organization, data.id)
                 .then(() => {
                     console.log('unit successfully deleted')
                 });

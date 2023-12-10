@@ -2,7 +2,7 @@ import {useParams} from "react-router-dom";
 import React, {useEffect, useState} from "react";
 import {Container, Form} from "react-bootstrap";
 import {OrganizationDto, BankDto} from "../../models/DTO";
-import {RestUnitOfWork} from "../../store/rest/RestUnitOfWork";
+import RestUnitOfWork from "../../store/rest/RestUnitOfWork";
 import {SubmitHandler, useForm, useFieldArray} from "react-hook-form";
 
 export const Organization = () => {

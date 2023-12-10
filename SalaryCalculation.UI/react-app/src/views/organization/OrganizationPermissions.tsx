@@ -2,17 +2,19 @@ import React, {useEffect, useState} from "react";
 import {OrganizationDto} from "../../models/DTO";
 import {Table} from "react-bootstrap";
 import {SubmitHandler, useForm} from "react-hook-form";
-import {RestUnitOfWork} from "../../store/rest/RestUnitOfWork";
-import {user} from "../../store/actions";
+import RestUnitOfWork from "../../store/rest/RestUnitOfWork";
+import {enumToIdNamePair, user} from "../../store/actions";
+import {EPermission} from "../../models/Enums";
 
 const OrganizationPermissions = () => {
     const {register, handleSubmit} = useForm<number[]>();
     const onSubmit: SubmitHandler<number[]> = (data: number[]) => handleSubmitUpdatePermissions(data);
     const restClient = new RestUnitOfWork();
+    const permissions = enumToIdNamePair(EPermission);
 
     const [organization, setOrganization] = useState({} as OrganizationDto);
     useEffect(() => {
-        restClient.organization.getOrganizationAsync(user.organization)
+        restClient.organization.getOrganizationAsync(user().organization)
             .then(result => {
                 setOrganization(result);
             });
@@ -37,11 +39,11 @@ const OrganizationPermissions = () => {
                 </thead>
                 <tbody>
                 {
-                    organization.permissions.map(p => {
+                    permissions.map(p => {
                         return (
                             <tr>
-                                <td><input type='checkbox' value={p} {...register(`${p}`)}/></td>
-                                <td>{p.toString()}</td>
+                                <td><input type='checkbox' checked={!!organization.permissions?.find(x => x == p.id)} value={p.id} {...register(`${p.id}`)}/></td>
+                                <td>{p.name.toString()}</td>
                             </tr>
                         );
                     })

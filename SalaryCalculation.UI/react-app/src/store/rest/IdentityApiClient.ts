@@ -1,14 +1,12 @@
-import React from "react";
 import RestApiClient, {RestApiProps} from "./RestApiClient";
 import {UserCreateCommand} from "../../models/commands/IdentityCommands";
 import {UserModel} from "../../models/BaseModels";
 
-class IdentityApiClient extends React.Component {
+class IdentityApiClient {
     private readonly url = "http://localhost:5300";
     private readonly apiClient: RestApiClient;
 
     constructor() {
-        super({});
         let settings = {baseUrl: this.url, token: undefined} as RestApiProps;
         const token = localStorage.getItem('token');
         if (token)

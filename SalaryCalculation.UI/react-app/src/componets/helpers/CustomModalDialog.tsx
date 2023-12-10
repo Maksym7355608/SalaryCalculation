@@ -1,7 +1,6 @@
-import React, {Component, ReactNode} from "react";
+import React from "react";
 import {Button, Form, Modal} from "react-bootstrap";
 import {SubmitHandler, useForm} from "react-hook-form";
-import {logIn} from "../../store/identity";
 
 
 export enum EModalType {
@@ -111,7 +110,7 @@ export const CustomModalDialog: React.FC<CustomModalDialogProps> = (
     return (
         <Modal centered={config?.centered} show={show} onHide={handleClose} id={id}>
             {renderHeader()}
-            <Form onSubmit={handleSubmit(handleActionBtn)}>
+            <Form onSubmit={handleSubmit(onSubmit)}>
                 {renderBody()}
                 {renderFooter()}
             </Form>

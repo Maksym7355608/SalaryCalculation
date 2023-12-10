@@ -1,16 +1,20 @@
-import {Component} from "react";
 import RestApiClient, {RestApiProps} from "./RestApiClient";
-import {EPermission, IdNamePair} from "../../models/BaseModels";
-import {EmployeeSearchCommand} from "../../models/commands/OrganizationCommands";
+import {IdNamePair} from "../../models/BaseModels";
+import {
+    EmployeeCreateCommand,
+    EmployeeSearchCommand,
+    EmployeeUpdateCommand
+} from "../../models/commands/OrganizationCommands";
 import {EmployeeDto, OrganizationDto, OrganizationUnitDto, PositionDto} from "../../models/DTO";
+import {EmployeeModel} from "../../models/employees";
+import {EContactKind, EPermission} from "../../models/Enums";
 
 
-export class OrganizationApiClient extends Component {
+export default class OrganizationApiClient {
     private readonly url = "http://localhost:5100";
     private readonly apiClient: RestApiClient;
 
     constructor() {
-        super({});
         let settings = {baseUrl: this.url, token: undefined} as RestApiProps;
         const token = localStorage.getItem('token');
         if (token)
@@ -76,14 +80,6 @@ export class OrganizationApiClient extends Component {
         if(response.isSuccess)
             positions = this.apiClient.mapData<IdNamePair[]>(response) as IdNamePair[];
         return positions;
-    }
-
-    async searchEmployeesAsync(cmd : EmployeeSearchCommand) : Promise<EmployeeDto[]> {
-        const response = await this.apiClient.postAsync('/api/employees/search', cmd);
-        let employees: EmployeeDto[] = [];
-        if(response.isSuccess)
-            employees = this.apiClient.mapData<EmployeeDto[]>(response) as EmployeeDto[];
-        return employees;
     }
 
     async createOrganizationUnitAsync(unit: OrganizationUnitDto) : Promise<void> {
@@ -161,5 +157,56 @@ export class OrganizationApiClient extends Component {
             manager: organization.manager
         });
         return response.isSuccess;
+    }
+
+    async getEmployeeAsync(id: number) {
+        const response = await this.apiClient.getAsync(`/api/employees/${id}`);
+        const data = response.data as EmployeeDto;
+        return this.mapEmployeeDtoToEmployeeModel(data);
+    }
+
+    async searchEmployeesAsync(cmd : EmployeeSearchCommand) {
+        const response = await this.apiClient.postAsync('/api/employees/search', cmd);
+        let employees: EmployeeDto[] = [];
+        if(response.isSuccess)
+            employees = this.apiClient.mapData<EmployeeDto[]>(response) as EmployeeDto[];
+        return employees;
+    }
+
+    async createEmployeeAsync(employee: EmployeeCreateCommand) {
+        const response = await this.apiClient.postAsync('/api/employees/create', employee);
+        return response.isSuccess;
+    }
+
+    async updateEmployeeAsync(employee: EmployeeUpdateCommand) {
+        const response = await this.apiClient.putAsync(`/api/employees/update/${employee.id}`, employee);
+        return response.isSuccess;
+    }
+
+    async deleteEmployeeAsync(id: number) {
+        const response = await this.apiClient.deleteAsync(`/api/employees/delete/${id}`);
+        return response.isSuccess;
+    }
+
+    private mapEmployeeDtoToEmployeeModel(data: EmployeeDto) {
+        return {
+            id: data.id,
+            rollNumber: data.rollNumber,
+            dateFrom: data.dateFrom,
+            dateTo: data.dateTo,
+            dateFromSalary: data.salaries[data.salaries.length-1].dateFrom,
+            salary: data.salaries[data.salaries.length-1].amount,
+            benefits: data.benefits,
+            sex: data.sex,
+            marriedStatus: data.marriedStatus,
+            bankAccount: data.bankAccount,
+            phone: data.contacts.find(c => c.kind == EContactKind.phone)?.value,
+            email: data.contacts.find(c => c.kind == EContactKind.email)?.value,
+            telegram: data.contacts.find(c => c.kind == EContactKind.telegram)?.value,
+            organizationId: data.organizationId.id,
+            organizationUnitId: data.organizationUnitId.id,
+            positionId: data.position.id,
+            regimeId: data.regime.id
+        } as EmployeeModel;
     }
 }

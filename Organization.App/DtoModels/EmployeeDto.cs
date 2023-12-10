@@ -20,6 +20,7 @@ public class EmployeeDto
     public IdNamePair OrganizationId { get; set; }
     public IdNamePair OrganizationUnitId { get; set; }
     public IdNamePair Position { get; set; }
+    public int RegimeId { get; set; }
 }
 
 public class SalaryDto

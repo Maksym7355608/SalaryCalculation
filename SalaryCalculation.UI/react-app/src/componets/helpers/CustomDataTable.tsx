@@ -30,7 +30,7 @@ interface HeaderSettings {
     header?: Element;
 }
 
-export class CustomDataTable<TModel extends object> extends Component<DataTableProps<TModel>> {
+export default class CustomDataTable<TModel extends object> extends Component<DataTableProps<TModel>> {
 
     private readonly config = {
         emptyMessage: 'Дані відсутні',
@@ -87,20 +87,20 @@ export class CustomDataTable<TModel extends object> extends Component<DataTableP
         return (
             <div className="ibox-content w-100">
                 <div className="justify-content-center">
-                        <DataTable value={this.props.rows} header={this.renderHeader()}
-                                   className={this.config.className} size={"small"}
-                                   currentPageReportTemplate="{first} по {last} з {totalRecords}"
-                                   paginator={this.config.paginator} paginatorRight={this.config.paginatorRight}
-                                   paginatorLeft={this.config.paginatorLeft}
-                                   rowHover={this.config.rowHover} scrollable={this.config.scrollable}
-                                   scrollHeight={this.config.scrollHeight}
-                                   emptyMessage={this.config.emptyMessage} rows={this.config.rows}
-                                   rowsPerPageOptions={this.config.rowsPerPageOptions}
-                                   sortMode={this.config.sortMode}
-                                   showGridlines={this.config.showGridlines}
-                                   lazy={this.config.lazy} loading={this.config.loading} footer={this.props.footer}>
-                            {this.renderColumns()}
-                        </DataTable>
+                    <DataTable value={this.props.rows} header={this.renderHeader()}
+                               className={this.config.className} size={"small"}
+                               currentPageReportTemplate="{first} по {last} з {totalRecords}"
+                               paginator={this.config.paginator} paginatorRight={this.config.paginatorRight}
+                               paginatorLeft={this.config.paginatorLeft}
+                               rowHover={this.config.rowHover} scrollable={this.config.scrollable}
+                               scrollHeight={this.config.scrollHeight}
+                               emptyMessage={this.config.emptyMessage} rows={this.config.rows}
+                               rowsPerPageOptions={this.config.rowsPerPageOptions}
+                               sortMode={this.config.sortMode}
+                               showGridlines={this.config.showGridlines}
+                               loading={this.config.loading} footer={this.props.footer}>
+                        {this.renderColumns()}
+                    </DataTable>
                 </div>
             </div>
         );

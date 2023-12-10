@@ -4,6 +4,8 @@
         <TargetFramework>net7.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+        <UserSecretsId>45a9e117-97e8-4033-a894-dea82167a42b</UserSecretsId>
     </PropertyGroup>
 
     <ItemGroup>
@@ -19,6 +21,9 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Content Include="..\.dockerignore">
+        <Link>.dockerignore</Link>
+      </Content>
       <Content Include="..\Identity.Api\SharedSettings.Development.json">
         <Link>SharedSettings.Development.json</Link>
       </Content>
