@@ -12,7 +12,7 @@ import {EmployeeModel} from "../../models/employees";
 
 export const searchEmployees = async (data: IHomeForm) => {
     const command: EmployeeSearchCommand = {
-        organizationId: user.organization,
+        organizationId: user().organization,
         rollNumber: data.rollNumber,
         organizationUnitId: data.organizationUnit,
         positionId: data.position,

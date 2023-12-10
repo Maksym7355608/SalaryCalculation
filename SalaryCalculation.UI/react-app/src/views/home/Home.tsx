@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import SelectList from "../../componets/helpers/SelectList";
-import {EPermission, IdNamePair} from "../../models/BaseModels";
+import {IdNamePair} from "../../models/BaseModels";
 import {EmployeeShortModel} from "../../models/ShortModels";
 import RestUnitOfWork from "../../store/rest/RestUnitOfWork";
 import {hasPermission, user} from "../../store/actions";
@@ -9,6 +9,7 @@ import {IHomeForm} from "../../models/employees/forms";
 import {mapToEmployeeShortModel, searchEmployees} from "../../store/employees";
 import {DataTable} from "primereact/datatable";
 import {Column} from "primereact/column";
+import {EPermission} from "../../models/Enums";
 
 export default function Home() {
     const [isLoaded, setLoaded] = useState<boolean>(false);
@@ -19,10 +20,10 @@ export default function Home() {
 
     useEffect(() => {
         if (!isLoaded) {
-            restClient.organization.getPositionsShortAsync(user.organization).then(res => {
+            restClient.organization.getPositionsShortAsync(user().organization).then(res => {
                 setPositions(res);
             });
-            restClient.organization.getOrganizationUnitsShortAsync(user.organization).then(res =>{
+            restClient.organization.getOrganizationUnitsShortAsync(user().organization).then(res =>{
                 setUnits(res);
             });
             setLoaded(true);

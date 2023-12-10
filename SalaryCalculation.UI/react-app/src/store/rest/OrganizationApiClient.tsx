@@ -1,5 +1,5 @@
 import RestApiClient, {RestApiProps} from "./RestApiClient";
-import {EPermission, IdNamePair} from "../../models/BaseModels";
+import {IdNamePair} from "../../models/BaseModels";
 import {
     EmployeeCreateCommand,
     EmployeeSearchCommand,
@@ -7,7 +7,7 @@ import {
 } from "../../models/commands/OrganizationCommands";
 import {EmployeeDto, OrganizationDto, OrganizationUnitDto, PositionDto} from "../../models/DTO";
 import {EmployeeModel} from "../../models/employees";
-import {EContactKind} from "../../models/Enums";
+import {EContactKind, EPermission} from "../../models/Enums";
 
 
 export default class OrganizationApiClient {

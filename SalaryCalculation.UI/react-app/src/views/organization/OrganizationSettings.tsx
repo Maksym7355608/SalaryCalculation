@@ -14,11 +14,11 @@ export default function OrganizationSettings() {
     const restClient = new RestUnitOfWork();
 
     useEffect(() => {
-        restClient.organization.getOrganizationUnitsAsync(user.organization)
+        restClient.organization.getOrganizationUnitsAsync(user().organization)
             .then(result => {
                 setUnits(result);
             })
-    }, [restClient.organization]);
+    }, []);
 
     return (
         <Container fluid>
@@ -26,8 +26,8 @@ export default function OrganizationSettings() {
                 <h4 className="text-center">Організація</h4>
             </Row>
             <Row>
-                <Col><Link to={`/organization/${user.organization}/permissions`} className="btn btn-toolbar">Налаштування прав доступу</Link></Col>
-                <Col><Link to={`/organization/${user.organization}`} className="btn btn-toolbar">Редагування організації</Link></Col>
+                <Col><Link to={`/organization/${user().organization}/permissions`} className="btn btn-toolbar">Налаштування прав доступу</Link></Col>
+                <Col><Link to={`/organization/${user().organization}`} className="btn btn-toolbar">Редагування організації</Link></Col>
             </Row>
             <Row>
                 <Col><button className="btn btn-toolbar">Перегляд організацій</button></Col>

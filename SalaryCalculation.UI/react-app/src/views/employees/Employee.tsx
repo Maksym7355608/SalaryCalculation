@@ -41,9 +41,9 @@ export default function Employee() {
                 setEmployee(emp);
                 setIsEditMode(true);
             }
-            const shortUnits = await restClient.organization.getOrganizationUnitsShortAsync(user.organization);
-            const pos = await restClient.organization.getPositionsAsync(user.organization);
-            const shortRegimes = await restClient.schedule.getRegimesShortAsync(user.organization);
+            const shortUnits = await restClient.organization.getOrganizationUnitsShortAsync(user().organization);
+            const pos = await restClient.organization.getPositionsAsync(user().organization);
+            const shortRegimes = await restClient.schedule.getRegimesShortAsync(user().organization);
 
             setUnits(shortUnits);
             setPositions(pos);
@@ -79,7 +79,7 @@ export default function Employee() {
         <Container fluid>
             <h2>{isEditMode ? "Редагування працівника" : "Додавання працівника"}</h2>
             <Form onSubmit={handleSubmit(onSubmit)}>
-                <input type='hidden' {...register('organizationId')} value={user.organization}/>
+                <input type='hidden' {...register('organizationId')} value={user().organization}/>
 
                 <Form.Group controlId="rollNumber">
                     <Form.Label>Табельний номер</Form.Label>

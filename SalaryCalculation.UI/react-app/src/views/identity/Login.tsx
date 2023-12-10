@@ -1,4 +1,4 @@
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import { useForm, SubmitHandler } from "react-hook-form"
 import {useDispatch} from "react-redux";
 import {get_user} from "../../store/actions/userActions";
@@ -8,6 +8,7 @@ import {login} from "../../auth";
 
 export default function Login() {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const {
         register,
         handleSubmit,
@@ -19,6 +20,7 @@ export default function Login() {
         dispatch(get_user(userModel))
         localStorage.setItem("user", JSON.stringify(userModel));
         login(userModel.token);
+        navigate('/');
     });
 
     return (

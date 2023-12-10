@@ -1,4 +1,4 @@
-import {EPermission, UserModel} from "../../models/BaseModels";
+import {UserModel} from "../../models/BaseModels";
 import React, {ReactElement} from "react";
 import OrganizationSettings from "../../views/organization/OrganizationSettings";
 import {NavLink} from "react-router-dom";
@@ -6,6 +6,7 @@ import Home from "../../views/home/Home";
 import OrganizationPermissions from "../../views/organization/OrganizationPermissions";
 import {Organization} from "../../views/organization/Organization";
 import Employee from "../../views/employees/Employee";
+import {EPermission} from "../../models/Enums";
 
 interface MenuItem{
     id: number | string;
@@ -96,7 +97,7 @@ export function InitMenu() : MenuItem[] {
                 item = undefined;
         }
         if(item)
-            items.concat(item);
+            items = [...items, ...item];
     });
     return items;
 }

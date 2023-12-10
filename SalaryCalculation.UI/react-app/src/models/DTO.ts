@@ -1,5 +1,5 @@
-import {EPermission, IdNamePair} from "./BaseModels";
-import {EBenefit, EMarriedStatus, ESex} from "./Enums";
+import {IdNamePair} from "./BaseModels";
+import {EBenefit, EMarriedStatus, EPermission, ESex} from "./Enums";
 
 export interface EmployeeDto {
     id: number;

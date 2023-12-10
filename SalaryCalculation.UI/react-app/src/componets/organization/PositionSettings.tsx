@@ -19,11 +19,11 @@ const PositionSettings: React.FC<{units: OrganizationUnitDto[]}> = ({units}) => 
     const [selected, setSelected] = useState<OrganizationUnitDto | undefined>(undefined)
 
     useEffect(() => {
-        restClient.organization.getPositionsAsync(user.organization)
+        restClient.organization.getPositionsAsync(user().organization)
             .then(result => {
                 setPositions(result);
             });
-    }, [restClient.organization]);
+    }, []);
 
     const handleChangeState = (show: boolean, type: EModalType, id?: number) => {
         if(id)
@@ -96,7 +96,7 @@ const PositionSettings: React.FC<{units: OrganizationUnitDto[]}> = ({units}) => 
             const pos : PositionDto = {
                 name: data.name,
                 organizationUnitId : data.parent != -1 ? data.parent : null,
-                organizationId : user.organization
+                organizationId : user().organization
             } as PositionDto;
             setPositions([...positions, pos]);
             restClient.organization.createPositionAsync(pos)
@@ -116,7 +116,7 @@ const PositionSettings: React.FC<{units: OrganizationUnitDto[]}> = ({units}) => 
             }
             const updated = {
                 id: data.id,
-                organizationId: user.organization,
+                organizationId: user().organization,
                 organizationUnitId: data.parent != -1 ? data.parent : null,
                 name: data.name
             } as PositionDto;
@@ -142,7 +142,7 @@ const PositionSettings: React.FC<{units: OrganizationUnitDto[]}> = ({units}) => 
         }
 
         const handleDelete = (data : any) => {
-            restClient.organization.deletePositionAsync(user.organization, data.unitId, data.id)
+            restClient.organization.deletePositionAsync(user().organization, data.unitId, data.id)
                 .then(() => {
                     console.log('position successfully deleted')
                 });
@@ -184,6 +184,7 @@ const PositionSettings: React.FC<{units: OrganizationUnitDto[]}> = ({units}) => 
             <div className="ibox mt-3">
                 <CustomDataTable columns={cols} rows={getRows()}
                                  header={{centerHead: <>Посади</>}} config={{paginatorRight: paginatorRight}}/>
+
             </div>
             {renderModals()}
         </>
