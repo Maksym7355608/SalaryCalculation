@@ -76,13 +76,8 @@ public class OrganizationsController : BaseOrganizationController
 
     [HttpPut("{organizationId}/permissions/set")]
     public async Task<IActionResult> SetOrganizationPermissions([FromRoute] int organizationId,
-        [FromBody] IEnumerable<int> permissions)
+        [FromBody] OrganizationPermissionUpdateCommand cmd)
     {
-        var cmd = new OrganizationPermissionUpdateCommand()
-        {
-            OrganizationId = organizationId,
-            Permissions = permissions.Cast<EPermission>()
-        };
         var updated = await OrganizationCommandHandler.UpdateOrganizationPermissionsAsync(cmd);
         return GetAjaxResponse(IsValid && updated, Errors);
     }
