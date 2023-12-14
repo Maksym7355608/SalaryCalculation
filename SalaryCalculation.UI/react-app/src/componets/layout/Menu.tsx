@@ -79,7 +79,7 @@ export function InitMenu() : MenuItem[] {
                 item = [getItem(permission, <Home/>,"Пошук працівників", `/`, "group", '/')];
                 break;
             case EPermission.createEmployees:
-                item = [getItem(permission, <Employee/>, "Управління працівниками", `/employees/:id`)];
+                item = [getItem(permission, <Employee/>, "Управління працівниками", `/employee/:id`)];
                 break;
             case EPermission.searchSchedules :
                 item = [getItem(permission, <OrganizationSettings/>,"Табелювання", `/schedule/search`, "calendar_today", `/schedule/search`)];

@@ -53,8 +53,8 @@ export interface OrganizationDto {
     address: string;
     factAddress: string;
     bankAccounts: BankDto[];
-    chief?: IdNamePair;
-    accountant?: IdNamePair;
+    chief?: string;
+    accountant?: string;
     manager?: IdNamePair;
     permissions: EPermission[];
 }
