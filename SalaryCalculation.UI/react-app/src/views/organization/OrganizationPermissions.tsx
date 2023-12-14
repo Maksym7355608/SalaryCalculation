@@ -1,14 +1,14 @@
 import React, {useEffect, useState} from "react";
 import {OrganizationDto} from "../../models/DTO";
-import {Table} from "react-bootstrap";
+import {Button, Form, Table} from "react-bootstrap";
 import {SubmitHandler, useForm} from "react-hook-form";
 import RestUnitOfWork from "../../store/rest/RestUnitOfWork";
 import {enumToIdNamePair, user} from "../../store/actions";
 import {EPermission} from "../../models/Enums";
 
 const OrganizationPermissions = () => {
-    const {register, handleSubmit} = useForm<number[]>();
-    const onSubmit: SubmitHandler<number[]> = (data: number[]) => handleSubmitUpdatePermissions(data);
+    const {register, handleSubmit} = useForm();
+    const onSubmit: SubmitHandler<any> = (data: any) => handleSubmitUpdatePermissions(data);
     const restClient = new RestUnitOfWork();
     const permissions = enumToIdNamePair(EPermission);
 
@@ -18,10 +18,15 @@ const OrganizationPermissions = () => {
             .then(result => {
                 setOrganization(result);
             });
-    }, [restClient.organization]);
+    }, []);
 
-    const handleSubmitUpdatePermissions = (data: number[]) => {
-        restClient.organization.updateOrganizationPermissionsAsync(organization.id, data)
+    const handleSubmitUpdatePermissions = (data: any) => {
+        const keys = Object.keys(data);
+        const updated = Object.values(data).map((v, index) => {
+            if(v)
+                return parseInt(keys[index]);
+        }).filter(d => d);
+        restClient.organization.updateOrganizationPermissionsAsync(organization.id, updated as EPermission[])
             .then(response => {
                 if(response)
                     console.log('permissions was updated');
@@ -29,28 +34,19 @@ const OrganizationPermissions = () => {
                     console.error(`permissions was not updated`)
             });
     }
-
+    const currentPermissions = (organization?.permissions as number[]) ?? [];
     return (
-        <form onSubmit={handleSubmit(onSubmit)}>
-            <Table size='small'>
-                <thead>
-                <th></th>
-                <th>Назва</th>
-                </thead>
-                <tbody>
-                {
-                    permissions.map(p => {
-                        return (
-                            <tr>
-                                <td><input type='checkbox' checked={!!organization.permissions?.find(x => x == p.id)} value={p.id} {...register(`${p.id}`)}/></td>
-                                <td>{p.name.toString()}</td>
-                            </tr>
-                        );
-                    })
-                }
-                </tbody>
-            </Table>
-        </form>
+        <Form onSubmit={handleSubmit(onSubmit)}>
+            {
+                permissions.map(permission =>
+                    <div className="form-check mb-2">
+                        <Form.Check defaultChecked={currentPermissions.some(x => x === (permission.id as EPermission))} {...register(`${permission.id}`)}/>
+                        <Form.Label htmlFor={`${permission.id}`}>{permission.name}</Form.Label>
+                    </div>
+                )
+            }
+            <Button type="submit" variant="primary">Зберегти зміни</Button>
+        </Form>
     );
 }
 

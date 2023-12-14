@@ -15,7 +15,7 @@ export default class ScheduleApiClient extends Component {
         this.apiClient = new RestApiClient(settings);
     }
 
-    async getRegimesShortAsync(organizationId: number) {
-        return {} as IdNamePair[];
+    async getRegimesShortAsync(organizationId: number) : Promise<IdNamePair[]> {
+        return [];
     }
 }

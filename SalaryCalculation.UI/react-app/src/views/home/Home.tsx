@@ -10,6 +10,8 @@ import {mapToEmployeeShortModel, searchEmployees} from "../../store/employees";
 import {DataTable} from "primereact/datatable";
 import {Column} from "primereact/column";
 import {EPermission} from "../../models/Enums";
+import CustomDataTable from "../../componets/helpers/CustomDataTable";
+import { Link } from "react-router-dom";
 
 export default function Home() {
     const [isLoaded, setLoaded] = useState<boolean>(false);
@@ -54,6 +56,19 @@ export default function Home() {
         });
     }
 
+    const columnDefs = [
+        {field: 'rollNumber', text: 'Табельний номер'},
+        {field: 'fullName', text: 'ПІБ'},
+        {field: 'unit', text: 'Підрозділ'},
+        {field: 'position', text: 'Посада'},
+        {field: 'employeeDate', text: 'Дата прийняття'},
+        {field: 'dismissDate', text: 'Дата звільнення'},
+        {field: 'salary', text: 'Оклад'},
+        {field: 'sex', text: 'Стать'},
+        {field: 'familyStatus', text: 'Сімейний стан'},
+        {field: 'benefits', text: 'Пільги'},
+        {field: 'actions', text: '', sortable: false},
+    ];
     return (
         <div className="container-fluid">
             <form className="form-search" onSubmit={handleSubmit(onSubmit)}>
@@ -106,9 +121,9 @@ export default function Home() {
                     </button>
                     {
                         hasPermission(EPermission.createEmployees) &&
-                        <button type="button" className="col btn btn-sm btn-success me-2" title="Додати працівника">
+                        <Link to='/employee/create' className="col btn btn-sm btn-success me-2" title="Додати працівника">
                             <i className="material-icons small">add</i> Додати
-                        </button>
+                        </Link>
                     }
                     <button type="reset" className="col btn btn-sm btn-warning me-2" title="Очистити фільтри">
                         Очистити
@@ -118,21 +133,7 @@ export default function Home() {
             <div className="ibox mt-3 mb-3">
                 <div className="ibox-content w-100">
                     <div className="justify-content-center">
-                        <DataTable value={createEmployeeWithActions()} lazy paginator rows={10}
-                                   rowsPerPageOptions={[5, 10, 20, 50]} size='small' scrollable
-                                   rowHover>
-                            <Column field='rollNumber' sortable header="Табельний номер"/>
-                            <Column field='fullName' sortable header="ПІБ"/>
-                            <Column field='unit' sortable header="Підрозділ"/>
-                            <Column field='position' sortable header="Посада"/>
-                            <Column field='employeeDate' sortable header="Дата прийняттяр"/>
-                            <Column field='dismissDate' sortable header="Дата звільнення"/>
-                            <Column field='salary' sortable header="Оклад"/>
-                            <Column field='sex' sortable header="Стать"/>
-                            <Column field='familyStatus' sortable header="Сімейний стан"/>
-                            <Column field='benefits' sortable header="Пільги"/>
-                            <Column field='actions' sortable header=""/>
-                        </DataTable>
+                        <CustomDataTable columns={columnDefs} rows={createEmployeeWithActions()}/>
                     </div>
                 </div>
             </div>

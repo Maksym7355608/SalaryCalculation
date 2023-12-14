@@ -40,7 +40,10 @@ export default class OrganizationApiClient {
     }
 
     async updateOrganizationPermissionsAsync(organizationId: number, permissions: EPermission[]): Promise<boolean> {
-        const response = await this.apiClient.putAsync(`/api/organizations/${organizationId}/permissions/set`, {permissions});
+        const response = await this.apiClient.putAsync(`/api/organizations/${organizationId}/permissions/set`, {
+            organizationId: organizationId,
+            permissions: permissions
+        });
         return response.isSuccess;
     }
 
