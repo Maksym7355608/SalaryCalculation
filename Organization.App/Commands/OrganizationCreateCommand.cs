@@ -12,8 +12,8 @@ public class OrganizationCreateCommand : BaseCommand
     public string FactAddress { get; set; }
     public IEnumerable<BankDto> BankAccounts { get; set; }
 
-    public IdNamePair Chief { get; set; }
-    public IdNamePair Accountant { get; set; }
+    public string Chief { get; set; }
+    public string Accountant { get; set; }
 
-    public IdNamePair? Manager { get; set; }
+    public int? Manager { get; set; }
 }
