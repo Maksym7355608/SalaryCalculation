@@ -17,8 +17,8 @@ public class EmployeeDto
     public BankDto BankAccount { get; set; }
     public IEnumerable<ContactDto> Contacts { get; set; }
 
-    public IdNamePair OrganizationId { get; set; }
-    public IdNamePair OrganizationUnitId { get; set; }
+    public IdNamePair Organization { get; set; }
+    public IdNamePair OrganizationUnit { get; set; }
     public IdNamePair Position { get; set; }
     public int RegimeId { get; set; }
 }

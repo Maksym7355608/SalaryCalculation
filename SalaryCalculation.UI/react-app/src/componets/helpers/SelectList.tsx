@@ -1,11 +1,11 @@
-import React from "react";
+import React, {useState} from "react";
+import { MultiSelect } from 'primereact/multiselect';
 import {IdNamePair} from "../../models/BaseModels";
-import {useForm} from "react-hook-form";
 
 interface SelectListProps {
     id: string;
     items: IdNamePair[];
-    register: string;
+    register: any;
     useEmpty?: boolean;
     emptyName?: string;
     value?: number;
@@ -13,20 +13,39 @@ interface SelectListProps {
     disabled?: boolean;
 }
 
-const SelectList : React.FC<SelectListProps> = (props) => {
-    const {register} = useForm()
+function SelectList(props: SelectListProps) {
+    const [selected, setSelected] = useState<number | number[] | undefined>();
+    const handleSelect = (value: number) => {
+        props.register(value);
+        setSelected(value);
+    }
 
-    return (
-        <select {...register(props.register)} id={props.id} className="form-control" multiple={props.multiple} disabled={props.disabled}>
-            {props.useEmpty && <option value={-1}
-                                            key={-1} selected={-1 === props.value}>{props.emptyName ? props.emptyName : "--- Оберіть опцію ---"}</option>}
-            {props.items.map(item => {
-                return (
-                    <option value={item.id} selected={item.id === props.value} key={item.id}>{item.name}</option>
-                );
-            })}
-        </select>
-    );
+    const handleSelectMultiple = (value: number[]) => {
+        props.register(value);
+        setSelected(value);
+    }
+
+    return props.multiple ?
+        (
+            <MultiSelect onChange={(e) => handleSelectMultiple(e.value)} id={props.id}
+                         options={props.items.map(i => {
+                             return {label: i.name, value: i.id}
+                         })} className="small" value={selected}/>
+
+        ) :
+        (
+            <select onChange={(e) => handleSelect(parseInt(e.target.value))} id={props.id} className='form-select' multiple={props.multiple}
+                    disabled={props.disabled}>
+                {props.useEmpty && <option value={-1}
+                                           key={-1}
+                                           selected={-1 === props.value}>{props.emptyName ? props.emptyName : "--- Оберіть опцію ---"}</option>}
+                {props.items.map(item => {
+                    return (
+                        <option value={item.id} selected={item.id === props.value} key={item.id}>{item.name}</option>
+                    );
+                })}
+            </select>
+        );
 }
 
 export default SelectList;

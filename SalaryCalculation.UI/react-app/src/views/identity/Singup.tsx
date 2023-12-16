@@ -13,6 +13,7 @@ export default function SignUp() {
         loaded: false,
         organizations: []
     })
+    const [selected, setSelected] = useState<number>();
     const {
         register,
         handleSubmit,
@@ -89,8 +90,9 @@ export default function SignUp() {
                                placeholder="Введіть електронну адреса"/>
                     </div>
                     <div className="form-group mb-1">
+                        <input type='hidden' value={selected} {...register('organization')}/>
                         <label htmlFor="organization" className="form-label text-auth-2">Організація</label>
-                        <SelectList register='organization'
+                        <SelectList register={setSelected}
                                     useEmpty={false} emptyName={undefined} id="organization"
                                     items={state.organizations}/>
                     </div>

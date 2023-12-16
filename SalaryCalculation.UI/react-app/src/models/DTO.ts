@@ -13,8 +13,8 @@ export interface EmployeeDto {
     marriedStatus: EMarriedStatus;
     bankAccount: BankDto;
     contacts: ContactDto[];
-    organizationId: IdNamePair;
-    organizationUnitId: IdNamePair;
+    organization: IdNamePair;
+    organizationUnit: IdNamePair;
     position: IdNamePair;
     regime: IdNamePair;
 }

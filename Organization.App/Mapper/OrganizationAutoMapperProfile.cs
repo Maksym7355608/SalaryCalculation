@@ -58,5 +58,8 @@ public class OrganizationAutoMapperProfile : Profile
             .ForMember(x => x.Contacts, m => m.MapFrom(y => y.Contacts))
             .ForMember(x => x.Name, m => m.MapFrom(y => y.Name))
             .ReverseMap();
+        CreateMap<Salary, SalaryDto>().ReverseMap();
+        CreateMap<Contact, ContactDto>().ReverseMap();
+        CreateMap<Person, PersonDto>().ReverseMap();
     }
 }

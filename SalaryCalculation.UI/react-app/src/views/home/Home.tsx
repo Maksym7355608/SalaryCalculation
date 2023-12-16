@@ -7,8 +7,6 @@ import {hasPermission, user} from "../../store/actions";
 import {SubmitHandler, useForm} from "react-hook-form";
 import {IHomeForm} from "../../models/employees/forms";
 import {mapToEmployeeShortModel, searchEmployees} from "../../store/employees";
-import {DataTable} from "primereact/datatable";
-import {Column} from "primereact/column";
 import {EPermission} from "../../models/Enums";
 import CustomDataTable from "../../componets/helpers/CustomDataTable";
 import { Link } from "react-router-dom";
@@ -16,8 +14,11 @@ import { Link } from "react-router-dom";
 export default function Home() {
     const [isLoaded, setLoaded] = useState<boolean>(false);
     const [organizationUnits, setUnits] = useState<IdNamePair[]>([]);
+    const [selectedUnit, setUnit] = useState<number>();
     const [positions, setPositions] = useState<IdNamePair[]>([]);
+    const [selectedPos, setPos] = useState<number>();
     const [employees, setEmployees] = useState<EmployeeShortModel[]>([]);
+    const [deleteModal, setShowDelete] = useState<{show: boolean, id?: number}>({show: false, id: undefined });
     const restClient = new RestUnitOfWork();
 
     useEffect(() => {
@@ -43,7 +44,11 @@ export default function Home() {
 
     const createEmployeeActions = (employee: EmployeeShortModel) => {
         return (
-            <></>
+            <div className='btn-group-sm'>
+                <Link to={`/employees/${employee.id}/info`} className='btn btn-sm btn-light'><i className='material-icons small'>info_i</i></Link>
+                <Link to={`/employees/${employee.id}`} className='btn btn-sm btn-light'><i className='material-icons small'>edit_square</i></Link>
+                <button onClick={() => setShowDelete({show: true, id: employee.id})} className='btn btn-sm btn-light'><i className='material-icons small'>close</i></button>
+            </div>
         );
     }
 
@@ -82,10 +87,11 @@ export default function Home() {
                         <span id="roll-number-validation" className="text-danger"></span>
                     </div>
                     <div className="col-4">
+                        <input type='hidden' value={selectedPos} {...register('position')}/>
                         <label className="form-label" htmlFor="position">
                             Посада
                         </label>
-                        <SelectList register='position' useEmpty={true} emptyName={"Оберіть посаду"} id={"position"} items={positions}/>
+                        <SelectList register={setPos} useEmpty={true} emptyName={"Оберіть посаду"} id={"position"} items={positions}/>
                     </div>
                     <div className="col-4">
                         <label className="form-label" htmlFor="salary-from">
@@ -96,10 +102,11 @@ export default function Home() {
                 </div>
                 <div className="row w-100 mt-1 ps-4">
                     <div className="col-4">
+                        <input type='hidden' value={selectedUnit} {...register('organizationUnit')}/>
                         <label className="form-label" htmlFor="organization-unit">
                             Підрозділ
                         </label>
-                        <SelectList register='organizationUnit' useEmpty={true} emptyName={"Оберіть підрозділ"} id={"organization-unit"} items={organizationUnits}/>
+                        <SelectList register={setUnit} useEmpty={true} emptyName={"Оберіть підрозділ"} id={"organization-unit"} items={organizationUnits}/>
                     </div>
                     <div className="col-4">
                         <label className="form-label" htmlFor="employment-date">

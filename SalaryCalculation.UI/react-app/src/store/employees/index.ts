@@ -13,13 +13,13 @@ import {EmployeeModel} from "../../models/employees";
 export const searchEmployees = async (data: IHomeForm) => {
     const command: EmployeeSearchCommand = {
         organizationId: user().organization,
-        rollNumber: data.rollNumber,
-        organizationUnitId: data.organizationUnit,
-        positionId: data.position,
-        dateFrom: data.date,
+        rollNumber: data.rollNumber ? data.rollNumber : undefined,
+        organizationUnitId: data.organizationUnit ? data.organizationUnit : undefined,
+        positionId: data.position ? data.organizationUnit : undefined,
+        dateFrom: data.date ? data.date : undefined,
         dateTo: new Date(Date.now()),
-        salaryFrom: data.salaryFrom,
-        salaryTo: data.salaryTo,
+        salaryFrom: data.salaryFrom ? data.salaryFrom : undefined,
+        salaryTo: data.salaryTo ? data.salaryTo : undefined,
     };
     const restClient = new RestUnitOfWork();
     return await restClient.organization.searchEmployeesAsync(command)
@@ -34,10 +34,11 @@ export const mapToEmployeeShortModel = (employees: EmployeeDto[]): EmployeeShort
         return {
             id: employee.id,
             rollNumber: employee.rollNumber.toString(),
-            unit: employee.organizationUnitId.name,
+            unit: employee.organizationUnit.name,
             position: employee.position.name,
-            employeeDate: employee.dateFrom.toDateString(),
-            dismissDate: employee.dateTo?.toDateString() ?? "",
+            fullName: `${employee.name.lastName} ${employee.name.firstName} ${employee.name.middleName}`,
+            employeeDate: employee.dateFrom.toString(),
+            dismissDate: employee.dateTo?.toString() ?? "",
             salary: employee.salaries[employee.salaries.length-1].amount,
             sex: employee.sex.toString(),
             familyStatus: employee.marriedStatus.toString(),
