@@ -2,7 +2,7 @@
 services:
   dictionary.api:
     build:
-      context: "C:\\Users\\User\\RiderProjects\\SalaryCalculation"
+      context: "D:\\RiderProjects\\SalaryCalculation"
       dockerfile: "Dictionary.API/Dockerfile"
     command: []
     entrypoint:
@@ -15,6 +15,6 @@ services:
     ports: []
     volumes:
     - "C:\\Users\\User\\.nuget\\packages:/root/.nuget/packages"
-    - "C:\\Users\\User\\RiderProjects\\SalaryCalculation\\Dictionary.API:/app:rw"
-    - "C:\\Users\\User\\RiderProjects\\SalaryCalculation:/src:rw"
+    - "D:\\RiderProjects\\SalaryCalculation\\Dictionary.API:/app:rw"
+    - "D:\\RiderProjects\\SalaryCalculation:/src:rw"
     working_dir: "/app"

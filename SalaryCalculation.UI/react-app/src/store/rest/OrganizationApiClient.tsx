@@ -206,8 +206,8 @@ export default class OrganizationApiClient {
             phone: data.contacts.find(c => c.kind == EContactKind.phone)?.value,
             email: data.contacts.find(c => c.kind == EContactKind.email)?.value,
             telegram: data.contacts.find(c => c.kind == EContactKind.telegram)?.value,
-            organizationId: data.organizationId.id,
-            organizationUnitId: data.organizationUnitId.id,
+            organizationId: data.organization.id,
+            organizationUnitId: data.organizationUnit.id,
             positionId: data.position.id,
             regimeId: data.regime.id
         } as EmployeeModel;

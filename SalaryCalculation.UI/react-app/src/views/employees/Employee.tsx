@@ -28,6 +28,7 @@ export default function Employee() {
     const sexList = enumToIdNamePair(ESex);
     const marriedStatusList = enumToIdNamePair(EMarriedStatus);
     const benefitsList = enumToIdNamePair(EBenefit);
+    const [benefits, setBenefits] = useState<number[]>()
 
     const {register, control, handleSubmit} = useForm<EmployeeModel>({
         defaultValues: employee
@@ -153,8 +154,9 @@ export default function Employee() {
                 </Form.Group>
 
                 <Form.Group className="row input-group mt-2" controlId="benefits">
+                    <input type='hidden' value={benefits?.toString()} {...register('benefits')}/>
                     <Form.Label className="col-2">Пільги</Form.Label>
-                     <SelectList register='benefits' id="benefits" items={benefitsList} multiple={true}/>
+                     <SelectList register={setBenefits} id="benefits" items={benefitsList} multiple={true}/>
                 </Form.Group>
 
                 <hr/>
