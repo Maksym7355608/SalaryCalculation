@@ -8,7 +8,7 @@ interface SelectListProps {
     register: any;
     useEmpty?: boolean;
     emptyName?: string;
-    value?: number;
+    value?: number | number[];
     multiple?: boolean;
     disabled?: boolean;
 }
@@ -27,11 +27,10 @@ function SelectList(props: SelectListProps) {
 
     return props.multiple ?
         (
-            <MultiSelect onChange={(e) => handleSelectMultiple(e.value)} id={props.id}
+            <MultiSelect onChange={(e) => handleSelectMultiple(e.value)} id={props.id} display='chip'
                          options={props.items.map(i => {
                              return {label: i.name, value: i.id}
-                         })} className="small" value={selected}/>
-
+                         })} disabled={props.disabled} value={selected} className="w-100 multiselect"/>
         ) :
         (
             <select onChange={(e) => handleSelect(parseInt(e.target.value))} id={props.id} className='form-select' multiple={props.multiple}

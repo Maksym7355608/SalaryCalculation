@@ -76,7 +76,9 @@ export function InitMenu() : MenuItem[] {
                 ]
                 break;
             case EPermission.searchEmployees :
-                item = [getItem(permission, <Home/>,"Пошук працівників", `/`, "group", '/')];
+                item = [
+                    getItem(permission, <Home/>,"Пошук працівників", `/`, "group", '/'),
+                ];
                 break;
             case EPermission.createEmployees:
                 item = [getItem(permission, <Employee/>, "Управління працівниками", `/employee/:id`)];
