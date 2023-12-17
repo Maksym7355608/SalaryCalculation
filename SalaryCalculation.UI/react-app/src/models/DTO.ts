@@ -16,7 +16,7 @@ export interface EmployeeDto {
     organization: IdNamePair;
     organizationUnit: IdNamePair;
     position: IdNamePair;
-    regime: IdNamePair;
+    regimeId: number;
 }
 
 export interface SalaryDto {

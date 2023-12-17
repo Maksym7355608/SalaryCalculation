@@ -25,3 +25,9 @@ export function enumToIdNamePair(type: any, localizer?: Record<string, string>) 
         }
     });
 }
+
+export function toShortDateString(date: Date | undefined) {
+    if(!date)
+        return undefined;
+    return date.toString().split('T')[0];
+}

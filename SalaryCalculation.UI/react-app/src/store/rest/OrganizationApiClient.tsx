@@ -162,9 +162,13 @@ export default class OrganizationApiClient {
         return response.isSuccess;
     }
 
-    async getEmployeeAsync(id: number) {
+    async getEmployeeFullAsync(id: number) {
         const response = await this.apiClient.getAsync(`/api/employees/${id}`);
-        const data = response.data as EmployeeDto;
+        return response.data as EmployeeDto;
+    }
+
+    async getEmployeeAsync(id: number) {
+        const data = await this.getEmployeeFullAsync(id);
         return this.mapEmployeeDtoToEmployeeModel(data);
     }
 
@@ -195,6 +199,11 @@ export default class OrganizationApiClient {
         return {
             id: data.id,
             rollNumber: data.rollNumber,
+            firstName: data.name.firstName,
+            middleName: data.name.middleName,
+            lastName: data.name.lastName,
+            shortName: data.name.shortName,
+            nameGenitive: data.name.nameGenitive,
             dateFrom: data.dateFrom,
             dateTo: data.dateTo,
             dateFromSalary: data.salaries[data.salaries.length-1].dateFrom,
@@ -209,7 +218,7 @@ export default class OrganizationApiClient {
             organizationId: data.organization.id,
             organizationUnitId: data.organizationUnit.id,
             positionId: data.position.id,
-            regimeId: data.regime.id
+            regimeId: data.regimeId
         } as EmployeeModel;
     }
 }

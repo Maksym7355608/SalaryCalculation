@@ -10,6 +10,7 @@ import {mapToEmployeeShortModel, searchEmployees} from "../../store/employees";
 import {EPermission} from "../../models/Enums";
 import CustomDataTable from "../../componets/helpers/CustomDataTable";
 import { Link } from "react-router-dom";
+import DeleteEmployeeModal from "../../componets/employee/DeleteEmployeeModal";
 
 export default function Home() {
     const [isLoaded, setLoaded] = useState<boolean>(false);
@@ -18,7 +19,9 @@ export default function Home() {
     const [positions, setPositions] = useState<IdNamePair[]>([]);
     const [selectedPos, setPos] = useState<number>();
     const [employees, setEmployees] = useState<EmployeeShortModel[]>([]);
-    const [deleteModal, setShowDelete] = useState<{show: boolean, id?: number}>({show: false, id: undefined });
+    const [showDelete, setShowDelete] = useState(false);
+    const [deleteId, setDeleteId] = useState<number | undefined>();
+
     const restClient = new RestUnitOfWork();
 
     useEffect(() => {
@@ -45,9 +48,12 @@ export default function Home() {
     const createEmployeeActions = (employee: EmployeeShortModel) => {
         return (
             <div className='btn-group-sm'>
-                <Link to={`/employees/${employee.id}/info`} className='btn btn-sm btn-light'><i className='material-icons small'>info_i</i></Link>
-                <Link to={`/employees/${employee.id}`} className='btn btn-sm btn-light'><i className='material-icons small'>edit_square</i></Link>
-                <button onClick={() => setShowDelete({show: true, id: employee.id})} className='btn btn-sm btn-light'><i className='material-icons small'>close</i></button>
+                <Link to={`/employee/${employee.id}`} className='btn btn-sm btn-light'><i className='material-icons small'>info_i</i></Link>
+                <Link to={`/employee/${employee.id}?handler=edit`} className='btn btn-sm btn-light'><i className='material-icons small'>edit_square</i></Link>
+                <button onClick={() => {
+                    setShowDelete(true);
+                    setDeleteId(employee.id);
+                }} className='btn btn-sm btn-light'><i className='material-icons small'>close</i></button>
             </div>
         );
     }
@@ -144,6 +150,7 @@ export default function Home() {
                     </div>
                 </div>
             </div>
+            <DeleteEmployeeModal deleteId={deleteId} show={showDelete}/>
         </div>
     );
 }
