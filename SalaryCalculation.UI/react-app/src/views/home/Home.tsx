@@ -97,7 +97,7 @@ export default function Home() {
                         <label className="form-label" htmlFor="position">
                             Посада
                         </label>
-                        <SelectList register={setPos} useEmpty={true} emptyName={"Оберіть посаду"} id={"position"} items={positions}/>
+                        <SelectList setState={setPos} useEmpty={true} emptyName={"Оберіть посаду"} id={"position"} items={positions}/>
                     </div>
                     <div className="col-4">
                         <label className="form-label" htmlFor="salary-from">
@@ -112,7 +112,7 @@ export default function Home() {
                         <label className="form-label" htmlFor="organization-unit">
                             Підрозділ
                         </label>
-                        <SelectList register={setUnit} useEmpty={true} emptyName={"Оберіть підрозділ"} id={"organization-unit"} items={organizationUnits}/>
+                        <SelectList setState={setUnit} useEmpty={true} emptyName={"Оберіть підрозділ"} id={"organization-unit"} items={organizationUnits}/>
                     </div>
                     <div className="col-4">
                         <label className="form-label" htmlFor="employment-date">

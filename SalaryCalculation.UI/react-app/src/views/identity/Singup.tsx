@@ -92,7 +92,7 @@ export default function SignUp() {
                     <div className="form-group mb-1">
                         <input type='hidden' value={selected} {...register('organization')}/>
                         <label htmlFor="organization" className="form-label text-auth-2">Організація</label>
-                        <SelectList register={setSelected}
+                        <SelectList setState={setSelected}
                                     useEmpty={false} emptyName={undefined} id="organization"
                                     items={state.organizations}/>
                     </div>

@@ -5,7 +5,7 @@ import {IdNamePair} from "../../models/BaseModels";
 interface SelectListProps {
     id: string;
     items: IdNamePair[];
-    register: any;
+    setState: (set: any) => void;
     useEmpty?: boolean;
     emptyName?: string;
     value?: number | number[];
@@ -16,12 +16,12 @@ interface SelectListProps {
 function SelectList(props: SelectListProps) {
     const [selected, setSelected] = useState<number | number[] | undefined>();
     const handleSelect = (value: number) => {
-        props.register(value);
+        props.setState(value);
         setSelected(value);
     }
 
     const handleSelectMultiple = (value: number[]) => {
-        props.register(value);
+        props.setState(value);
         setSelected(value);
     }
 
