@@ -26,8 +26,48 @@ export function enumToIdNamePair(type: any, localizer?: Record<string, string>) 
     });
 }
 
-export function toShortDateString(date: Date | undefined) {
+export function toShortDateString(date?: Date) {
     if(!date)
         return undefined;
     return date.toString().split('T')[0];
+}
+
+export function toPeriodString(date?: Date) {
+    if(!date)
+        return undefined;
+    let parsed : string[] = toShortDateString(date)?.split('-') as string[];
+    parsed.pop();
+    return parsed.join('-');
+}
+
+export function getDaysByMonth(month: number, isLeap?: boolean) : string[] {
+    let result: string[] = [];
+    let daysCount: number;
+    switch (month){
+        case 1:
+        case 3:
+        case 5:
+        case 7:
+        case 8:
+        case 10:
+        case 12:
+            daysCount = 31;
+            break;
+        case 4:
+        case 6:
+        case 9:
+        case 11:
+            daysCount = 30;
+            break;
+        case 2:
+            if(isLeap)
+                daysCount = 29;
+            else
+                daysCount = 28;
+            break
+        default: return [];
+    }
+    for (let i = 1; i <= daysCount; i++)
+        result = [...result, i.toString()];
+    return result;
 }

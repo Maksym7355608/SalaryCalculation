@@ -1,5 +1,6 @@
 import {BankDto} from "../DTO";
 import {EBenefit, EMarriedStatus, ESex} from "../Enums";
+import {ScheduleShortModel} from "../schedule";
 
 export interface EmployeeModel {
     id: number;
@@ -24,4 +25,11 @@ export interface EmployeeModel {
     organizationUnitId: number;
     positionId: number;
     regimeId: number;
+}
+
+export interface EmployeeWithSchedule {
+    id: number;
+    name: string;
+    period: number;
+    schedule: ScheduleShortModel[];
 }

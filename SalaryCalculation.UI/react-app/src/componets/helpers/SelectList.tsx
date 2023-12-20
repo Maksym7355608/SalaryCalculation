@@ -30,7 +30,7 @@ function SelectList(props: SelectListProps) {
             <MultiSelect onChange={(e) => handleSelectMultiple(e.value)} id={props.id} display='chip'
                          options={props.items.map(i => {
                              return {label: i.name, value: i.id}
-                         })} disabled={props.disabled} value={selected} className="w-100 multiselect"/>
+                         })} disabled={props.disabled} value={selected} className="w-100 from-picker" panelClassName='small'/>
         ) :
         (
             <select onChange={(e) => handleSelect(parseInt(e.target.value))} id={props.id} className='form-select' multiple={props.multiple}
