@@ -41,7 +41,6 @@ public class IdentityCommandHandler : BaseIdentityCommandHandler, IIdentityComma
             throw new EntityExistingException("Entity with username {0} or email {1} was exist", command.Username,
                 command.Email);
         var encryptor = new PasswordEncryptor(_configuration["JwtSettings:SecretKey"] ?? string.Empty);
-        newUser.Id = ObjectId.GenerateNewId();
         newUser.PasswordHash = encryptor.EncryptPassword(command.Password);
         await Work.GetCollection<User>(nameof(User)).InsertOneAsync(newUser);
     }

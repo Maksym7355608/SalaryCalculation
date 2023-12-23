@@ -6,5 +6,5 @@ public class HoursDetail
     public decimal Day { get; set; }
     public decimal Night { get; set; }
     public decimal Evening { get; set; }
-    public decimal Holiday { get; set; }
+    public bool Holiday { get; set; }
 }

@@ -59,4 +59,9 @@ public static class PeriodExtensions
     {
         return date.ToString("dd MMMM yyyy", new CultureInfo("uk-UA"));
     }
+
+    public static int ToPeriod(this DateTime date)
+    {
+        return date.Year * 100 + date.Month;
+    }
 }

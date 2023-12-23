@@ -4,9 +4,16 @@ namespace Schedule.App.Dto;
 
 public class EmpDayDto
 {
-    public EDayType DayType { get; set; }
-    public DateTime Date { get; set; }
-    public HoursDetailDto Hours { get; set; }
     public int EmployeeId { get; set; }
-    public int OrganizationId { get; set; }
+    public string Date { get; set; }
+    public decimal Day { get; set; }
+    public decimal Evening { get; set; }
+    public decimal Night { get; set; }
+    public string Summary { get; set; }
+}
+
+public class EmpDayShortDto
+{
+    public string Day { get; set; }
+    public string Work { get; set; }
 }

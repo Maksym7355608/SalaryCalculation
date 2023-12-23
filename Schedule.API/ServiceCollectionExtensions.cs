@@ -1,6 +1,8 @@
 ﻿using Organization.Data.Data;
 using SalaryCalculation.Data;
+using SalaryCalculation.Shared.Extensions.ApiExtensions;
 using Schedule.App.Abstract;
+using Schedule.App.Commands;
 using Schedule.App.Handlers;
 using Schedule.Data.Data;
 
@@ -35,7 +37,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddCommandHandlers(this IServiceCollection services)
     {
         services.AddScoped<IScheduleCommandHandler, ScheduleCommandHandler>();
-        services.AddScoped<IScheduleReaderLogic, ScheduleReaderLogic>();
+        services.AddBusBackgroundService<DaysSettingMessage, ScheduleMessageHandler>();
         return services;
     }
 }
