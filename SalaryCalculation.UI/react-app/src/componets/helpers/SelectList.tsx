@@ -5,7 +5,7 @@ import {IdNamePair} from "../../models/BaseModels";
 interface SelectListProps {
     id: string;
     items: IdNamePair[];
-    register: any;
+    setState: (set: any) => void;
     useEmpty?: boolean;
     emptyName?: string;
     value?: number | number[];
@@ -16,12 +16,12 @@ interface SelectListProps {
 function SelectList(props: SelectListProps) {
     const [selected, setSelected] = useState<number | number[] | undefined>();
     const handleSelect = (value: number) => {
-        props.register(value);
+        props.setState(value);
         setSelected(value);
     }
 
     const handleSelectMultiple = (value: number[]) => {
-        props.register(value);
+        props.setState(value);
         setSelected(value);
     }
 
@@ -30,7 +30,7 @@ function SelectList(props: SelectListProps) {
             <MultiSelect onChange={(e) => handleSelectMultiple(e.value)} id={props.id} display='chip'
                          options={props.items.map(i => {
                              return {label: i.name, value: i.id}
-                         })} disabled={props.disabled} value={selected} className="w-100 multiselect"/>
+                         })} disabled={props.disabled} value={selected} className="w-100 from-picker" panelClassName='small'/>
         ) :
         (
             <select onChange={(e) => handleSelect(parseInt(e.target.value))} id={props.id} className='form-select' multiple={props.multiple}

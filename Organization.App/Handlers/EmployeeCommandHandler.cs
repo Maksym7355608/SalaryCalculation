@@ -89,7 +89,6 @@ public class EmployeeCommandHandler : BaseOrganizationCommandHandler, IEmployeeC
         
         var employee = new Employee()
         {
-            Id = (int)_collection.Find(Builders<Employee>.Filter.Empty).CountDocuments(),
             RollNumber = command.RollNumber,
             Name = new Person()
             {

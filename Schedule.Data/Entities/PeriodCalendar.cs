@@ -8,7 +8,7 @@ public class PeriodCalendar : BaseMongoEntity<ObjectId>
 {
     public int Period { get; set; }
     public int WorkDays { get; set; }
-    public HoursDetail Hours { get; set; }
+    public HoursDetails Hours { get; set; }
     public int VacationDays { get; set; }
     public int SickLeave { get; set; }
     public int EmployeeId { get; set; }

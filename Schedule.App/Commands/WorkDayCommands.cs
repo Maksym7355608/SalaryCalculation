@@ -15,16 +15,13 @@ public class WorkDayCreateCommand : BaseCommand
 
 public class WorkDaySearchCommand : BaseCommand
 {
-    public EDayType? DayType { get; set; }
-    
-    public DateTime DateFrom { get; set; }
-    public DateTime? DateTo { get; set; }
-    
-    public IEnumerable<int>? EmployeeIds { get; set; }
+    public int Period { get; set; }
+    public int[]? OrganizationUnitIds { get; set; }
+    public int[]? PositionIds { get; set; }
     public int OrganizationId { get; set; }
 }
 
-public class DaysSettingFilter : BaseCommand
+public class DaysSettingMessage : BaseMessage
 {
     public EDayType Type { get; set; }
     public DateTime DateFrom { get; set; }

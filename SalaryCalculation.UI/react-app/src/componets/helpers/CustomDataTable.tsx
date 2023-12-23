@@ -96,7 +96,7 @@ export default class CustomDataTable<TModel extends object> extends Component<Da
                                scrollHeight={this.config.scrollHeight}
                                emptyMessage={this.config.emptyMessage} rows={this.config.rows}
                                rowsPerPageOptions={this.config.rowsPerPageOptions}
-                               sortMode={this.config.sortMode}
+                               sortMode={this.config.sortMode} frozenWidth={this.config.frozenWidth}
                                showGridlines={this.config.showGridlines}
                                loading={this.config.loading} footer={this.props.footer}>
                         {this.renderColumns()}

@@ -1,17 +1,17 @@
 ﻿using Schedule.App.Dto;
-using Schedule.Data.Enums;
+using Schedule.App.Models;
 
 namespace Schedule.App.Helpers;
 
 public static class RegimeHelper
 {
-    public static int GetCircleNumber(CalculationRegimeDto regime, DateTime regimeStartDateUsing, DateTime date)
+    public static int GetCircleNumber(CalculationRegime regime, DateTime regimeStartDateUsing, DateTime date)
     {
         var difDays = (regimeStartDateUsing - date).Days;
         return difDays / regime.DaysCount;
     }
 
-    public static (IEnumerable<DayDto> work, IEnumerable<DayDto> rest) GetCircleInfo(CalculationRegimeDto regime, DateTime startDate, int circleNumber)
+    public static (IEnumerable<DayDto> work, IEnumerable<DayDto> rest) GetCircleInfo(CalculationRegime regime, DateTime startDate, int circleNumber)
     {
         var work = new List<DayDto>();
         var rest = new List<DayDto>();
@@ -38,7 +38,7 @@ public static class RegimeHelper
         return (work, rest);
     }
 
-    public static Dictionary<int, bool> GetRegimeDaysCircle(CalculationRegimeDto regime)
+    public static Dictionary<int, bool> GetRegimeDaysCircle(CalculationRegime regime)
     {
         return regime.WorkDayDetails.SelectMany(x => x.DaysOfWeek)
             .Select(workDay => new RegimeDay()
@@ -52,7 +52,7 @@ public static class RegimeHelper
             })).OrderBy(x => x.Number).ToDictionary(k => k.Number, v => v.IsWork);
     }
 
-    public static int GetDayOfCircle(CalculationRegimeDto regime, DateTime startDate, int circleNumber, DateTime currDate)
+    public static int GetDayOfCircle(CalculationRegime regime, DateTime startDate, int circleNumber, DateTime currDate)
     {
         var firstDayInCircle = startDate.AddDays(regime.DaysCount * circleNumber);
 

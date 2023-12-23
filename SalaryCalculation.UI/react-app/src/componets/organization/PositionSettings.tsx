@@ -16,7 +16,9 @@ const PositionSettings: React.FC<{units: OrganizationUnitDto[]}> = ({units}) => 
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
-    const [selected, setSelected] = useState<OrganizationUnitDto | undefined>(undefined)
+    const [selected, setSelected] = useState<OrganizationUnitDto | undefined>(undefined);
+
+    const [sUnit, setUnit] = useState<number | undefined>();
 
     useEffect(() => {
         restClient.organization.getPositionsAsync(user().organization)
@@ -70,12 +72,14 @@ const PositionSettings: React.FC<{units: OrganizationUnitDto[]}> = ({units}) => 
         const shortUnits = units.map(o => {return {id: o.id, name: o.name}}) ?? [];
         const createBody = [
             {id: 'pos-name', label: "Назва", control: <Form.Control {...register('name')} type="text" placeholder="Введіть назву посади"/>},
-            {id: 'pos-units', label: "Підрозділ", control: <SelectList register='parent' id={"units"} useEmpty={true} emptyName='Оберіть батьківський підрозділ' items={shortUnits}/>},
+            {id: 'parentId', control: <input type='hidden' {...register('parent')} value={sUnit}/>},
+            {id: 'pos-units', label: "Підрозділ", control: <SelectList setState={setUnit} id={"units"} useEmpty={true} emptyName='Оберіть батьківський підрозділ' items={shortUnits}/>},
         ];
         const editBody = [
             {id: 'edit-pos-id', control: <Form.Control {...register('id')} type='number' value={selected?.id} hidden={true} id='edit-pos-id'/>},
             {id: 'edit-pos', label: "Назва", control: <Form.Control {...register('name')} type="text" placeholder="Введіть назву посади" defaultValue={selected?.name}/>},
-            {id: 'edit-units', label: "Підрозділ", control: <SelectList register='parent' id={"units"} useEmpty={true} emptyName='Оберіть батьківський підрозділ' items={shortUnits} value={selected?.organizationUnitId}/>},
+            {id: 'edit-parentId', control: <input type='hidden' {...register('parent')} value={sUnit}/>},
+            {id: 'edit-units', label: "Підрозділ", control: <SelectList setState={setUnit} id={"units"} useEmpty={true} emptyName='Оберіть батьківський підрозділ' items={shortUnits} value={selected?.organizationUnitId}/>},
         ];
         const deleteBody = [
             {id: 'delete-pos-id', control: <Form.Control {...register('id')} id={'delete-pos-id'} type='number' value={selected?.id} hidden={true}/>},

@@ -82,7 +82,7 @@ export default function Home() {
     ];
     return (
         <div className="container-fluid">
-            <form className="form-search" onSubmit={handleSubmit(onSubmit)}>
+            <form className="form-search pt-1 pb-1" onSubmit={handleSubmit(onSubmit)}>
                 <div className="row w-100 ps-4">
                     <div className="col-4">
                         <label className="form-label" htmlFor="roll-number">
@@ -97,7 +97,7 @@ export default function Home() {
                         <label className="form-label" htmlFor="position">
                             Посада
                         </label>
-                        <SelectList register={setPos} useEmpty={true} emptyName={"Оберіть посаду"} id={"position"} items={positions}/>
+                        <SelectList setState={setPos} useEmpty={true} emptyName={"Оберіть посаду"} id={"position"} items={positions}/>
                     </div>
                     <div className="col-4">
                         <label className="form-label" htmlFor="salary-from">
@@ -112,7 +112,7 @@ export default function Home() {
                         <label className="form-label" htmlFor="organization-unit">
                             Підрозділ
                         </label>
-                        <SelectList register={setUnit} useEmpty={true} emptyName={"Оберіть підрозділ"} id={"organization-unit"} items={organizationUnits}/>
+                        <SelectList setState={setUnit} useEmpty={true} emptyName={"Оберіть підрозділ"} id={"organization-unit"} items={organizationUnits}/>
                     </div>
                     <div className="col-4">
                         <label className="form-label" htmlFor="employment-date">
@@ -128,7 +128,7 @@ export default function Home() {
                     </div>
                 </div>
 
-                <div className="row-gap-sm-0 mt-3 mb-4 ps-4">
+                <div className="row-gap-sm-0 mt-3 ps-4">
                     <button type="submit" className="col btn btn-sm btn-primary me-2" title="Пошук працівників">
                         <i className="material-icons small">search</i> Пошук
                     </button>

@@ -9,7 +9,7 @@ namespace Schedule.API.Controllers;
 
 public class ScheduleController : BaseScheduleController
 {
-    public ScheduleController(IScheduleCommandHandler scheduleCommandHandler, IScheduleReaderLogic scheduleReaderLogic, IMapper mapper) : base(scheduleCommandHandler, scheduleReaderLogic, mapper)
+    public ScheduleController(IScheduleCommandHandler scheduleCommandHandler, IMapper mapper) : base(scheduleCommandHandler, mapper)
     {
     }
 
@@ -119,7 +119,7 @@ public class ScheduleController : BaseScheduleController
         [FromRoute] int empId)
     {
         using var op = Operation.Begin("Calculating period calendar is started");
-        var isCalc = await ScheduleReaderLogic.CalculatePeriodCalendarAsync(empId, regimeId, period);
+        var isCalc = await ScheduleCommandHandler.CalculatePeriodCalendarAsync(empId, regimeId, period);
         op.Complete();
         return GetAjaxResponse(IsValid && isCalc, Errors);
     }
@@ -128,18 +128,18 @@ public class ScheduleController : BaseScheduleController
     public async Task<IActionResult> MassCalculatePeriodCalendarAsync([FromBody] PeriodCalendarMassCalculateCommand command)
     {
         using var op = Operation.Begin("Mass calculating period calendar is started");
-        var progressId = await ScheduleReaderLogic.MassCalculatePeriodCalendarAsync(command);
+        await ScheduleCommandHandler.MassCalculatePeriodCalendarAsync(command);
         op.Complete();
-        return GetAjaxResponse(IsValid, progressId, Errors);
+        return GetAjaxResponse(IsValid, Errors);
     }
     
     [HttpPost("calendar/calculate/day/mass")]
-    public async Task<IActionResult> QuickSettingDaysAsync([FromBody] DaysSettingFilter filter)
+    public async Task<IActionResult> QuickSettingDaysAsync([FromBody] DaysSettingMessage msg)
     {
         using var op = Operation.Begin("Quick setting days is started");
-        var isSetting = await ScheduleReaderLogic.QuickSettingDaysAsync(filter);
+        await ScheduleCommandHandler.QuickSettingDaysAsync(msg);
         op.Complete();
-        return GetAjaxResponse(IsValid && isSetting, Errors);
+        return GetAjaxResponse(IsValid, Errors);
     }
 
     #endregion
