@@ -13,8 +13,6 @@ public class ScheduleAutomapperProfile : Profile
     {
         CreateMap<Regime, RegimeDto>().ReverseMap();
 
-        CreateMap<Regime, CalculationRegimeDto>().ReverseMap();
-
         CreateMap<Regime, RegimeUpdateCommand>().ReverseMap();
         
         CreateMap<Regime, RegimeCreateCommand>().ReverseMap();

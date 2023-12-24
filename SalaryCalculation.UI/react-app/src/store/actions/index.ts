@@ -71,3 +71,18 @@ export function getDaysByMonth(month: number, isLeap?: boolean) : string[] {
         result = [...result, i.toString()];
     return result;
 }
+
+export const monthDict = [
+    "Січень",
+    "Лютий",
+    "Березень",
+    "Квітень",
+    "Травень",
+    "Червень",
+    "Липень",
+    "Серпень",
+    "Вересень",
+    "Жовтень",
+    "Листопад",
+    "Грудень",
+]
