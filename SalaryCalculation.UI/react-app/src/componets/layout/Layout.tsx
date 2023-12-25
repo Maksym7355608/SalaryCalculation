@@ -18,28 +18,26 @@ const Layout : React.FC<LayoutProps> = ({title, children}) => {
         return null;
     }
     return (
-        <div className="vh-100 w-100 h-100 d-flex">
-            <Container fluid className="inbox">
-                <Row>
-                    <Col md={2} className="menu">
-                        <Menu/>
-                    </Col>
-                    <Col md={10} className="main">
-                        <main>
-                            <Header title={title}/>
-                            <div className="inbox">
-                                { children }
-                                <span id="requestInvalid" className="text-danger"></span>
-                                <span id="responseInvalid" className="text-danger"></span>
-                            </div>
-                        </main>
-                        <footer className="d-flex justify-content-center align-bottom">
-                            <Footer/>
-                        </footer>
-                    </Col>
-                </Row>
-            </Container>
-        </div>
+        <Container fluid className="inbox vh-100 w-100 h-100">
+            <Row>
+                <Col md={2} className="menu">
+                    <Menu/>
+                </Col>
+                <Col md={10} className="main">
+                    <main>
+                        <Header title={title}/>
+                        <div>
+                            {children}
+                            <span id="requestInvalid" className="text-danger"></span>
+                            <span id="responseInvalid" className="text-danger"></span>
+                        </div>
+                    </main>
+                    <footer>
+                        <Footer/>
+                    </footer>
+                </Col>
+            </Row>
+        </Container>
     );
 }
 

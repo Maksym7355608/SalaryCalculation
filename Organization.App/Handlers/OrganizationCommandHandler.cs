@@ -12,6 +12,7 @@ using Organization.Data.Entities;
 using SalaryCalculation.Data.BaseModels;
 using SalaryCalculation.Data.Enums;
 using SalaryCalculation.Shared.Common.Validation;
+using SalaryCalculation.Shared.Extensions.MoreLinq;
 using Org = Organization.Data.Entities.Organization;
 
 namespace Organization.App.Handlers;
@@ -69,6 +70,8 @@ public class OrganizationCommandHandler : BaseOrganizationCommandHandler, IOrgan
         {
             filterBuilder.Eq(x => x.OrganizationId, command.OrganizationId)
         };
+        if(command.OrganizationUnitId.HasValue)
+            filterDefinition.Add(filterBuilder.Eq(x => x.OrganizationUnitId, command.OrganizationUnitId.Value));
         if(!string.IsNullOrWhiteSpace(command.Name))
             filterDefinition.Add(filterBuilder.Regex(x => x.Name, new BsonRegularExpression(command.Name, "i")));
         return filterBuilder.And(filterDefinition);
@@ -89,8 +92,9 @@ public class OrganizationCommandHandler : BaseOrganizationCommandHandler, IOrgan
         var filterDefinition = new List<FilterDefinition<Position>>()
         {
             filterBuilder.Eq(x => x.OrganizationId, command.OrganizationId),
-            filterBuilder.Eq(x => x.OrganizationUnitId, command.OrganizationUnitId)
         };
+        if (command.OrganizationUnitId.HasValue)
+            filterBuilder.Eq(x => x.OrganizationUnitId, command.OrganizationUnitId.Value);
         if(!string.IsNullOrWhiteSpace(command.Name))
             filterDefinition.Add(filterBuilder.Regex(x => x.Name, new BsonRegularExpression(command.Name, "i")));
         return filterBuilder.And(filterDefinition);
@@ -100,6 +104,7 @@ public class OrganizationCommandHandler : BaseOrganizationCommandHandler, IOrgan
     {
         var organization = new Org()
         {
+            Id = (int)_orgCollection.NewNumberId(),
             Code = command.Code,
             Name = command.Name,
             Address = command.Address,
@@ -114,9 +119,12 @@ public class OrganizationCommandHandler : BaseOrganizationCommandHandler, IOrgan
             throw new DuplicateNameException("Organization with the same code exist");
         await _orgCollection
             .InsertOneAsync(organization);
+        var id = await _orgCollection.Find(x => x.Code == command.Code)
+            .Project(x => x.Id)
+            .FirstAsync();
         var organizationPermissions = new OrganizationPermissions()
         {
-            OrganizationId = organization.Id,
+            OrganizationId = id,
             Permissions = _basePermissionsList,
         };
         await Work.GetCollection<OrganizationPermissions>()
@@ -194,6 +202,7 @@ public class OrganizationCommandHandler : BaseOrganizationCommandHandler, IOrgan
     public async Task CreateOrganizationUnitAsync(OrganizationUnitCreateCommand command)
     {
         var organizationUnit = Mapper.Map<OrganizationUnit>(command);
+        organizationUnit.Id = (int)_unitCollection.NewNumberId();
         if (_unitCollection.Find(x => x.Name == organizationUnit.Name).Any())
             throw new DuplicateNameException("Organization unit with the same name exist");
         await Work.GetCollection<OrganizationUnit>(nameof(OrganizationUnit))
@@ -215,7 +224,7 @@ public class OrganizationCommandHandler : BaseOrganizationCommandHandler, IOrgan
 
     public async Task<bool> DeleteOrganizationUnitAsync(int organizationId, int organizationUnitId)
     {
-        var result = await Work.GetCollection<OrganizationUnit>(nameof(OrganizationUnit))
+        var result = await _unitCollection
             .DeleteOneAsync(x => x.OrganizationId == organizationId && x.Id == organizationUnitId);
         await _unitCollection
             .UpdateManyAsync(x => x.OrganizationUnitId == organizationUnitId,
@@ -230,6 +239,7 @@ public class OrganizationCommandHandler : BaseOrganizationCommandHandler, IOrgan
     public async Task CreatePositionAsync(PositionCreateCommand command)
     {
         var position = Mapper.Map<Position>(command);
+        position.Id = (int)_posCollection.NewNumberId();
         if (_posCollection.Find(x => x.Name == position.Name)
             .Any())
             throw new DuplicateNameException("Position with the same name exist");

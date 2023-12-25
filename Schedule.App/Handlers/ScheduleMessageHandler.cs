@@ -21,9 +21,15 @@ public class ScheduleMessageHandler : BaseMessageHandler<DaysSettingMessage>
     private IOrganizationUnitOfWork _organizationUnitOfWork;
     protected new IScheduleUnitOfWork Work;
 
+    private readonly Time _morning = new(6, 0);
+    private readonly Time _evening = new(18, 0);
+    private readonly Time _night = new(22, 0);
+    private readonly Time _day = new(24, 0);
+
     public ScheduleMessageHandler(IScheduleUnitOfWork work, IOrganizationUnitOfWork orgWork,
         ILogger<ScheduleMessageHandler> logger, IMapper mapper) : base(work, logger, mapper)
     {
+        Work = work;
         _organizationUnitOfWork = orgWork;
     }
     
@@ -43,71 +49,89 @@ public class ScheduleMessageHandler : BaseMessageHandler<DaysSettingMessage>
     {
         var autoEmpDays = new List<EmpDay>();
         var holidays = (await LoadHolidaysAsync(msg.DateFrom.Year)).ToArray();
+        var empDaysId = Work.GetCollection<EmpDay>().NewNumberId();
 
         await Parallel.ForEachAsync(calculationRegimes, async (regime, token) =>
         {
-            var useStartDate = msg.DateFrom.Year == DateTime.Now.Year ? regime.StartDateInCurrentYear
+            var startDate = msg.DateFrom.Year == DateTime.Now.Year ? regime.StartDateInCurrentYear
                 : msg.DateFrom.Year == DateTime.Now.Year - 1 ? regime.StartDateInPreviousYear
                 : regime.StartDateInNextYear;
-            if (!useStartDate.HasValue)
+            if (!startDate.HasValue)
                 return;
-            var circleNumber = RegimeHelper.GetCircleNumber(regime, useStartDate.Value, msg.DateFrom);
+            var circleNumber = RegimeHelper.GetCircleNumber(regime, startDate.Value, msg.DateFrom);
             var regimeDaysCircle = RegimeHelper.GetRegimeDaysCircle(regime);
 
             var employees = await _organizationUnitOfWork.GetCollection<Employee>()
-                .Find(x => x.RegimeId == regime.RegimeId)
-                .Project(x => new { x.Id, x.DateFrom })
+                .Find(x => x.RegimeId == regime.RegimeId && (!x.DateTo.HasValue || x.DateTo.Value < msg.DateTo))
+                .Project(x => new { x.Id, x.DateFrom, x.ShiftNumber })
                 .ToListAsync();
 
-            for (var currDate = msg.DateFrom; currDate < msg.DateTo; currDate = currDate.AddDays(1))
+            for (var currDate = msg.DateFrom; currDate <= msg.DateTo; currDate = currDate.AddDays(1))
             {
-                var dayOfCircle = RegimeHelper.GetDayOfCircle(regime, useStartDate.Value, circleNumber, currDate);
-                if (dayOfCircle > regime.DaysCount)
+                var hours = new Dictionary<int, HoursDetail>();
+                for (var i = 0; i < regime.ShiftsCount; i++)
                 {
-                    circleNumber++;
-                    dayOfCircle = 1;
-                }
-
-                if (regimeDaysCircle[dayOfCircle])
-                {
-                    var isHoliday = holidays.Contains(currDate);
-                    employees.ParallelForEach(employee =>
+                    var dayOfCircle = RegimeHelper.GetDayOfCircle(regime, 
+                        startDate.Value.AddDays(regime.WorkDayDetails.Sum(x => x.DaysOfWeek.Count()) * i), 
+                        circleNumber, currDate);
+                    if (dayOfCircle > regime.DaysCount)
                     {
-                        if (currDate >= employee.DateFrom)
-                            autoEmpDays.Add(new EmpDay()
-                            {
-                                Date = currDate,
-                                DayType = (int)msg.Type,
-                                Hours = msg.Type == EDayType.Work
-                                    ? CreateHoursFromRegime(regime, dayOfCircle, isHoliday)
-                                    : new HoursDetail(),
-                                EmployeeId = employee.Id,
-                                OrganizationId = msg.OrganizationId
-                            });
-                    });
+                        circleNumber++;
+                        dayOfCircle = 1;
+                    }
+
+                    if (!regimeDaysCircle[dayOfCircle])
+                        continue;
+                    
+                    var isHoliday = holidays.Contains(currDate);
+                    var workDayDetail = regime.WorkDayDetails
+                        .First(x => x.DaysOfWeek.Any(d => d.DayOfCircle == dayOfCircle));
+                    if (isHoliday && !workDayDetail.IsHolidayWork)
+                        continue;
+                    var newDetail = workDayDetail;
+                    
+                    var hoursForShifts = msg.Type == EDayType.Work
+                        ? CreateHoursFromRegime(newDetail, isHoliday)
+                        : new HoursDetail();
+                    hours.Add(i+1, hoursForShifts);
                 }
+                
+                employees.ParallelForEach(employee =>
+                {
+                    if (currDate <= employee.DateFrom || !hours.TryGetValue(employee.ShiftNumber, out var hoursDetail))
+                        return;
+                    autoEmpDays.Add(new EmpDay()
+                    {
+                        Id = empDaysId++,
+                        Date = currDate,
+                        DayType = (int)msg.Type,
+                        Hours = hoursDetail,
+                        EmployeeId = employee.Id,
+                        OrganizationId = msg.OrganizationId
+                    });
+                });
             }
         });
 
         return autoEmpDays;
     }
 
-    private HoursDetail CreateHoursFromRegime(CalculationRegime regime, int dayOfCircle, bool isHoliday)
+    private HoursDetail CreateHoursFromRegime(WorkDayDetail workDayDetail, bool isHoliday)
     {
-        var workDayDetails = regime.WorkDayDetails.First(x => x.DaysOfWeek.Any(d => d.DayOfCircle == dayOfCircle));
-        var startTime = isHoliday ? workDayDetails.StartTimeInHoliday : workDayDetails.StartTime;
+        var startTime = isHoliday ? workDayDetail.StartTimeInHoliday : workDayDetail.StartTime;
         var endTime = isHoliday
-            ? workDayDetails.IsEndTimeInHolidayNextDay
-                ? workDayDetails.EndTimeInHoliday + new Time(24, 0)
-                : workDayDetails.EndTimeInHoliday
-            : workDayDetails.IsEndTimeNextDay
-                ? workDayDetails.EndTime + new Time(24, 0)
-                : workDayDetails.EndTime;
+            ? workDayDetail.IsEndTimeInHolidayNextDay ?? false
+                ? workDayDetail.EndTimeInHoliday + _day
+                : workDayDetail.EndTimeInHoliday
+            : workDayDetail.IsEndTimeNextDay
+                ? workDayDetail.EndTime + _day
+                : workDayDetail.EndTime;
         
-        var summaryHours = Time.ConvertToDecimal(endTime - startTime);
-        var dayHours = GetWorkTimeByType(ref startTime, endTime, new Time(6, 0), new Time(18, 0)); // 06:00 - 18:00
-        var eveningHours = GetWorkTimeByType(ref startTime, endTime, new Time(18, 0), new Time(22, 0)); // 18:00 - 22:00
-        var nightHours = GetWorkTimeByType(ref startTime, endTime, new Time(22, 0), new Time(6, 0)); // 22:00 - 06:00
+        var summaryHours = Time.ConvertToDecimal(endTime - startTime) - (!workDayDetail.IsLaunchPaid ? workDayDetail.LaunchTime : decimal.Zero);
+        var dayHours = GetWorkTimeByType(ref startTime, endTime, _morning, _evening) -
+            (!workDayDetail.IsLaunchPaid ? workDayDetail.LaunchTime : decimal.Zero); // 06:00 - 18:00
+        var eveningHours = GetWorkTimeByType(ref startTime, endTime, _evening, _night); // 18:00 - 22:00
+        var nightHours = GetWorkTimeByType(ref startTime, endTime, _night, _morning); // 22:00 - 06:00
         return new HoursDetail()
         {
             Day = dayHours,
@@ -138,20 +162,20 @@ public class ScheduleMessageHandler : BaseMessageHandler<DaysSettingMessage>
     private async Task<List<CalculationRegime>> GetUsedRegimesAsync(DaysSettingMessage msg)
     {
         var searchFilter = await GetRegimeSearchFilterAsync(msg);
-        var regimes = Work.GetCollection<Regime>()
+        var regimes = await Work.GetCollection<Regime>()
             .Find(searchFilter)
             .Project(x => new CalculationRegime()
             {
                 RegimeId = x.Id,
-                DaysCount = x.DaysCount,
                 WorkDayDetails = x.WorkDayDetails,
                 RestDays = x.RestDayDetails,
                 IsCircle = x.IsCircle,
                 StartDateInNextYear = x.StartDateInNextYear,
                 StartDateInPreviousYear = x.StartDateInPreviousYear,
                 StartDateInCurrentYear = x.StartDateInCurrentYear,
+                ShiftsCount = x.ShiftsCount
             }).ToListAsync();
-        return await regimes;
+        return regimes;
     }
 
 
@@ -181,7 +205,7 @@ public class ScheduleMessageHandler : BaseMessageHandler<DaysSettingMessage>
     {
         using (var httpClient = new HttpClient())
         {
-            var response = await httpClient.GetAsync($"https://date.nager.at/Api/v2/PublicHoliday/{year}/{region}");
+            var response = await httpClient.GetAsync($"https://date.nager.at/api/v3/PublicHolidays/{year}/{region}");
             if (response.IsSuccessStatusCode)
             {
                 var holidaysJson = await response.Content.ReadAsStringAsync();

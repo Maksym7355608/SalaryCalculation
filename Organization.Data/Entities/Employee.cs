@@ -20,4 +20,5 @@ public class Employee : BaseMongoEntity<int>
     public IdNamePair OrganizationUnit { get; set; }
     public IdNamePair Position { get; set; }
     public int RegimeId { get; set; }
+    public int ShiftNumber { get; set; }
 }

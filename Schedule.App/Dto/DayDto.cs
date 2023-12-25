@@ -12,7 +12,7 @@ public class DayDto
 
 public class TimeDto
 {
-    public string TimeValue => $"{Hour}:{Minutes}";
+    public string TimeValue => $"{Hour.ToString("D2")}:{Minutes.ToString("D2")}";
     public int Hour { get; set; }
     public int Minutes { get; set; }
 }

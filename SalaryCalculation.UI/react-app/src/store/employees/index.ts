@@ -4,11 +4,12 @@ import {
     EmployeeSearchCommand,
     EmployeeUpdateCommand
 } from "../../models/commands/OrganizationCommands";
-import { user } from "../actions";
+import {toShortDateString, user} from "../actions";
 import RestUnitOfWork from "../rest/RestUnitOfWork";
 import {EmployeeDto, PositionDto} from "../../models/DTO";
 import {EmployeeShortModel} from "../../models/ShortModels";
 import {EmployeeModel} from "../../models/employees";
+import { ESex } from "../../models/Enums";
 
 export const searchEmployees = async (data: IHomeForm) => {
     const command: EmployeeSearchCommand = {
@@ -25,6 +26,10 @@ export const searchEmployees = async (data: IHomeForm) => {
     return await restClient.organization.searchEmployeesAsync(command)
 }
 
+function getDescription(item: any) {
+    return item;
+}
+
 export const mapToEmployeeShortModel = (employees: EmployeeDto[]): EmployeeShortModel[] => {
     return employees.map(employee => {
         let contacts : string = "";
@@ -37,10 +42,10 @@ export const mapToEmployeeShortModel = (employees: EmployeeDto[]): EmployeeShort
             unit: employee.organizationUnit.name,
             position: employee.position.name,
             fullName: `${employee.name.lastName} ${employee.name.firstName} ${employee.name.middleName}`,
-            employeeDate: employee.dateFrom.toString(),
-            dismissDate: employee.dateTo?.toString() ?? "",
+            employeeDate: toShortDateString(employee.dateFrom),
+            dismissDate: toShortDateString(employee.dateTo) ?? "",
             salary: employee.salaries[employee.salaries.length-1].amount,
-            sex: employee.sex.toString(),
+            sex: getDescription(employee.sex),
             familyStatus: employee.marriedStatus.toString(),
             kids: undefined,
             contacts: contacts

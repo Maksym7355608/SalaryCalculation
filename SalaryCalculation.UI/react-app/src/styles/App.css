@@ -74,3 +74,16 @@
 .data-table thead {
     background-color: #004281;
 }
+
+.table-style {
+    border-collapse: collapse;
+}
+
+.table-style th,
+.table-style td {
+    border: 1px solid #E7ECF5; /* або будь-який інший колір або стиль рамки */
+}
+
+.p-disabled {
+    background-color: var(--bs-secondary-bg);
+}

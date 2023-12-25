@@ -7,7 +7,7 @@ public static class RegimeHelper
 {
     public static int GetCircleNumber(CalculationRegime regime, DateTime regimeStartDateUsing, DateTime date)
     {
-        var difDays = (regimeStartDateUsing - date).Days;
+        var difDays = (date - regimeStartDateUsing).Days;
         return difDays / regime.DaysCount;
     }
 
@@ -54,7 +54,7 @@ public static class RegimeHelper
 
     public static int GetDayOfCircle(CalculationRegime regime, DateTime startDate, int circleNumber, DateTime currDate)
     {
-        var firstDayInCircle = startDate.AddDays(regime.DaysCount * circleNumber);
+        var firstDayInCircle = startDate.AddDays(regime.DaysCount * circleNumber - 1);
 
         return (currDate - firstDayInCircle).Days;
     }

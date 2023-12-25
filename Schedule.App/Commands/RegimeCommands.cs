@@ -24,6 +24,8 @@ public class RegimeCreateCommand : BaseCommand
     public DateTime? StartDateInPreviousYear { get; set; }
 
     public DateTime? StartDateInNextYear { get; set; }
+    
+    public int ShiftNumber { get; set; }
 }
 
 public class RegimeUpdateCommand : RegimeCreateCommand

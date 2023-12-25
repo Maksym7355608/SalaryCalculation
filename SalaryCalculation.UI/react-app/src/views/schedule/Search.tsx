@@ -3,9 +3,8 @@ import {IdNamePair} from "../../models/BaseModels";
 import {SubmitHandler, useForm} from "react-hook-form";
 import {Button, Col, Container, Form, Row} from "react-bootstrap";
 import {Calendar} from "primereact/calendar";
-import {getDaysByMonth, toPeriodString, user} from "../../store/actions";
+import {getDaysByMonth, monthDict, toPeriodString, user} from "../../store/actions";
 import { Nullable } from "primereact/ts-helpers";
-import { InputNumber } from "primereact/inputnumber";
 import SelectList from "../../componets/helpers/SelectList";
 import RestUnitOfWork from "../../store/rest/RestUnitOfWork";
 import CustomDataTable from "../../componets/helpers/CustomDataTable";
@@ -49,15 +48,16 @@ export default function ScheduleSearch() {
         ];
         if(period){
             const month = period.getMonth()+1;
+            const year = period.getFullYear();
             const createColumn = (day: string) => {
                 return {
-                    field: day,
-                    text: `${day}.${month}`,
+                    field: `${day}.${month}.${year}`,
+                    text: `${day}`,
                     sortable: false
                 };
             }
 
-            const days = getDaysByMonth(month, period.getFullYear() % 4 == 0);
+            const days = getDaysByMonth(month, year % 4 == 0);
             days.map(day => {
                 columns = [...columns, createColumn(day)]
             })
@@ -111,8 +111,10 @@ export default function ScheduleSearch() {
                     <Col>
                         <Form.Group>
                             <input type="hidden" value={sPos?.toString()} {...register('positionsIds')}/>
-                            <Form.Label>Підрозділи</Form.Label>
-                            <SelectList id='positions' setState={setPos} items={positions}/>
+                            <Form.Label>Посади</Form.Label>
+                            <div className='w-100 d-flex from-picker' style={{height: '37.5px'}}>
+                                <SelectList multiple={true} id='positions' setState={setPos} items={positions}/>
+                            </div>
                         </Form.Group>
                     </Col>
                 </Row>
@@ -123,11 +125,11 @@ export default function ScheduleSearch() {
                     <Button type='button' variant='warning' size='sm'><i className='material-icons small'>schedule</i> Режими</Button>
                 </div>
             </Form>
-            <div className='vh-100'>
-                <div className="d-flex w-auto h-auto container mt-3 mb-3">
-                    <CustomDataTable columns={getTableColumns()} rows={createTableRows()}/>
+                <div className="mt-3 mb-3">
+                    <CustomDataTable columns={getTableColumns()} rows={createTableRows()} header={{
+                        centerHead: <p>{period ? monthDict[period.getMonth()] : undefined}</p>
+                    }}/>
                 </div>
-            </div>
 
         </Container>
     );

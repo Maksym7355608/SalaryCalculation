@@ -14,4 +14,9 @@ public class PositionCreateCommand : BaseCommand
     public int OrganizationUnitId { get; set; }
 }
 
-public class PositionSearchCommand : PositionUpdateCommand { }
+public class PositionSearchCommand : BaseCommand
+{
+    public string Name { get; set; }
+    public int OrganizationId { get; set; }
+    public int? OrganizationUnitId { get; set; }
+}

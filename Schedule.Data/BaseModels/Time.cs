@@ -2,7 +2,7 @@
 
 public class Time
 {
-    public string TimeValue => $"{Hour}:{Minutes}";
+    public string TimeValue => $"{Hour.ToString("D2")}:{Minutes.ToString("D2")}";
     public int Hour { get; set; }
     public int Minutes { get; set; }
     
@@ -51,8 +51,8 @@ public class Time
     
     public static Time operator -(Time a, Time b)
     {
-        var sumH = b.Hour - a.Hour;
-        var sumM = b.Minutes - a.Minutes;
+        var sumH = a.Hour - b.Hour;
+        var sumM = a.Minutes - b.Minutes;
         if (sumM < 0)
         {
             sumM += 60;

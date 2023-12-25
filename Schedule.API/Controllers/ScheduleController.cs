@@ -36,9 +36,10 @@ public class ScheduleController : BaseScheduleController
         return GetAjaxResponse(IsValid && regimes, Errors);
     }
 
-    [HttpPut("regime/update")]
-    public async Task<IActionResult> UpdateRegimeAsync([FromBody] RegimeUpdateCommand command)
+    [HttpPut("regime/update/{id}")]
+    public async Task<IActionResult> UpdateRegimeAsync([FromRoute] int id, [FromBody] RegimeUpdateCommand command)
     {
+        command.Id = id;
         var regimes = await ScheduleCommandHandler.UpdateRegimeAsync(command);
         return GetAjaxResponse(IsValid && regimes, Errors);
     }
@@ -54,17 +55,18 @@ public class ScheduleController : BaseScheduleController
 
     #region Work days regime
 
-    [HttpGet("regime/work-days/{organizationId}")]
-    public async Task<IActionResult> GetWorkDaysRegimeAsync([FromRoute] int regimeId)
+    [HttpGet("regime/work-days/{id}")]
+    public async Task<IActionResult> GetWorkDaysRegimeAsync([FromRoute] int id)
     {
-        var workDays = await ScheduleCommandHandler.GetWorkDaysRegimeAsync(regimeId);
+        var workDays = await ScheduleCommandHandler.GetWorkDaysRegimeAsync(id);
         return GetAjaxResponse(IsValid, workDays, Errors);
     }
     
-    [HttpPost("regime/{id}/work-days/update")]
-    public async Task<IActionResult> GetWorkDaysRegimeAsync([FromRoute] int regimeId, [FromBody] WorkDayRegimeUpdateCommand command)
+    [HttpPut("regime/{id}/work-days/update")]
+    public async Task<IActionResult> GetWorkDaysRegimeAsync([FromRoute] int id, [FromBody] WorkDayRegimeUpdateCommand command)
     {
-        var workDays = await ScheduleCommandHandler.UpdateWorkDayRegimeAsync(regimeId, command);
+        command.RegimeId = id;
+        var workDays = await ScheduleCommandHandler.UpdateWorkDayRegimeAsync(command);
         return GetAjaxResponse(IsValid && workDays, Errors);
     }
 
@@ -119,7 +121,7 @@ public class ScheduleController : BaseScheduleController
         [FromRoute] int empId)
     {
         using var op = Operation.Begin("Calculating period calendar is started");
-        var isCalc = await ScheduleCommandHandler.CalculatePeriodCalendarAsync(empId, regimeId, period);
+        var isCalc = await ScheduleCommandHandler.CalculatePeriodCalendarAsync(empId, period, regimeId);
         op.Complete();
         return GetAjaxResponse(IsValid && isCalc, Errors);
     }

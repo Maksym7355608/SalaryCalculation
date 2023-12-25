@@ -78,6 +78,7 @@ public class OrganizationsController : BaseOrganizationController
     public async Task<IActionResult> SetOrganizationPermissions([FromRoute] int organizationId,
         [FromBody] OrganizationPermissionUpdateCommand cmd)
     {
+        cmd.OrganizationId = organizationId;
         var updated = await OrganizationCommandHandler.UpdateOrganizationPermissionsAsync(cmd);
         return GetAjaxResponse(IsValid && updated, Errors);
     }
@@ -108,7 +109,7 @@ public class OrganizationsController : BaseOrganizationController
 
     [HttpPost("{organizationId}/units/search")]
     public async Task<IActionResult> SearchOrganizationUnitsAsync([FromRoute] int organizationId,
-        [FromQuery] OrganizationUnitSearchCommand command)
+        [FromBody] OrganizationUnitSearchCommand command)
     {
         using var op = Operation.At(LogEventLevel.Debug).Begin("Organization units searching started");
         var units = await OrganizationCommandHandler.SearchOrganizationUnitsAsync(command);
@@ -174,9 +175,10 @@ public class OrganizationsController : BaseOrganizationController
 
     [HttpPost("{organizationId}/positions/search")]
     public async Task<IActionResult> SearchPositionAsync([FromRoute] int organizationId,
-        [FromQuery] PositionSearchCommand command)
+        [FromBody] PositionSearchCommand command)
     {
         using var op = Operation.At(LogEventLevel.Debug).Begin("Organization units searching started");
+        command.OrganizationId = organizationId;
         var positions = await OrganizationCommandHandler.SearchPositionsAsync(command);
         op.Complete();
         return GetAjaxResponse(IsValid, positions);

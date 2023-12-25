@@ -47,8 +47,8 @@ export default function Home() {
 
     const createEmployeeActions = (employee: EmployeeShortModel) => {
         return (
-            <div className='btn-group-sm'>
-                <Link to={`/employee/${employee.id}`} className='btn btn-sm btn-light'><i className='material-icons small'>info_i</i></Link>
+            <div className='inline-flex'>
+                <Link to={`/employee/${employee.id}`} className='btn btn-sm btn-light'><i className='material-icons small'>info</i></Link>
                 <Link to={`/employee/${employee.id}?handler=edit`} className='btn btn-sm btn-light'><i className='material-icons small'>edit_square</i></Link>
                 <button onClick={() => {
                     setShowDelete(true);
@@ -143,12 +143,8 @@ export default function Home() {
                     </button>
                 </div>
             </form>
-            <div className="ibox mt-3 mb-3">
-                <div className="ibox-content w-100">
-                    <div className="justify-content-center">
-                        <CustomDataTable columns={columnDefs} rows={createEmployeeWithActions()}/>
-                    </div>
-                </div>
+            <div className="mt-3 mb-3">
+                <CustomDataTable columns={columnDefs} rows={createEmployeeWithActions()}/>
             </div>
             <DeleteEmployeeModal deleteId={deleteId} show={showDelete}/>
         </div>

@@ -13,6 +13,7 @@ using Organization.Data.Enums;
 using Progress.App;
 using SalaryCalculation.Data.BaseModels;
 using SalaryCalculation.Shared.Common.Validation;
+using SalaryCalculation.Shared.Extensions.MoreLinq;
 
 namespace Organization.App.Handlers;
 
@@ -89,6 +90,7 @@ public class EmployeeCommandHandler : BaseOrganizationCommandHandler, IEmployeeC
         
         var employee = new Employee()
         {
+            Id = (int)_collection.NewNumberId(),
             RollNumber = command.RollNumber,
             Name = new Person()
             {

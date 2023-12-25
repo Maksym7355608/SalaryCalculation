@@ -28,7 +28,8 @@ public class RoleController : BaseIdentityController
     [HttpPut("update/{id}")]
     public async Task<IActionResult> UpdateRoleAsync([FromRoute] ObjectId id, [FromBody] RoleUpdateCommand command)
     {
-        await RoleCommandHandler.UpdateRole(id, command);
+        command.Id = id;
+        await RoleCommandHandler.UpdateRole(command);
         return GetAjaxResponse(IsValid, Errors);
     }
 

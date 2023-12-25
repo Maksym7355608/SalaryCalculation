@@ -1,16 +1,37 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
+﻿using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace SalaryCalculation.Data.BaseModels;
 
-public class BaseMongoEntity<T>
+public abstract class BaseMongoDomainModel
+{
+    protected BaseMongoDomainModel() => this.Version = 1;
+
+    public int Version { get; set; }
+}
+
+public class BaseMongoEntity<T> : BaseMongoDomainModel
 {
     [BsonId]
     [BsonIgnoreIfDefault]
     public T Id { get; set; }
-    public int Version { get; set; }
+}
 
-    public BaseMongoEntity()
+public class BaseMongoDomainModelMap : IDomainClassMap
+{
+    public BaseMongoDomainModelMap()
     {
-        Version = 1;
+        BsonClassMap.RegisterClassMap<BaseMongoDomainModel>(cm =>
+        {
+            cm.AutoMap();
+            cm.GetMemberMap(c => c.Version).SetIgnoreIfDefault(true);
+        });
     }
+}
+
+/// <summary>
+/// Базовий інтерфейс профілю доменної моделі
+/// </summary>
+public interface IDomainClassMap
+{
 }

@@ -1,8 +1,6 @@
-import {Component, ReactElement} from "react";
+import {Component} from "react";
 import {DataTable, DataTableBaseProps} from 'primereact/datatable';
 import {Column} from 'primereact/column';
-import "primereact/resources/themes/lara-light-indigo/theme.css";
-import {Toolbar} from "primereact/toolbar";
 import {InputText} from "primereact/inputtext";
 
 interface DataTableProps<TModel> {
@@ -36,7 +34,7 @@ export default class CustomDataTable<TModel extends object> extends Component<Da
         emptyMessage: 'Дані відсутні',
         rowHover: true,
         scrollable: true,
-        scrollHeight: '400px',
+        scrollHeight: '600px',
         sortMode: 'single',
         sortOrder: 1,
         showGridlines: true,
@@ -88,7 +86,7 @@ export default class CustomDataTable<TModel extends object> extends Component<Da
             <div className="ibox-content w-100">
                 <div className="justify-content-center">
                     <DataTable value={this.props.rows} header={this.renderHeader()}
-                               className={this.config.className} size={"small"}
+                               className="table-style" size={"small"}
                                currentPageReportTemplate="{first} по {last} з {totalRecords}"
                                paginator={this.config.paginator} paginatorRight={this.config.paginatorRight}
                                paginatorLeft={this.config.paginatorLeft}
@@ -97,7 +95,7 @@ export default class CustomDataTable<TModel extends object> extends Component<Da
                                emptyMessage={this.config.emptyMessage} rows={this.config.rows}
                                rowsPerPageOptions={this.config.rowsPerPageOptions}
                                sortMode={this.config.sortMode} frozenWidth={this.config.frozenWidth}
-                               showGridlines={this.config.showGridlines}
+                               showGridlines
                                loading={this.config.loading} footer={this.props.footer}>
                         {this.renderColumns()}
                     </DataTable>

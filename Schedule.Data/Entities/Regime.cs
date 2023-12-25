@@ -12,7 +12,10 @@ public class Regime : BaseMongoEntity<int>
 
     public bool IsCircle { get; set; }
 
-    public int DaysCount { get; set; }
+    public int DaysCount => WorkDayCount + RestDayCount;
+
+    [BsonIgnore]
+    public int WorkDayCount => WorkDayDetails.Sum(x => x.DaysOfWeek.Count());
 
     public IEnumerable<WorkDayDetail> WorkDayDetails { get; set; }
 
@@ -28,4 +31,6 @@ public class Regime : BaseMongoEntity<int>
     public DateTime? StartDateInNextYear { get; set; }
 
     public int OrganizationId { get; set; }
+
+    public int ShiftsCount { get; set; }
 }
