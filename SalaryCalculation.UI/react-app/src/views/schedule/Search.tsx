@@ -125,13 +125,11 @@ export default function ScheduleSearch() {
                     <Button type='button' variant='warning' size='sm'><i className='material-icons small'>schedule</i> Режими</Button>
                 </div>
             </Form>
-            <div className='vh-100'>
-                <div className="d-flex w-auto h-auto container mt-3 mb-3">
+                <div className="mt-3 mb-3">
                     <CustomDataTable columns={getTableColumns()} rows={createTableRows()} header={{
                         centerHead: <p>{period ? monthDict[period.getMonth()] : undefined}</p>
                     }}/>
                 </div>
-            </div>
 
         </Container>
     );

@@ -183,7 +183,7 @@ export default function Employee() {
                 <Form.Group className="row input-group mt-2" controlId="benefits">
                     <input type='hidden' value={sBenefits?.toString()} {...register('benefits')}/>
                     <Form.Label className="col-2">Пільги</Form.Label>
-                     <div className='col-10 p-0'>
+                     <div className='col-10 p-0' style={{height: '48px'}}>
                          <SelectList setState={setBenefits} id="benefits" items={benefitsList} multiple={true}
                                      disabled={isInfoMode} value={employee?.benefits}/>
                      </div>

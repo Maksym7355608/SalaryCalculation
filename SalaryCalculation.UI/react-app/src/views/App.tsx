@@ -4,6 +4,8 @@ import {BrowserRouter as Router, Route, Routes} from "react-router-dom";
 import '../styles/App.css';
 import '../styles/Layout.css';
 import {PrimeReactProvider} from 'primereact/api';
+import 'primereact/resources/themes/lara-light-blue/theme.css';   // theme
+import 'primeflex/primeflex.css';
 
 import store from "../store";
 import Login from "./identity/Login";
