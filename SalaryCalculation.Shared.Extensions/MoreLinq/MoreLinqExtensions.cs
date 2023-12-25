@@ -1,4 +1,6 @@
-﻿namespace SalaryCalculation.Shared.Extensions.MoreLinq;
+﻿using MongoDB.Driver;
+
+namespace SalaryCalculation.Shared.Extensions.MoreLinq;
 
 public static class MoreLinqExtensions
 {
@@ -12,4 +14,9 @@ public static class MoreLinqExtensions
     {
         enumerable.AsParallel().ForEach(action);
     }
+
+    public static long NewNumberId<T>(this IMongoCollection<T> collection) =>
+        collection.Find(Builders<T>.Filter.Empty).CountDocuments();
+    public static Task<long> NewNumberIdAsync<T>(this IMongoCollection<T> collection) =>
+        collection.Find(Builders<T>.Filter.Empty).CountDocumentsAsync();
 }

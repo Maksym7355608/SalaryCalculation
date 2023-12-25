@@ -14,4 +14,9 @@ public class OrganizationUnitCreateCommand : BaseCommand
     public int? OrganizationUnitId { get; set; }
 }
 
-public class OrganizationUnitSearchCommand : OrganizationUnitUpdateCommand { }
+public class OrganizationUnitSearchCommand : BaseCommand
+{
+    public int OrganizationId { get; set; }
+    public string? Name { get; set; }
+    public int? OrganizationUnitId { get; set; }
+}

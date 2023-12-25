@@ -15,9 +15,9 @@ public class EmployeeBaseCommand : BaseCommand
     public IEnumerable<EBenefit> Benefits { get; set; }
     public EMarriedStatus MarriedStatus { get; set; }
     public BankDto BankAccount { get; set; }
-    public string Phone { get; set; }
-    public string Email { get; set; }
-    public string Telegram { get; set; }
+    public string? Phone { get; set; }
+    public string? Email { get; set; }
+    public string? Telegram { get; set; }
     public int OrganizationUnitId { get; set; }
     public int PositionId { get; set; }
     public int RegimeId { get; set; }

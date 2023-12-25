@@ -3,6 +3,7 @@ using Organization.Api.CollectionExtensions;
 using Organization.App.Commands.Messages;
 using Organization.App.Handlers;
 using Organization.App.Mapper;
+using SalaryCalculation.Data.BaseModels;
 using SalaryCalculation.Shared.Common.Attributes;
 using SalaryCalculation.Shared.Extensions.ApiExtensions;
 using Serilog;
@@ -36,7 +37,15 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Organization API", Version = "v1" });
 });
+var domainProfiles = typeof(IDomainClassMap).Assembly.GetTypes()
+    .Where(t => typeof(IDomainClassMap).IsAssignableFrom(t)
+                && !t.IsAbstract
+                && !t.IsInterface);
 
+foreach (var profile in domainProfiles)
+{
+    Activator.CreateInstance(profile);
+}
 builder.Services.AddRabbitMessageBus(builder.Configuration);
 
 builder.Services.AddMongoOrganizationUnitOfWork(builder.Configuration);
