@@ -16,7 +16,5 @@ public static class MoreLinqExtensions
     }
 
     public static long NewNumberId<T>(this IMongoCollection<T> collection) =>
-        collection.Find(Builders<T>.Filter.Empty).CountDocuments();
-    public static Task<long> NewNumberIdAsync<T>(this IMongoCollection<T> collection) =>
-        collection.Find(Builders<T>.Filter.Empty).CountDocumentsAsync();
+        collection.Find(Builders<T>.Filter.Empty).CountDocuments()+1;
 }

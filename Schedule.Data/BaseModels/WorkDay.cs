@@ -12,13 +12,13 @@ public class WorkDayDetail
 
     public bool IsHolidayWork { get; set; }
 
-    public bool IsHolidayShort { get; set; }
+    public bool? IsHolidayShort { get; set; }
 
     public Time StartTimeInHoliday { get; set; }
 
     public Time EndTimeInHoliday { get; set; }
 
-    public bool IsEndTimeInHolidayNextDay { get; set; }
+    public bool? IsEndTimeInHolidayNextDay { get; set; }
     
     public bool IsLaunchPaid { get; set; }
     

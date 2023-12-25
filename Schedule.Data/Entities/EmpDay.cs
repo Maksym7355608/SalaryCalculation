@@ -4,7 +4,7 @@ using Schedule.Data.BaseModels;
 
 namespace Schedule.Data.Entities;
 
-public class EmpDay : BaseMongoEntity<ObjectId>
+public class EmpDay : BaseMongoEntity<long>
 {
     /// <summary>
     /// Enum - EDayType

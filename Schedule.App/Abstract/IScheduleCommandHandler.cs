@@ -12,7 +12,7 @@ public interface IScheduleCommandHandler
     Task<bool> DeleteRegimeAsync(int id);
 
     Task<IEnumerable<WorkDayDetailDto>> GetWorkDaysRegimeAsync(int regimeId);
-    Task<bool> UpdateWorkDayRegimeAsync(int regimeId, WorkDayRegimeUpdateCommand command);
+    Task<bool> UpdateWorkDayRegimeAsync(WorkDayRegimeUpdateCommand command);
 
     Task<IEnumerable<PeriodCalendarDto>> GetPeriodsCalendarByEmployeeAsync(int employeeId);
     Task<IEnumerable<PeriodCalendarDto>> SearchPeriodsCalendarAsync(PeriodCalendarSearchCommand command);

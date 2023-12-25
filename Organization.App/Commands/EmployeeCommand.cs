@@ -21,6 +21,8 @@ public class EmployeeBaseCommand : BaseCommand
     public int OrganizationUnitId { get; set; }
     public int PositionId { get; set; }
     public int RegimeId { get; set; }
+    
+    public int ShiftNumber { get; set; }
 }
 
 public class EmployeeUpdateCommand : EmployeeBaseCommand

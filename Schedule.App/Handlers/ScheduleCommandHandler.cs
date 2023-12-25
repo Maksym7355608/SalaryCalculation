@@ -7,6 +7,7 @@ using Organization.Data.Data;
 using Organization.Data.Entities;
 using SalaryCalculation.Shared.Common.Validation;
 using SalaryCalculation.Shared.Extensions.EnumExtensions;
+using SalaryCalculation.Shared.Extensions.MoreLinq;
 using SalaryCalculation.Shared.Extensions.PeriodExtensions;
 using Schedule.App.Abstract;
 using Schedule.App.Commands;
@@ -21,16 +22,20 @@ namespace Schedule.App.Handlers;
 public class ScheduleCommandHandler : BaseScheduleCommandHandler, IScheduleCommandHandler
 {
     private IOrganizationUnitOfWork _organizationUnitOfWork;
+    private IMongoCollection<Regime> _regimeCollection;
+    private IMongoCollection<EmpDay> _dayCollection;
     
     public ScheduleCommandHandler(IScheduleUnitOfWork work, ILogger<ScheduleCommandHandler> logger, IMapper mapper,
         IOrganizationUnitOfWork organizationUnitOfWork) : base(work, logger, mapper)
     {
+        _regimeCollection = Work.GetCollection<Regime>();
+        _dayCollection = Work.GetCollection<EmpDay>();
         _organizationUnitOfWork = organizationUnitOfWork;
     }
 
     public async Task<IEnumerable<RegimeDto>> GetRegimesAsync(int organizationId)
     {
-        var regimes = await Work.GetCollection<Regime>()
+        var regimes = await _regimeCollection
             .Find(x => x.OrganizationId == organizationId)
             .ToListAsync();
         return Mapper.Map<IEnumerable<RegimeDto>>(regimes);
@@ -38,7 +43,7 @@ public class ScheduleCommandHandler : BaseScheduleCommandHandler, IScheduleComma
 
     public async Task<RegimeDto> GetRegimeAsync(int id)
     {
-        var regime = await Work.GetCollection<Regime>()
+        var regime = await _regimeCollection
             .Find(x => x.Id == id)
             .FirstOrDefaultAsync();
         if (regime == null)
@@ -51,7 +56,8 @@ public class ScheduleCommandHandler : BaseScheduleCommandHandler, IScheduleComma
         var newRegime = Mapper.Map<Regime>(command);
         if (Work.GetCollection<Regime>().Find(x => x.Code == newRegime.Code).Any())
             throw new DuplicateNameException("Regime with the same code exist");
-        await Work.GetCollection<Regime>()
+        newRegime.Id = (int)_regimeCollection.NewNumberId();
+        await _regimeCollection
             .InsertOneAsync(newRegime);
         return true;
     }
@@ -90,14 +96,18 @@ public class ScheduleCommandHandler : BaseScheduleCommandHandler, IScheduleComma
         return Mapper.Map<IEnumerable<WorkDayDetailDto>>(workDaysRegime);
     }
 
-    public async Task<bool> UpdateWorkDayRegimeAsync(int regimeId, WorkDayRegimeUpdateCommand command)
+    public async Task<bool> UpdateWorkDayRegimeAsync( WorkDayRegimeUpdateCommand command)
     {
-        var workDaysRegime = Mapper.Map<WorkDayDetail>(command);
-        if (!Work.GetCollection<Regime>().Find(x => x.Id == regimeId).Any())
-            throw new EntityNotFoundException("Regime with id {0} not found", regimeId.ToString());
+        if (!Work.GetCollection<Regime>().Find(x => x.Id == command.RegimeId).Any())
+            throw new EntityNotFoundException("Regime with id {0} not found", command.RegimeId.ToString());
+        
+        var workDays = Mapper.Map<IEnumerable<WorkDayDetail>>(command.WorkDayDetails);
+        var restDays = Mapper.Map<IEnumerable<Day>>(command.RestDayDetails);
 
         var res = await Work.GetCollection<Regime>()
-            .UpdateOneAsync(x => x.Id == regimeId, Builders<Regime>.Update.Set($"{nameof(Regime)}.WorkDayDetails.", workDaysRegime));//TODO
+            .UpdateOneAsync(x => x.Id == command.RegimeId, Builders<Regime>.Update
+                .Set(x => x.WorkDayDetails, workDays)
+                .Set(x => x.RestDayDetails, restDays));
         return res.ModifiedCount > 0;
     }
 
@@ -129,10 +139,10 @@ public class ScheduleCommandHandler : BaseScheduleCommandHandler, IScheduleComma
         if (!string.IsNullOrWhiteSpace(command.EmployeeNumber))
         {
             var employeeId = await _organizationUnitOfWork.GetCollection<Employee>()
-                .Find(Builders<Employee>.Filter.Regex(x => x.RollNumber, new BsonRegularExpression(command.EmployeeNumber, "b")))
+                .Find(Builders<Employee>.Filter.Regex(x => x.RollNumber, new BsonRegularExpression(command.EmployeeNumber, "i")))
                 .Project(x => x.Id)
                 .FirstOrDefaultAsync();
-            if (employeeId == 0)
+            if (employeeId == null)
                 throw new EntityNotFoundException("Employee with roll number {0} was not found", command.EmployeeNumber);
             definition.Add(filterBuilder.Eq(x => x.EmployeeId, employeeId));
         }
@@ -141,10 +151,6 @@ public class ScheduleCommandHandler : BaseScheduleCommandHandler, IScheduleComma
             definition.Add(filterBuilder.Lte(x => x.Period, command.PeriodTo.Value));
         if(command.RegimeId.HasValue)
             definition.Add(filterBuilder.Eq(x => x.RegimeId, command.RegimeId.Value));
-        if (command.VacationDays.HasValue)
-            definition.Add(filterBuilder.Eq(x => x.VacationDays, command.VacationDays.Value));
-        if (command.SickLeave.HasValue)
-            definition.Add(filterBuilder.Eq(x => x.SickLeave, command.SickLeave.Value));
         
         return filterBuilder.And(definition);
     }
@@ -171,10 +177,11 @@ public class ScheduleCommandHandler : BaseScheduleCommandHandler, IScheduleComma
             .Project(x => new
             {
                 x.Id,
-                Name = string.Join(" ", new[] { x.Name.LastName, x.Name.FirstName, x.Name.MiddleName })
+                Name = x.Name
             })
             .ToListAsync();
-        var employeeNamesDict = employeeNames.ToDictionary(k => k.Id, v => v.Name);
+        var employeeNamesDict = employeeNames.ToDictionary(k => k.Id, 
+            v => $"{v.Name.LastName} {v.Name.FirstName} {v.Name.MiddleName}");
         var dto = empDays.GroupBy(k => k.EmployeeId)
             .Select(model => new EmployeeScheduleDto()
             {
@@ -226,7 +233,7 @@ public class ScheduleCommandHandler : BaseScheduleCommandHandler, IScheduleComma
     {
         var dateFrom = period.ToDateTime();
         var dateTo = dateFrom.AddMonths(1);
-        var empDays = await Work.GetCollection<EmpDay>()
+        var empDays = await _dayCollection
             .Find(x => x.EmployeeId == employeeId && x.Date >= dateFrom && x.Date < dateTo)
             .ToListAsync();
         var dto = empDays.Select(x => new EmpDayDto
@@ -246,13 +253,13 @@ public class ScheduleCommandHandler : BaseScheduleCommandHandler, IScheduleComma
     public async Task<bool> SetWorkDayAsync(WorkDayCreateCommand command)
     {
         var empDay = Mapper.Map<EmpDay>(command);
-        var isExist = await Work.GetCollection<EmpDay>()
-            .UpdateOneAsync(x => x.EmployeeId == command.EmployeeId && x.OrganizationId == command.OrganizationId &&
-                                 x.Date == command.Date, Builders<EmpDay>.Update.Set(x => x, empDay));
+        var isExist = await _dayCollection
+            .ReplaceOneAsync(x => x.EmployeeId == command.EmployeeId && x.OrganizationId == command.OrganizationId &&
+                                 x.Date == command.Date, empDay);
         if (isExist.ModifiedCount == 0)
         {
-            await Work.GetCollection<EmpDay>()
-                .InsertOneAsync(empDay);
+            empDay.Id = _dayCollection.NewNumberId();
+            await _dayCollection.InsertOneAsync(empDay);
             return true;
         }
 
@@ -262,7 +269,7 @@ public class ScheduleCommandHandler : BaseScheduleCommandHandler, IScheduleComma
     public async Task<bool> CalculatePeriodCalendarAsync(int employeeId, int period, int regimeId)
     {
         var dateFrom = period.ToDateTime();
-        var dateTo = dateFrom.AddMonths(1).AddDays(-1);
+        var dateTo = dateFrom.AddMonths(1);
         var filter = GetPeriodCalendarFilter(dateFrom, dateTo, new []{employeeId});
 
         var empDays = await Work.GetCollection<EmpDay>()
