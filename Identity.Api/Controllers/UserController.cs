@@ -24,8 +24,8 @@ public class UserController : BaseIdentityController
         return GetAjaxResponse(IsValid, Errors);
     }
     
-    [HttpDelete("delete")]
-    public async Task<IActionResult> DeleteUserAsync([FromBody] ObjectId id)
+    [HttpDelete("delete/{id}")]
+    public async Task<IActionResult> DeleteUserAsync([FromRoute] ObjectId id)
     {
         await IdentityCommandHandler.DeleteUserAsync(id);
         return GetAjaxResponse(IsValid, Errors);

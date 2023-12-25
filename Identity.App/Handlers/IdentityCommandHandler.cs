@@ -34,6 +34,7 @@ public class IdentityCommandHandler : BaseIdentityCommandHandler, IIdentityComma
     public async Task CreateUserAsync(UserCreateCommand command)
     {
         var newUser = Mapper.Map<User>(command);
+        newUser.Roles = Array.Empty<ObjectId>();
         var existingUsers = await Work.GetCollection<User>()
             .Find(x => x.Username == command.Username || x.Email == command.Email)
             .AnyAsync();
@@ -60,24 +61,26 @@ public class IdentityCommandHandler : BaseIdentityCommandHandler, IIdentityComma
 
     public async Task AddRoleToUserAsync(ObjectId userId, ObjectId roleId)
     {
-        var user = await Work.GetCollection<User>(nameof(User)).Find(x => x.Id == userId).FirstOrDefaultAsync();
-        if (user != null)
+        var roles = (await Work.GetCollection<User>(nameof(User)).Find(x => x.Id == userId)
+            .Project(x => x.Roles)
+            .FirstOrDefaultAsync())?.ToList();
+        if (roles != null)
         {
-            var roles = user.Roles.ToList();
             if (roles.Contains(roleId))
                 throw new Exception("Role was exist");
             roles.Add(roleId);
-            user.Roles = roles;
-            await Work.GetCollection<User>(nameof(User)).ReplaceOneAsync(x => x.Id == userId, user);
+            await Work.GetCollection<User>(nameof(User)).UpdateOneAsync(x => x.Id == userId, Builders<User>.Update
+                .Set(x => x.Roles, roles));
         }
     }
 
     public async Task RemoveRoleFromUserAsync(ObjectId userId, ObjectId roleId)
     {
-        var user = await Work.GetCollection<User>(nameof(User)).Find(x => x.Id == userId).FirstOrDefaultAsync();
-        if (user != null)
+        var roles = (await Work.GetCollection<User>(nameof(User)).Find(x => x.Id == userId)
+            .Project(x => x.Roles)
+            .FirstOrDefaultAsync())?.ToList();
+        if (roles != null)
         {
-            var roles = user.Roles.ToList();
             roles.RemoveAll(x => x == roleId);
             await Work.GetCollection<User>(nameof(User)).UpdateOneAsync(x => x.Id == userId, Builders<User>.Update.Set(x => x.Roles, roles));
         }

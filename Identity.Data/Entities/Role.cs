@@ -6,7 +6,7 @@ namespace Identity.Data.Entities;
 public class Role : BaseMongoEntity<ObjectId>
 {
     public string Name { get; set; }
-    public string NormalizedName => Name.Normalize();
+    public string NormalizedName => Name.ToUpper();
     public IEnumerable<int> Permissions { get; set; }
 
     public int OrganizationId { get; set; }

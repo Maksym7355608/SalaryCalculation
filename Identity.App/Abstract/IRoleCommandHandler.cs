@@ -15,10 +15,9 @@ public interface IRoleCommandHandler
     /// <summary>
     /// Оновлює існуючу роль за її ідентифікатором.
     /// </summary>
-    /// <param name="roleId">Ідентифікатор ролі.</param>
     /// <param name="command">Об'єкт команди для оновлення ролі.</param>
     /// <returns>Показник, що вказує, чи була оновлена роль.</returns>
-    Task<bool> UpdateRole(ObjectId roleId, RoleUpdateCommand command);
+    Task<bool> UpdateRole(RoleUpdateCommand command);
 
     /// <summary>
     /// Видаляє роль за її ідентифікатором.

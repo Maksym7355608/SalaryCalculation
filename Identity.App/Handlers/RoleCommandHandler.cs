@@ -23,11 +23,11 @@ public class RoleCommandHandler : BaseIdentityCommandHandler, IRoleCommandHandle
             .InsertOneAsync(role);
     }
 
-    public async Task<bool> UpdateRole(ObjectId roleId, RoleUpdateCommand command)
+    public async Task<bool> UpdateRole(RoleUpdateCommand command)
     {
         var role = Mapper.Map<Role>(command);
         var result = await Work.GetCollection<Role>(nameof(Role))
-            .ReplaceOneAsync(x => x.Id == roleId, role);
+            .ReplaceOneAsync(x => x.Id == command.Id, role);
 
         return result.IsAcknowledged && result.ModifiedCount > 0;
     }

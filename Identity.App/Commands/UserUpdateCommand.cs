@@ -8,5 +8,5 @@ public class UserUpdateCommand : UserCreateCommand
 {
     public ObjectId Id { get; set; }
     
-    public IEnumerable<RoleDto> Roles { get; set; }
+    public IEnumerable<string> Roles { get; set; }
 }

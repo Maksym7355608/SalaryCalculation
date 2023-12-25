@@ -146,7 +146,10 @@ public class CalculationSalaryMessageHandler : BaseMessageHandler<CalculationSal
             new("DayHours", calendar.Hours.Day),
             new("EveningHours", calendar.Hours.Evening),
             new("NightHours", calendar.Hours.Night),
-            new("HolidayHours", calendar.Hours.Holiday),
+            new("HolidayHours", calendar.Hours.HolidaySummary),
+            new("HolidayDay", calendar.Hours.HolidayDay),
+            new("HolidayEvening", calendar.Hours.HolidayEvening),
+            new("HolidayNight", calendar.Hours.HolidayNight),
             new(nameof(calendar.WorkDays), calendar.WorkDays),
             new(nameof(calendar.SickLeave), calendar.SickLeave),
             new(nameof(calendar.VacationDays), calendar.VacationDays)
