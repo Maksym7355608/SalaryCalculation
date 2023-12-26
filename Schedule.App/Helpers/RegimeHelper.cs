@@ -56,7 +56,7 @@ public static class RegimeHelper
     {
         var firstDayInCircle = startDate.AddDays(regime.DaysCount * circleNumber - 1);
 
-        return (currDate - firstDayInCircle).Days;
+        return (currDate - firstDayInCircle).Days + 1;
     }
 }
 

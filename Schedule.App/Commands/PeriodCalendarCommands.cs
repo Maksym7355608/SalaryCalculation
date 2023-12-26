@@ -16,5 +16,5 @@ public class PeriodCalendarMassCalculateCommand : BaseCommand
     public int PeriodFrom { get; set; }
     public int? PeriodTo { get; set; }
     public int OrganizationId { get; set; }
-    public int[] EmployeeIds { get; set; }
+    public int[]? EmployeeIds { get; set; }
 }

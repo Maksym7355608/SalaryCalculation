@@ -80,7 +80,7 @@ public class DictionaryController : BaseDictionaryController
     
     #endregion
     
-    #region Base Amounts
+    #region Formula
 
     [HttpPost("formula/search")]
     public async Task<IActionResult> SearchFormulaAsync([FromBody] FormulasSearchCommand command)
