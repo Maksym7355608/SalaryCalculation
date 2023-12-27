@@ -8,7 +8,10 @@ public class FormulaCreateCommand : BaseCommand
     public string Name { get; set; }
     public string ExpressionName { get; set; }
     public string Expression { get; set; }
+    public string? Condition { get; set; }
 
     public DateTime DateFrom { get; set; }
     public DateTime? DateTo { get; set; }
+
+    public int Code { get; set; }
 }

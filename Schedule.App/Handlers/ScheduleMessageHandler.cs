@@ -62,7 +62,7 @@ public class ScheduleMessageHandler : BaseMessageHandler<DaysSettingMessage>
 
             var employees = await _organizationUnitOfWork.GetCollection<Employee>()
                 .Find(x => x.RegimeId == regime.RegimeId && (!x.DateTo.HasValue || x.DateTo.Value < msg.DateTo))
-                .Project(x => new { x.Id, x.DateFrom, x.ShiftNumber })
+                .Project(x => new { x.Id, x.DateFrom, x.DateTo, x.ShiftNumber })
                 .ToListAsync();
 
             var reserveForHoliday = false;
@@ -79,10 +79,7 @@ public class ScheduleMessageHandler : BaseMessageHandler<DaysSettingMessage>
                     var circleNumber = RegimeHelper.GetCircleNumber(regime, startDateForShift, currDate);
                     var dayOfCircle = RegimeHelper.GetDayOfCircle(regime, startDateForShift, circleNumber, currDate);
                     if (dayOfCircle > regime.DaysCount)
-                    {
-                        circleNumber++;
                         dayOfCircle = 1;
-                    }
                     
                     if (!regimeDaysCircle[dayOfCircle])
                         continue;
@@ -110,7 +107,8 @@ public class ScheduleMessageHandler : BaseMessageHandler<DaysSettingMessage>
                 
                 employees.ParallelForEach(employee =>
                 {
-                    if (currDate < employee.DateFrom || !hours.TryGetValue(employee.ShiftNumber, out var hoursDetail))
+                    if (currDate < employee.DateFrom || (employee.DateTo.HasValue && currDate > employee.DateTo) || 
+                        !hours.TryGetValue(employee.ShiftNumber, out var hoursDetail))
                         return;
                     autoEmpDays.Add(new EmpDay()
                     {
