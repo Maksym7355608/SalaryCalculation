@@ -35,10 +35,10 @@ public class DictionaryCommandHandler : BaseCommandHandler, IDictionaryCommandHa
         var builder = Builders<BaseAmount>.Filter;
         var definition = new List<FilterDefinition<BaseAmount>>();
 
-        if(string.IsNullOrWhiteSpace(command.Name))
-            definition.Add(builder.Eq(x => x.Name, command.Name));
-        if(string.IsNullOrWhiteSpace(command.ExpressionName))
-            definition.Add(builder.Eq(x => x.ExpressionName, command.ExpressionName));
+        if(!string.IsNullOrWhiteSpace(command.Name))
+            definition.Add(builder.Regex(x => x.Name, new BsonRegularExpression(command.Name, "i")));
+        if(!string.IsNullOrWhiteSpace(command.ExpressionName))
+            definition.Add(builder.Regex(x => x.ExpressionName, new BsonRegularExpression(command.ExpressionName, "i")));
         
         return definition.Count > 0 ? builder.And(definition) : builder.Empty;
     }
@@ -63,8 +63,8 @@ public class DictionaryCommandHandler : BaseCommandHandler, IDictionaryCommandHa
             builder.Eq(x => x.IsBaseAmount, command.IsBaseAmount)
         };
 
-        if(string.IsNullOrWhiteSpace(command.Name))
-            definition.Add(builder.Eq(x => x.Name, command.Name));
+        if(!string.IsNullOrWhiteSpace(command.Name))
+            definition.Add(builder.Regex(x => x.Name, new BsonRegularExpression(command.Name, "i")));
         if(command.Codes.Any())
             definition.Add(builder.In(x => x.Code, command.Codes));
         
@@ -92,8 +92,10 @@ public class DictionaryCommandHandler : BaseCommandHandler, IDictionaryCommandHa
             builder.Gte(x => x.DateFrom, command.DateFrom)
         };
 
-        if(string.IsNullOrWhiteSpace(command.Name))
-            definition.Add(builder.Eq(x => x.Name, command.Name));
+        if(!string.IsNullOrWhiteSpace(command.Name))
+            definition.Add(builder.Regex(x => x.Name, new BsonRegularExpression(command.Name, "i")));
+        if(!string.IsNullOrWhiteSpace(command.ExpressionName))
+            definition.Add(builder.Regex(x => x.ExpressionName, new BsonRegularExpression(command.ExpressionName, "i")));
         if(command.DateTo.HasValue)
             definition.Add(builder.Or(builder.Eq(x => x.DateTo, null), builder.Lte(x => x.DateTo, command.DateTo.Value)));
         
@@ -150,8 +152,7 @@ public class DictionaryCommandHandler : BaseCommandHandler, IDictionaryCommandHa
 
         var item = Mapper.Map<BaseAmount>(command);
         item.Id = id;
-        var res = await Work.GetCollection<BaseAmount>().UpdateOneAsync(x => x.Id == id, 
-            Builders<BaseAmount>.Update.Set(x => x, item));
+        var res = await Work.GetCollection<BaseAmount>().ReplaceOneAsync(x => x.Id == id, item);
         return res.ModifiedCount > 0;
     }
 
@@ -165,8 +166,7 @@ public class DictionaryCommandHandler : BaseCommandHandler, IDictionaryCommandHa
 
         var item = Mapper.Map<FinanceData>(command);
         item.Id = id;
-        var res = await Work.GetCollection<FinanceData>().UpdateOneAsync(x => x.Id == id, 
-            Builders<FinanceData>.Update.Set(x => x, item));
+        var res = await Work.GetCollection<FinanceData>().ReplaceOneAsync(x => x.Id == id, item);
         return res.ModifiedCount > 0;
     }
 
@@ -180,8 +180,7 @@ public class DictionaryCommandHandler : BaseCommandHandler, IDictionaryCommandHa
 
         var item = Mapper.Map<Formula>(command);
         item.Id = id;
-        var res = await Work.GetCollection<Formula>().UpdateOneAsync(x => x.Id == id, 
-            Builders<Formula>.Update.Set(x => x, item));
+        var res = await Work.GetCollection<Formula>().ReplaceOneAsync(x => x.Id == id, item);
         return res.ModifiedCount > 0;
     }
 

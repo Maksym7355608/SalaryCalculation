@@ -294,13 +294,25 @@ public class ScheduleCommandHandler : BaseScheduleCommandHandler, IScheduleComma
         var dateFrom = command.PeriodFrom.ToDateTime();
         var dateTo = command.PeriodTo.HasValue ? command.PeriodTo.Value.ToDateTime().AddMonths(1) : dateFrom.AddMonths(1);
         var builder = Builders<PeriodCalendar>.Filter;
+        if (command.EmployeeIds == null)
+            command.EmployeeIds = (await _organizationUnitOfWork.GetCollection<Employee>()
+                .Find(x => x.Organization.Id == command.OrganizationId)
+                .Project(x => x.Id)
+                .ToListAsync()).ToArray();
         
         var filter = GetPeriodCalendarFilter(dateFrom, dateTo, command.EmployeeIds);
+        
+        var pcFilter = Builders<PeriodCalendar>.Filter;
+        var def = new List<FilterDefinition<PeriodCalendar>>()
+        {
+            pcFilter.Gte(x => x.Period, command.PeriodFrom),
+            pcFilter.Lt(x => x.Period, command.PeriodTo ?? command.PeriodFrom.NextPeriod())
+        };
+        if(command.EmployeeIds != null && command.EmployeeIds.Length > 0)
+            def.Add(pcFilter.In(x => x.EmployeeId, command.EmployeeIds));
 
         var existCalendarsTask = Work.GetCollection<PeriodCalendar>()
-            .Find(builder.In(x => x.EmployeeId, command.EmployeeIds)
-                  & builder.Gte(x => x.Period, command.PeriodFrom)
-                  & builder.Lte(x => x.Period, command.PeriodTo ?? command.PeriodFrom))
+            .Find(pcFilter.And(def))
             .Project(x => new
             {
                 EmployeeId = x.EmployeeId,
@@ -318,7 +330,7 @@ public class ScheduleCommandHandler : BaseScheduleCommandHandler, IScheduleComma
         var existCalendarsDict = existCalendarsTask.Result.ToLookup(k => k.EmployeeId, v => v.Period);
 
         var writeResult = new List<WriteModel<PeriodCalendar>>();
-        for (var current = command.PeriodFrom; current <= (command.PeriodTo ?? command.PeriodFrom); current.NextPeriod())
+        for (var current = command.PeriodFrom; current <= (command.PeriodTo ?? command.PeriodFrom); current = current.NextPeriod())
         {
             foreach (var employeeId in command.EmployeeIds)
             {
@@ -383,11 +395,16 @@ public class ScheduleCommandHandler : BaseScheduleCommandHandler, IScheduleComma
         };
     }
 
-    private FilterDefinition<EmpDay> GetPeriodCalendarFilter(DateTime dateFrom, DateTime dateTo, int[] employeeIds)
+    private FilterDefinition<EmpDay> GetPeriodCalendarFilter(DateTime dateFrom, DateTime dateTo, int[]? employeeIds)
     {
         var filter = Builders<EmpDay>.Filter;
-        return filter.In(x => x.EmployeeId, employeeIds) &
-               filter.Gte(x => x.Date, dateFrom) &
-               filter.Lt(x => x.Date, dateTo);
+        var def = new List<FilterDefinition<EmpDay>>()
+        {
+            filter.Gte(x => x.Date, dateFrom),
+            filter.Lt(x => x.Date, dateTo)
+        };
+        if(employeeIds != null && employeeIds.Length > 0)
+            def.Add(filter.In(x => x.EmployeeId, employeeIds));
+        return filter.And(def);
     }
 }

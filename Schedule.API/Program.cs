@@ -3,6 +3,7 @@ using SalaryCalculation.Shared.Common.Attributes;
 using SalaryCalculation.Shared.Extensions.ApiExtensions;
 using Schedule.API;
 using Schedule.App.Mapper;
+using Schedule.Data._Mapper;
 using Serilog;
 using Serilog.Events;
 
@@ -19,6 +20,15 @@ Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Override("System", LogEventLevel.Information)
     .Enrich.FromLogContext()
     .CreateLogger();
+var domainProfiles = typeof(IDomainClassMap).Assembly.GetTypes()
+    .Where(t => typeof(IDomainClassMap).IsAssignableFrom(t)
+                && !t.IsAbstract
+                && !t.IsInterface);
+
+foreach (var profile in domainProfiles)
+{
+    Activator.CreateInstance(profile);
+}
 
 builder.Services.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(dispose: true));
 builder.Services.AddControllers();

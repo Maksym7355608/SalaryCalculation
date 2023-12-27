@@ -72,7 +72,7 @@ public class DictionaryController : BaseDictionaryController
     }
 
     [HttpDelete("finance-data/delete/{id}")]
-    public async Task<IActionResult> CreateFinanceDataAsync([FromRoute] ObjectId id)
+    public async Task<IActionResult> DeleteFinanceDataAsync([FromRoute] ObjectId id)
     {
         var result = await DictionaryCommandHandler.DeleteFinanceData(id);
         return GetAjaxResponse(IsValid, result, Errors);
@@ -80,7 +80,7 @@ public class DictionaryController : BaseDictionaryController
     
     #endregion
     
-    #region Base Amounts
+    #region Formula
 
     [HttpPost("formula/search")]
     public async Task<IActionResult> SearchFormulaAsync([FromBody] FormulasSearchCommand command)
@@ -104,7 +104,7 @@ public class DictionaryController : BaseDictionaryController
     }
 
     [HttpDelete("formula/delete/{id}")]
-    public async Task<IActionResult> CreateFormulaAsync([FromRoute] ObjectId id)
+    public async Task<IActionResult> DeleteFormulaAsync([FromRoute] ObjectId id)
     {
         var result = await DictionaryCommandHandler.DeleteFormula(id);
         return GetAjaxResponse(IsValid, result, Errors);

@@ -8,8 +8,10 @@ public enum EDayType
     Absence = 0,
     
     Work = 1,
-    [Description("В")]
+    [Description("C")]
     Holiday = 2,
     [Description("Х")]
     Sick = 3,
+    [Description("В")]
+    Vacation = 4,
 }

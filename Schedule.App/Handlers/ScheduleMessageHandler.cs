@@ -58,28 +58,29 @@ public class ScheduleMessageHandler : BaseMessageHandler<DaysSettingMessage>
                 : regime.StartDateInNextYear;
             if (!startDate.HasValue)
                 return;
-            var circleNumber = RegimeHelper.GetCircleNumber(regime, startDate.Value, msg.DateFrom);
             var regimeDaysCircle = RegimeHelper.GetRegimeDaysCircle(regime);
 
             var employees = await _organizationUnitOfWork.GetCollection<Employee>()
                 .Find(x => x.RegimeId == regime.RegimeId && (!x.DateTo.HasValue || x.DateTo.Value < msg.DateTo))
-                .Project(x => new { x.Id, x.DateFrom, x.ShiftNumber })
+                .Project(x => new { x.Id, x.DateFrom, x.DateTo, x.ShiftNumber })
                 .ToListAsync();
 
-            for (var currDate = msg.DateFrom; currDate <= msg.DateTo; currDate = currDate.AddDays(1))
+            var reserveForHoliday = false;
+            for (var (currDate, next) = (msg.DateFrom, msg.DateFrom.AddDays(1)); 
+                 currDate <= msg.DateTo; (currDate, next) = (currDate.AddDays(1), next.AddDays(1)))
             {
+                var nextDayHoliday = holidays.Contains(next);
                 var hours = new Dictionary<int, HoursDetail>();
+                
                 for (var i = 0; i < regime.ShiftsCount; i++)
                 {
-                    var dayOfCircle = RegimeHelper.GetDayOfCircle(regime, 
-                        startDate.Value.AddDays(regime.WorkDayDetails.Sum(x => x.DaysOfWeek.Count()) * i), 
-                        circleNumber, currDate);
+                    var startDateForShift =
+                        startDate.Value.AddDays(regime.WorkDayDetails.Sum(x => x.DaysOfWeek.Count()) * i);
+                    var circleNumber = RegimeHelper.GetCircleNumber(regime, startDateForShift, currDate);
+                    var dayOfCircle = RegimeHelper.GetDayOfCircle(regime, startDateForShift, circleNumber, currDate);
                     if (dayOfCircle > regime.DaysCount)
-                    {
-                        circleNumber++;
                         dayOfCircle = 1;
-                    }
-
+                    
                     if (!regimeDaysCircle[dayOfCircle])
                         continue;
                     
@@ -88,17 +89,26 @@ public class ScheduleMessageHandler : BaseMessageHandler<DaysSettingMessage>
                         .First(x => x.DaysOfWeek.Any(d => d.DayOfCircle == dayOfCircle));
                     if (isHoliday && !workDayDetail.IsHolidayWork)
                         continue;
+                    if (reserveForHoliday)
+                    {
+                        reserveForHoliday = false;
+                        continue;
+                    }
+                    if (!regimeDaysCircle[dayOfCircle != regime.DaysCount ? dayOfCircle + 1 : 1] && nextDayHoliday
+                        && !workDayDetail.IsHolidayWork)
+                        reserveForHoliday = true;
                     var newDetail = workDayDetail;
                     
                     var hoursForShifts = msg.Type == EDayType.Work
-                        ? CreateHoursFromRegime(newDetail, isHoliday)
+                        ? CreateHoursFromRegime(newDetail, isHoliday, nextDayHoliday)
                         : new HoursDetail();
                     hours.Add(i+1, hoursForShifts);
                 }
                 
                 employees.ParallelForEach(employee =>
                 {
-                    if (currDate <= employee.DateFrom || !hours.TryGetValue(employee.ShiftNumber, out var hoursDetail))
+                    if (currDate < employee.DateFrom || (employee.DateTo.HasValue && currDate > employee.DateTo) || 
+                        !hours.TryGetValue(employee.ShiftNumber, out var hoursDetail))
                         return;
                     autoEmpDays.Add(new EmpDay()
                     {
@@ -116,7 +126,7 @@ public class ScheduleMessageHandler : BaseMessageHandler<DaysSettingMessage>
         return autoEmpDays;
     }
 
-    private HoursDetail CreateHoursFromRegime(WorkDayDetail workDayDetail, bool isHoliday)
+    private HoursDetail CreateHoursFromRegime(WorkDayDetail workDayDetail, bool isHoliday, bool nextDayHoliday)
     {
         var startTime = isHoliday ? workDayDetail.StartTimeInHoliday : workDayDetail.StartTime;
         var endTime = isHoliday
@@ -126,17 +136,23 @@ public class ScheduleMessageHandler : BaseMessageHandler<DaysSettingMessage>
             : workDayDetail.IsEndTimeNextDay
                 ? workDayDetail.EndTime + _day
                 : workDayDetail.EndTime;
+
+        var shortDay = nextDayHoliday && (workDayDetail.IsHolidayShort ?? false) ? decimal.One : decimal.Zero;
         
-        var summaryHours = Time.ConvertToDecimal(endTime - startTime) - (!workDayDetail.IsLaunchPaid ? workDayDetail.LaunchTime : decimal.Zero);
+        var summaryHours = Time.ConvertToDecimal(endTime - startTime) - 
+                           (!workDayDetail.IsLaunchPaid ? workDayDetail.LaunchTime : decimal.Zero) - shortDay;
         var dayHours = GetWorkTimeByType(ref startTime, endTime, _morning, _evening) -
-            (!workDayDetail.IsLaunchPaid ? workDayDetail.LaunchTime : decimal.Zero); // 06:00 - 18:00
+            (!workDayDetail.IsLaunchPaid ? workDayDetail.LaunchTime : decimal.Zero) - shortDay; // 06:00 - 18:00
         var eveningHours = GetWorkTimeByType(ref startTime, endTime, _evening, _night); // 18:00 - 22:00
-        var nightHours = GetWorkTimeByType(ref startTime, endTime, _night, _morning); // 22:00 - 06:00
+        var nightHours = GetWorkTimeByType(ref startTime, endTime, _night, _morning+_day); // 22:00 - 06:00
+        var extraDay = GetWorkTimeByType(ref startTime, endTime, _morning + _day, _evening + _day);
+        var extraEvening = GetWorkTimeByType(ref startTime, endTime, _evening + _day, _night + _day);
+        var extraNight = GetWorkTimeByType(ref startTime, endTime, _night + _day, _morning + _day + _day);
         return new HoursDetail()
         {
-            Day = dayHours,
-            Evening = eveningHours,
-            Night = nightHours,
+            Day = dayHours + extraDay,
+            Evening = eveningHours + extraEvening,
+            Night = nightHours + extraNight,
             Holiday = isHoliday,
             Summary = summaryHours,
         };
@@ -197,6 +213,8 @@ public class ScheduleMessageHandler : BaseMessageHandler<DaysSettingMessage>
                 .ToListAsync();
             definition.Add(builder.In(x => x.Id, regimeIds.Distinct()));
         }
+        if(msg.RegimeId.HasValue)
+            definition.Add(builder.Eq(x => x.Id, msg.RegimeId.Value));
 
         return builder.And(definition);
     }

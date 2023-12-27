@@ -8,7 +8,7 @@ public static class PeriodExtensions
     {
         var month = period % 100;
         if (month < 12)
-            return period++;
+            return ++period;
         else
             return (period / 100 + 1) * 100 + 1;
     }
