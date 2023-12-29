@@ -101,8 +101,7 @@ public class OperationCommandHandler : BaseCalculationCommandHandler, IOperation
     public async Task<bool> UpdateOperationAsync(OperationUpdateCommand command)
     {
         var operation = Mapper.Map<Operation>(command);
-        var result = await Work.GetCollection<Operation>().UpdateOneAsync(x => x.Id == command.Id, 
-            Builders<Operation>.Update.Set(x => x, operation));
+        var result = await Work.GetCollection<Operation>().ReplaceOneAsync(x => x.Id == command.Id, operation);
 
         if (result.ModifiedCount == 0)
         {

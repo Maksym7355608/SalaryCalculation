@@ -12,6 +12,6 @@ public class PaymentCard : BaseMongoEntity<int>
     public decimal PayedAmount { get; set; }
     public decimal AccrualAmount { get; set; }
     public decimal MaintenanceAmount { get; set; }
-    public IEnumerable<int> AccrualDetails { get; set; }
-    public IEnumerable<int> MaintenanceDetails { get; set; }
+    public IEnumerable<long> AccrualDetails { get; set; }
+    public IEnumerable<long> MaintenanceDetails { get; set; }
 }

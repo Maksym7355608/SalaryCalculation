@@ -12,6 +12,7 @@
       <ProjectReference Include="..\Progress.App\Progress.App.csproj" />
       <ProjectReference Include="..\SalaryCalculation.Data\SalaryCalculation.Data.csproj" />
       <ProjectReference Include="..\SalaryCalculation.Shared.Extensions\SalaryCalculation.Shared.Extensions.csproj" />
+      <ProjectReference Include="..\Schedule.App\Schedule.App.csproj" />
       <ProjectReference Include="..\Schedule.Data\Schedule.Data.csproj" />
     </ItemGroup>
 

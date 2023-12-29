@@ -1,6 +1,7 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
 	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=61208EEE_002DAE55_002D4389_002DBBDB_002D4F0B95946D3B_002Fd_003ADtoModels_002Ff_003AEmployeeDto_002Ecs/@EntryIndexedValue">ExplicitlyExcluded</s:String>
 	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=61208EEE_002DAE55_002D4389_002DBBDB_002D4F0B95946D3B_002Fd_003AHandlers_002Ff_003AOrganizationCommandHandler_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
+	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=D01D485B_002D7974_002D4195_002DB220_002DF51827B916F8_002Fd_003ACommands_002Ff_003AFormulasSearchCommand_002Ecs/@EntryIndexedValue">ExplicitlyExcluded</s:String>
 	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=D3C85036_002D5952_002D417D_002DB9A0_002DDA3085BD9995_002Fd_003AHandlers_002Ff_003AScheduleMessageHandler_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
 	
 	<s:String x:Key="/Default/CodeInspection/PencilsConfiguration/FiltersState/=CodeStyle/@EntryIndexedValue">On</s:String>

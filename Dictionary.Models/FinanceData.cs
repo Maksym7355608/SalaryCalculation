@@ -11,7 +11,7 @@ public class FinanceData : BaseMongoEntity<ObjectId>
     /// <summary>
     /// 1 нарахування, -1 утримання
     /// </summary>
-    public byte Sign { get; set; }
+    public int Sign { get; set; }
     public int OrganizationId { get; set; }
     public decimal? Percent { get; set; }
     public decimal? BaseValue { get; set; }

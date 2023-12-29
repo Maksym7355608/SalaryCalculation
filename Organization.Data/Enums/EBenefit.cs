@@ -5,11 +5,6 @@ namespace Organization.Data.Enums;
 public enum EBenefit
 {
     /// <summary>
-    /// Немає пільги (0%)
-    /// </summary>
-    [Description("None")] None = 0, // 0%
-
-    /// <summary>
     /// Пільга по дітям (100% ПСП * кількість дітей)
     /// </summary>
     [Description("Benefit 100% for children")]
