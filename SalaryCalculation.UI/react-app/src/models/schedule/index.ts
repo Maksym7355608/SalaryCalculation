@@ -14,3 +14,13 @@ export interface RegimeModel {
     isCircle: boolean;
     workDays: WorkDetail[]
 }
+
+export interface EmpDay {
+    employeeId: number;
+    date: string;
+    day: number;
+    evening: number;
+    night: number;
+    summary: string;
+    holiday: boolean;
+}

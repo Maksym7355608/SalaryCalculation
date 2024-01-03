@@ -9,6 +9,7 @@ import SelectList from "../../componets/helpers/SelectList";
 import RestUnitOfWork from "../../store/rest/RestUnitOfWork";
 import CustomDataTable from "../../componets/helpers/CustomDataTable";
 import {EmployeeWithSchedule} from "../../models/employees";
+import {Link} from "react-router-dom";
 
 interface IScheduleSearchForm {
     rollNumber?: string;
@@ -38,7 +39,18 @@ export default function ScheduleSearch() {
     }, []);
 
     const handleSearch = (data: IScheduleSearchForm) => {
-        return undefined;
+        if(!period)
+            return;
+        let cmd = {
+            organizationId: user().organization,
+            period: parseInt((toPeriodString(period) as string).replace('-', '')),
+            organizationUnitIds: data.organizationUnitIds ? data.organizationUnitIds : undefined,
+            positionIds: data.positionsIds ? data.positionsIds : undefined,
+        }
+        restClient.schedule.getScheduleShortAsync(cmd)
+            .then(res => {
+                setEmployees(res);
+            });
     }
 
     const getTableColumns = () => {
@@ -51,7 +63,7 @@ export default function ScheduleSearch() {
             const year = period.getFullYear();
             const createColumn = (day: string) => {
                 return {
-                    field: `${day}.${month}.${year}`,
+                    field: `${("0" + day).slice(-2)}.${month}.${year}`,
                     text: `${day}`,
                     sortable: false
                 };
@@ -62,6 +74,7 @@ export default function ScheduleSearch() {
                 columns = [...columns, createColumn(day)]
             })
         }
+        columns = [...columns, { field: 'actions', text: '', sortable: false }]
         return columns;
     }
 
@@ -73,6 +86,12 @@ export default function ScheduleSearch() {
             emp.schedule.forEach(s => {
                 row[s.day] = s.work;
             })
+            row['actions'] = (
+                <div className='inline-flex'>
+                    <Link to={`/schedule/${emp.id}/${emp.period}?handler=info`} className='btn btn-sm btn-light'><i className='material-icons small'>info</i></Link>
+                    <Link to={`/schedule/${emp.id}/${emp.period}?handler=edit`} className='btn btn-sm btn-light'><i className='material-icons small'>edit</i></Link>
+                </div>
+            )
             return row;
         })
     }

@@ -8,6 +8,7 @@ import {Organization} from "../../views/organization/Organization";
 import Employee from "../../views/employees/Employee";
 import {EPermission} from "../../models/Enums";
 import ScheduleSearch from "../../views/schedule/Search";
+import Schedule from "../../views/schedule/Schedule";
 
 interface MenuItem{
     id: number | string;
@@ -85,7 +86,10 @@ export function InitMenu() : MenuItem[] {
                 item = [getItem(permission, <Employee/>, "Управління працівниками", `/employee/:id`)];
                 break;
             case EPermission.searchSchedules :
-                item = [getItem(permission, <ScheduleSearch/>,"Табелювання", `/schedule/search`, "calendar_today", `/schedule/search`)];
+                item = [
+                    getItem(permission, <ScheduleSearch/>,"Табелювання", `/schedule/search`, "calendar_today", `/schedule/search`),
+                    getItem(permission, <Schedule/>,"Табелювання працівника", `/schedule/:id/:period`)
+                ];
                 break;
             case EPermission.viewCalculation :
                 item = [getItem(permission, <OrganizationSettings/>,"Розрахунок", `/calculation/search`, "calculate", `/calculation/search`)];

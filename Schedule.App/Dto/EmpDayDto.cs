@@ -10,6 +10,7 @@ public class EmpDayDto
     public decimal Evening { get; set; }
     public decimal Night { get; set; }
     public string Summary { get; set; }
+    public bool Holiday { get; set; }
 }
 
 public class EmpDayShortDto
