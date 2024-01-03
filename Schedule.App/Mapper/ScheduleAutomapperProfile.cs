@@ -31,10 +31,6 @@ public class ScheduleAutomapperProfile : Profile
             .ForMember(x => x.DayType, y => y.MapFrom(z => (EDayType)z.DayType))
             .ReverseMap();
 
-        CreateMap<Day, DayDto>()
-            .ForMember(x => x.WeekDay, y => y.MapFrom(z => (DayOfWeek)z.WeekDay))
-            .ReverseMap();
-
         CreateMap<Time, TimeDto>().ReverseMap();
     }
 }

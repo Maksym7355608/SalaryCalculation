@@ -23,7 +23,6 @@ public class WorkDaySearchCommand : BaseCommand
 
 public class DaysSettingMessage : BaseMessage
 {
-    public EDayType Type { get; set; }
     public DateTime DateFrom { get; set; }
     public DateTime DateTo { get; set; }
     

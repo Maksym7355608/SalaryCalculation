@@ -70,7 +70,7 @@ public class ScheduleCommandHandler : BaseScheduleCommandHandler, IScheduleComma
         var update = Builders<Regime>.Update
             .Set(x => x.Name, command.Name)
             .Set(x => x.WorkDayDetails, Mapper.Map<IEnumerable<WorkDayDetail>>(command.WorkDayDetails))
-            .Set(x => x.RestDayDetails, Mapper.Map<IEnumerable<Day>>(command.RestDayDetails))
+            .Set(x => x.RestDayDetails, command.RestDayDetails)
             .Set(x => x.StartDateInCurrentYear, command.StartDateInCurrentYear)
             .Set(x => x.StartDateInNextYear, command.StartDateInNextYear);
         var res = await Work.GetCollection<Regime>()
@@ -102,7 +102,7 @@ public class ScheduleCommandHandler : BaseScheduleCommandHandler, IScheduleComma
             throw new EntityNotFoundException("Regime with id {0} not found", command.RegimeId.ToString());
         
         var workDays = Mapper.Map<IEnumerable<WorkDayDetail>>(command.WorkDayDetails);
-        var restDays = Mapper.Map<IEnumerable<Day>>(command.RestDayDetails);
+        var restDays = command.RestDayDetails;
 
         var res = await Work.GetCollection<Regime>()
             .UpdateOneAsync(x => x.Id == command.RegimeId, Builders<Regime>.Update

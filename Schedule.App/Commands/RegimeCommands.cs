@@ -15,7 +15,7 @@ public class RegimeCreateCommand : BaseCommand
 
     public IEnumerable<WorkDayDetailDto> WorkDayDetails { get; set; }
 
-    public IEnumerable<DayDto> RestDayDetails { get; set; }
+    public IEnumerable<int> RestDayDetails { get; set; }
 
     public int RestDayCount => RestDayDetails.Count();
 
