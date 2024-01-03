@@ -81,7 +81,7 @@ public class ScheduleMessageHandler : BaseMessageHandler<DaysSettingMessage>
                     
                     var isHoliday = holidays.Contains(currDate);
                     var workDayDetail = regime.WorkDayDetails
-                        .First(x => x.DaysOfWeek.Any(d => d.DayOfCircle == dayOfCircle));
+                        .First(x => x.DaysOfWeek.Any(d => d == dayOfCircle));
                     if (isHoliday && !workDayDetail.IsHolidayWork)
                         continue;
                     if (reserveForHoliday)
@@ -107,7 +107,7 @@ public class ScheduleMessageHandler : BaseMessageHandler<DaysSettingMessage>
                     {
                         Id = empDaysId++,
                         Date = currDate,
-                        DayType = (int)msg.Type,
+                        DayType = (int)EDayType.Work,
                         Hours = hoursDetail,
                         EmployeeId = employee.Id,
                         OrganizationId = msg.OrganizationId

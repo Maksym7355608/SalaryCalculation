@@ -48,7 +48,7 @@ public static class RegimeHelper
 
                 var isHoliday = holidays.Contains(currDate);
                 var workDayDetail = regime.WorkDayDetails
-                    .First(x => x.DaysOfWeek.Any(d => d.DayOfCircle == dayOfCircle));
+                    .First(x => x.DaysOfWeek.Any(d => d == dayOfCircle));
                 if (isHoliday && !workDayDetail.IsHolidayWork)
                     continue;
                 if (reserveForHoliday)
@@ -94,28 +94,18 @@ public static class RegimeHelper
         return difDays / regime.DaysCount;
     }
 
-    public static (IEnumerable<DayDto> work, IEnumerable<DayDto> rest) GetCircleInfo(CalculationRegime regime, DateTime startDate, int circleNumber)
+    public static (IEnumerable<int> work, IEnumerable<int> rest) GetCircleInfo(CalculationRegime regime, DateTime startDate, int circleNumber)
     {
-        var work = new List<DayDto>();
-        var rest = new List<DayDto>();
+        var work = new List<int>();
+        var rest = new List<int>();
         var regimeDaysCircle = GetRegimeDaysCircle(regime);
         var currWeek = 1;
         for (var currDayNumber = 1; currDayNumber <= regime.DaysCount; currDayNumber++)
         {
             if(regimeDaysCircle[currDayNumber])
-                work.Add(new DayDto()
-                {
-                    DayOfCircle = currDayNumber,
-                    WeekDay = startDate.AddDays(currDayNumber - 1).DayOfWeek,
-                    Week = startDate.AddDays(currDayNumber - 1).DayOfWeek == DayOfWeek.Sunday ? currWeek++ : currWeek,
-                });
+                work.Add(currDayNumber);
             else
-                rest.Add(new DayDto()
-                {
-                    DayOfCircle = currDayNumber,
-                    WeekDay = startDate.AddDays(currDayNumber - 1).DayOfWeek,
-                    Week = startDate.AddDays(currDayNumber - 1).DayOfWeek == DayOfWeek.Sunday ? currWeek++ : currWeek,
-                });
+                rest.Add(currDayNumber);
         }
 
         return (work, rest);
@@ -127,11 +117,11 @@ public static class RegimeHelper
             .Select(workDay => new RegimeDay()
             {
                 IsWork = true,
-                Number = workDay.DayOfCircle
+                Number = workDay
             }).Concat(regime.RestDays.Select(workDay => new RegimeDay()
             {
                 IsWork = false,
-                Number = workDay.DayOfCircle
+                Number = workDay
             })).OrderBy(x => x.Number).ToDictionary(k => k.Number, v => v.IsWork);
     }
 

@@ -2,7 +2,7 @@
 
 public class WorkDayDetail
 {
-    public IEnumerable<Day> DaysOfWeek { get; set; }
+    public IEnumerable<int> DaysOfWeek { get; set; }
 
     public Time StartTime { get; set; }
 
@@ -23,15 +23,4 @@ public class WorkDayDetail
     public bool IsLaunchPaid { get; set; }
     
     public int LaunchTime { get; set; }
-}
-
-public class Day
-{
-    /// <summary>
-    /// enum - DayOfWeek
-    /// </summary>
-    public int WeekDay { get; set; }
-
-    public int Week { get; set; }
-    public int DayOfCircle { get; set; }
 }

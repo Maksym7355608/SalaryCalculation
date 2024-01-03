@@ -7,5 +7,5 @@ public class WorkDayRegimeUpdateCommand : BaseCommand
 {
     public int RegimeId { get; set; }
     public IEnumerable<WorkDayDetailDto> WorkDayDetails { get; set; }
-    public IEnumerable<DayDto> RestDayDetails { get; set; }
+    public IEnumerable<int> RestDayDetails { get; set; }
 }

@@ -19,7 +19,7 @@ public class Regime : BaseMongoEntity<int>
 
     public IEnumerable<WorkDayDetail> WorkDayDetails { get; set; }
 
-    public IEnumerable<Day> RestDayDetails { get; set; }
+    public IEnumerable<int> RestDayDetails { get; set; }
 
     [BsonIgnore]
     public int RestDayCount => RestDayDetails.Count();
