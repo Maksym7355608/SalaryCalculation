@@ -27,13 +27,12 @@ public static class RegimeHelper
 
         var reserveForHoliday = false;
         var firstDay = period.ToDateTime();
-        var hours = new Dictionary<int, List<HoursDetail>>();
+        var hours = new List<List<HoursDetail>>(regime.ShiftsCount);
         for (var (currDate, next) = (firstDay, firstDay.AddDays(1));
              currDate < firstDay.AddMonths(1);
              (currDate, next) = (currDate.AddDays(1), next.AddDays(1)))
         {
             var nextDayHoliday = holidays.Contains(next);
-            //var hours = new Dictionary<int, HoursDetail>();
 
             for (var i = 0; i < regime.ShiftsCount; i++)
             {
@@ -64,16 +63,18 @@ public static class RegimeHelper
                 var newDetail = workDayDetail;
 
                 var hoursForShifts = CreateHoursFromRegime(newDetail, isHoliday, nextDayHoliday);
-                if(hours.TryAdd(i + 1, new List<HoursDetail>{hoursForShifts}))
-                   hours[i+1].Add(hoursForShifts);
+                if(hours.Count > i)
+                    hours[i].Add(hoursForShifts);
+                else
+                    hours.Add(new List<HoursDetail>(){hoursForShifts});
             }
         }
 
         return hours.Select(h =>
         {
-            var empDays = h.Value;
-            var holidayHours = h.Value.Where(x => x.Holiday).ToArray();
-            return (h.Key, new HoursDetails()
+            var empDays = h;
+            var holidayHours = h.Where(x => x.Holiday).ToArray();
+            return (hours.IndexOf(h)+1, new HoursDetails()
             {
                 Summary = empDays.Sum(x => x.Summary),
                 Day = empDays.Sum(x => x.Day),
@@ -84,7 +85,7 @@ public static class RegimeHelper
                 HolidayNight = holidayHours.Sum(x => x.Night),
                 HolidayEvening = holidayHours.Sum(x => x.Evening),
             });
-        }).ToDictionary(k => k.Key, v => v.Item2);
+        }).ToDictionary(k => k.Item1, v => v.Item2);
     }
 
     public static int GetCircleNumber(CalculationRegime regime, DateTime regimeStartDateUsing, DateTime date)
@@ -138,7 +139,7 @@ public static class RegimeHelper
     {
         var firstDayInCircle = startDate.AddDays(regime.DaysCount * circleNumber - 1);
 
-        return (currDate - firstDayInCircle).Days + 1;
+        return (currDate - firstDayInCircle).Days;
     }
     
     public static HoursDetail CreateHoursFromRegime(WorkDayDetail workDayDetail, bool isHoliday, bool nextDayHoliday)
