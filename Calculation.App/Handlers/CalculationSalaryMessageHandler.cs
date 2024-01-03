@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Text.RegularExpressions;
+using AutoMapper;
 using Calculation.App.Commands;
 using Calculation.Data;
 using Calculation.Data.Entities;
@@ -14,6 +15,9 @@ using SalaryCalculation.Data.BaseModels;
 using SalaryCalculation.Shared.Extensions.EnumExtensions;
 using SalaryCalculation.Shared.Extensions.MoreLinq;
 using SalaryCalculation.Shared.Extensions.PeriodExtensions;
+using Schedule.App.Helpers;
+using Schedule.App.Models;
+using Schedule.Data.BaseModels;
 using Schedule.Data.Data;
 using Schedule.Data.Entities;
 
@@ -27,6 +31,7 @@ public class CalculationSalaryMessageHandler : BaseMessageHandler<CalculationSal
     public CalculationSalaryMessageHandler(ICalculationUnitOfWork work, ILogger<BaseMessageHandler<CalculationSalaryMessage>> logger, IMapper mapper,
         IOrganizationUnitOfWork organizationUnitOfWork, IScheduleUnitOfWork scheduleUnitOfWork) : base(work, logger, mapper)
     {
+        Work = work;
         _organizationUnitOfWork = organizationUnitOfWork;
         _scheduleUnitOfWork = scheduleUnitOfWork;
     }
@@ -34,47 +39,174 @@ public class CalculationSalaryMessageHandler : BaseMessageHandler<CalculationSal
     public override async Task HandleAsync(CalculationSalaryMessage msg)
     {
         var loadedData = await LoadCacheDataAsync(msg);
-        var result = CalculateSalary(loadedData, msg);
+        var result = await CalculateSalaryAsync(loadedData, msg);
+        await Work.GetCollection<PaymentCard>().InsertOneAsync(result);
     }
 
-    private PaymentCard CalculateSalary(CalculationLoadedData loadedData, CalculationSalaryMessage msg)
+    private async Task<PaymentCard> CalculateSalaryAsync(CalculationLoadedData loadedData, CalculationSalaryMessage msg)
     {
         var result = new PaymentCard();
         result.Employee = new IdNamePair(loadedData.Employee.Id, loadedData.Employee.RollNumber);
         result.OrganizationId = msg.OrganizationId;
         result.CalculationDate = DateTime.Now;
         result.CalculationPeriod = msg.Period;
-        result.PayedAmount = EvaluateExpression(loadedData); //TODO: доробка логіки для деталізації
+        
+        //var accrualOperationsTask = CreateOperationsAsync(loadedData.FinanceDict[1], loadedData, 1);
+        //var maintenanceOperationsTask = CreateOperationsAsync(loadedData.FinanceDict[-1], loadedData, -1);
+        //await Task.WhenAll(accrualOperationsTask, maintenanceOperationsTask);
+        var accrualOperations = await CreateOperationsAsync(loadedData.FinanceDict[1], loadedData, 1);
+        var maintenanceOperations = await CreateOperationsAsync(loadedData.FinanceDict[-1], loadedData, -1);
+        var operations = await InsertOperationsAsync(accrualOperations, maintenanceOperations, msg.EmployeeId, msg.Period);
+        result.AccrualAmount = accrualOperations.Sum(x => x.Amount);
+        result.MaintenanceAmount = maintenanceOperations.Sum(x => x.Amount);
+        result.PayedAmount = result.AccrualAmount - result.MaintenanceAmount;
+        result.AccrualDetails = operations.Where(x => x.Sign == 1).Select(x => x.Id);
+        result.MaintenanceDetails = operations.Where(x => x.Sign == -1).Select(x => x.Id);
         return result;
     }
 
-    private decimal EvaluateExpression(CalculationLoadedData loadedData)
+    private async Task<List<Operation>> InsertOperationsAsync(List<Operation> accrualOperations, List<Operation> maintenanceOperations,
+        int employeeId, int period)
     {
-        var evaluatingFormula = GetFullFormula(loadedData);
+        await Work.GetCollection<Operation>().DeleteManyAsync(x => x.EmployeeId == employeeId && x.Period == period);
+        var lastId = Work.GetCollection<Operation>().NewNumberId();
+        var operations = new List<Operation>();
+        operations.AddRange(accrualOperations);
+        operations.AddRange(maintenanceOperations);
+        
+        operations.ForEach(op => op.Id = lastId++);
+        await Work.GetCollection<Operation>().InsertManyAsync(operations);
+        return operations;
+    }
+
+    private async Task<List<Operation>> CreateOperationsAsync(IEnumerable<FinanceData> data,
+        CalculationLoadedData loadedData, int sign)
+    {
+        var ops = new List<Operation>();
+        foreach (var fin in data)
+        {
+            var allowedFormulas = loadedData.FormulaDict[fin.Code];
+            var formula = EvaluateConditions(allowedFormulas, loadedData);
+            if(formula == null)
+                continue;
+            var amount = EvaluateExpression(formula, loadedData);
+            var operation = new Operation()
+            {
+                Code = fin.Code,
+                Name = fin.Name,
+                EmployeeId = loadedData.Employee.Id,
+                Amount = amount,
+                Sign = sign,
+                Period = loadedData.Calendar.Period,
+                OrganizationId = loadedData.Employee.Organization.Id
+            };
+            ops.Add(operation);
+        }
+
+        return ops;
+    }
+
+    private string EvaluateConditions(IEnumerable<Formula> allowedFormulas, CalculationLoadedData loadedData)
+    {
+        if (allowedFormulas == null)
+            return null;
+        foreach (var formula in allowedFormulas)
+        {
+            var condition = ParseCondition(formula.Condition, loadedData);
+            if (condition)
+                return formula.Expression;
+        }
+
+        return null;
+    }
+
+    private bool ParseCondition(string condition, CalculationLoadedData data)
+    {
+        if (condition == null)
+            return true;
+        var splitted = condition.Trim().Split("or");
+        foreach (var or in splitted)
+        {
+            var and = or.Split("and");
+            var andFlag = new List<bool>();
+            foreach (var c in and)
+                andFlag.Add(EvaluateCondition(c, data.BaseAmounts));
+
+            if (andFlag.All(x => x))
+                return true;
+        }
+
+        return false;
+    }
+    
+    public bool EvaluateCondition(string condition, Dictionary<string, decimal> values)
+    {
+        char[] operators = { '>', '<', '=', '!', '%' }; // Оператори порівняння
+        
+        var comparisonOperator = condition.FirstOrDefault(c => operators.Contains(c));
+    
+        if (comparisonOperator == default(char))
+            return false;
+        
+        var parts = condition.Split(comparisonOperator);
+    
+        if (parts.Length != 2)
+            return false;
+    
+        var leftOperand = parts[0].Trim();
+        var rightOperand = parts[1].Trim();
+    
+        var leftOperandExists = values.TryGetValue(leftOperand, out var leftValue);
+        var rightOperandExists = values.TryGetValue(rightOperand, out var rightValue);
+    
+        if (!leftOperandExists || !rightOperandExists)
+            return false;
+    
+        switch (comparisonOperator)
+        {
+            case '>':
+                return leftValue > rightValue;
+            case '<':
+                return leftValue < rightValue;
+            case '=':
+                return leftValue == rightValue;
+            case '!':
+                return leftValue != rightValue;
+            case '%':
+                return leftValue % rightValue == 0;
+            default:
+                return false;
+        }
+    }
+
+
+    private decimal EvaluateExpression(string formula, CalculationLoadedData data)
+    {
+        var evaluatingFormula = GetFullFormula(formula, data);
         var expression = new Expression(evaluatingFormula.FullFormula);
         foreach (var parameter in evaluatingFormula.Parameters)
             expression.Parameters[parameter.Key] = parameter.Value;
 
-        return (decimal)expression.Evaluate();
+        return Math.Round((decimal)expression.Evaluate(), 2);
     }
 
-    private EvaluatingFormula GetFullFormula(CalculationLoadedData loadedData)
+    private EvaluatingFormula GetFullFormula(string formula, CalculationLoadedData data)
     {
         var result = new EvaluatingFormula()
         {
-            BaseFormula = loadedData.Formula.Expression,
-            FullFormula = loadedData.Formula.Expression
+            BaseFormula = formula,
+            FullFormula = formula
         };
         var parametersDict = new Dictionary<string, decimal>();
-        var parameters = loadedData.Formula.Expression.Split(@",.()+-/*^\**()\");
+        var parameters = ExtractParameters(formula);
 
         foreach (var parameter in parameters)
         {
-            if (loadedData.BaseAmounts.TryGetValue(parameter, out var value))
+            if (data.BaseAmounts.TryGetValue(parameter, out var value))
                 parametersDict.TryAdd(parameter, value);
             else
             {
-                var expanded = ExpandParameters(parameter, loadedData);
+                var expanded = ExpandParameters(parameter, data);
                 expanded.Parameters.ForEach(p => parametersDict.TryAdd(p.Key, p.Value));
                 result.FullFormula = result.FullFormula.Replace(expanded.ExpressionParameter, expanded.FullFormula);
             }
@@ -83,26 +215,43 @@ public class CalculationSalaryMessageHandler : BaseMessageHandler<CalculationSal
         result.Parameters = parametersDict;
         return result;
     }
-
-    private ExpandedFormula ExpandParameters(string parameter, CalculationLoadedData loadedData)
+    
+    private string[] ExtractParameters(string formula)
     {
+        List<string> parameters = new List<string>();
+        string pattern = @"\b[a-zA-Z]+\b"; // Регулярний вираз для знаходження параметрів
+
+        MatchCollection matches = Regex.Matches(formula, pattern);
+
+        foreach (Match match in matches)
+        {
+            parameters.Add(match.Value);
+        }
+
+        return parameters.ToArray();
+    }
+
+    private ExpandedFormula ExpandParameters(string parameter, CalculationLoadedData data)
+    {
+        data.Formulas.TryGetValue(parameter, out var formulas);
+        var formula = EvaluateConditions(formulas, data);
+        if (string.IsNullOrWhiteSpace(formula))
+            throw new Exception("Error finding formula");
+
         var result = new ExpandedFormula()
         {
             ExpressionParameter = parameter,
-            FullFormula = loadedData.Formula.Expression
+            FullFormula = formula
         };
-        loadedData.Formulas.TryGetValue(parameter, out var formula);
-        if (string.IsNullOrWhiteSpace(formula))
-            throw new Exception("Error finding formula");
-        var fParameters = formula.Split(@",.()+-/*^\**()\"); //TODO: do worked regex
+        var fParameters = ExtractParameters(formula);
         var fParametersDict = new Dictionary<string, decimal>();
         foreach (var fParameter in fParameters)
         {
-            if (loadedData.BaseAmounts.TryGetValue(fParameter, out var value))
+            if (data.BaseAmounts.TryGetValue(fParameter, out var value))
                 fParametersDict.TryAdd(fParameter, value);
             else
             {
-                var expanded = ExpandParameters(fParameter, loadedData);
+                var expanded = ExpandParameters(fParameter, data);
                 expanded.Parameters.ForEach(p => fParametersDict.TryAdd(p.Key, p.Value));
                 result.FullFormula = result.FullFormula.Replace(expanded.ExpressionParameter, expanded.FullFormula);
             }
@@ -116,43 +265,69 @@ public class CalculationSalaryMessageHandler : BaseMessageHandler<CalculationSal
 
     private async Task<CalculationLoadedData> LoadCacheDataAsync(CalculationSalaryMessage msg)
     {
-        var formulaTask = LoadFormulasAsync(msg.OrganizationId);
+        var financeData = await LoadFinanceDataAsync(msg.OrganizationId);
+        var formulaTask = LoadFormulasAsync(msg.OrganizationId, financeData.Select(x => x.Code));
         var employeeTask = LoadEmployeeDataAsync(msg.EmployeeId);
         var periodCalendarTask = LoadPeriodCalendarAsync(msg.EmployeeId, msg.Period);
-        var baseAmountTask = LoadBaseAmountsAsync();
+        var baseAmountTask = LoadBaseAmountsAsync(msg.Period);
         await Task.WhenAll(formulaTask, employeeTask, periodCalendarTask, baseAmountTask);
         var regime = await LoadRegimeAsync(periodCalendarTask.Result.RegimeId);
+        var hours = await RegimeHelper.GetHoursDetailAsync(regime, periodCalendarTask.Result.Period);
         return new CalculationLoadedData()
         {
-            Formula = formulaTask.Result.First(x => x.Id == msg.FormulaId),
+            FinanceDict = financeData.ToLookup(k => k.Sign, v => v),
+            FormulaDict = formulaTask.Result.ToLookup(k => k.Code, v => v),
             Employee = employeeTask.Result,
             Calendar = periodCalendarTask.Result,
-            BaseAmounts = baseAmountTask.Result.Concat(GetVariables(employeeTask.Result, periodCalendarTask.Result))
+            BaseAmounts = baseAmountTask.Result.Concat(GetVariables(employeeTask.Result, periodCalendarTask.Result, hours[employeeTask.Result.ShiftNumber]))
                 .ToDictionary(k => k.ExprName, v => v.Value),
             Regime = regime,
-            Formulas = formulaTask.Result.ToDictionary(k => k.ExpressionName, v => v.Expression)
+            Formulas = formulaTask.Result.GroupBy(k => k.ExpressionName).ToDictionary(k => k.Key, v=> v.ToArray()),
         };
     }
 
-    private List<BaseAmountShort> GetVariables(Employee employee, PeriodCalendar calendar)
+    private Task<List<FinanceData>> LoadFinanceDataAsync(int organizationId)
     {
+        return Work.GetCollection<FinanceData>()
+            .Find(x => x.OrganizationId == organizationId)
+            .ToListAsync();
+    }
+
+    private List<BaseAmountShort> GetVariables(Employee employee, PeriodCalendar calendar, HoursDetails hour)
+    {
+        var periodDate = calendar.Period.ToDateTime();
         var currentSalary = employee.Salaries.FirstOrDefault(x =>
-            x.DateFrom <= calendar.Period.ToDateTime() &&
-            (!x.DateTo.HasValue || x.DateTo.Value > calendar.Period.ToDateTime().AddMonths(1)))?.Amount ?? decimal.Zero;
+            x.DateFrom <= periodDate &&
+            (!x.DateTo.HasValue || x.DateTo.Value > periodDate.AddMonths(1)))?.Amount ?? decimal.Zero;
+        var prevSalaries = employee.Salaries.Where(x => x.DateFrom.Year <= periodDate.Year-1 && 
+                                                        (!x.DateTo.HasValue || x.DateTo?.Year >= periodDate.Year-1));
+        if (prevSalaries.Count() == 0)
+            prevSalaries = employee.Salaries.Where(x => x.DateFrom.Year <= periodDate.Year && 
+                                                        (!x.DateTo.HasValue || x.DateTo?.Year >= periodDate.Year));
         var paramsDict = new List<BaseAmountShort>()
         {
-            new("Salary", currentSalary),
-            new("SummaryHours", calendar.Hours.Summary),
-            new("DayHours", calendar.Hours.Day),
-            new("EveningHours", calendar.Hours.Evening),
-            new("NightHours", calendar.Hours.Night),
-            new("HolidayHours", calendar.Hours.HolidaySummary),
-            new("HolidayDay", calendar.Hours.HolidayDay),
-            new("HolidayEvening", calendar.Hours.HolidayEvening),
-            new("HolidayNight", calendar.Hours.HolidayNight),
-            new(nameof(calendar.WorkDays), calendar.WorkDays),
-            new(nameof(calendar.SickLeave), calendar.SickLeave),
-            new(nameof(calendar.VacationDays), calendar.VacationDays)
+            new("S", currentSalary),
+            new("AvgS", Math.Round(prevSalaries.Average(x => x.Amount), 2)),
+            new("SumH", calendar.Hours.Summary),
+            new("DH", calendar.Hours.Day),
+            new("EH", calendar.Hours.Evening),
+            new("NH", calendar.Hours.Night),
+            new("HolH", calendar.Hours.HolidaySummary),
+            new("HolDH", calendar.Hours.HolidayDay),
+            new("HolEH", calendar.Hours.HolidayEvening),
+            new("HolNH", calendar.Hours.HolidayNight),
+            new("WD", calendar.WorkDays),
+            new("SickL", calendar.SickLeave),
+            new("VacL", calendar.VacationDays),
+            new("Period", calendar.Period),
+            new("TotH", hour.Summary),
+            new("TotDH", hour.Day),
+            new("TotEH", hour.Evening),
+            new("TotNH", hour.Night),
+            new("TotHolH", hour.HolidaySummary),
+            new("TotHolDH", hour.HolidayDay),
+            new("TotHolEH", hour.HolidayEvening),
+            new("TotHolNH", hour.HolidayNight),
         };
         var benefits = EnumExtensions.ForEach<EBenefit>();
         foreach (var benefit in benefits)
@@ -166,19 +341,32 @@ public class CalculationSalaryMessageHandler : BaseMessageHandler<CalculationSal
         return paramsDict;
     }
 
-    private Task<List<BaseAmountShort>> LoadBaseAmountsAsync()
+    private async Task<List<BaseAmountShort>> LoadBaseAmountsAsync(int period)
     {
-        return Work.GetCollection<BaseAmount>()
-            .Find(Builders<BaseAmount>.Filter.Empty)
-            .Project(x => new BaseAmountShort(x.ExpressionName, x.Value))
-            .ToListAsync();
+        var filter = Builders<BaseAmount>.Filter;
+        return (await Work.GetCollection<BaseAmount>()
+            .Find(filter.Lte(x => x.DateFrom, period.ToDateTime()) & 
+                  filter.Or(filter.Gte(x => x.DateTo, period.ToDateTime().AddMonths(1)),
+                      filter.Eq(x => x.DateTo, null)))
+            .Project(x => new BaseAmountShort(){ExprName = x.ExpressionName, Value = x.Value})
+            .ToListAsync());
     }
 
-    private Task<Regime> LoadRegimeAsync(int regimeId)
+    private Task<CalculationRegime> LoadRegimeAsync(int regimeId)
     {
         return _scheduleUnitOfWork.GetCollection<Regime>()
             .Find(x => x.Id == regimeId)
-            .FirstOrDefaultAsync();
+            .Project(x => new CalculationRegime()
+            {
+                RegimeId = x.Id,
+                WorkDayDetails = x.WorkDayDetails,
+                RestDays = x.RestDayDetails,
+                IsCircle = x.IsCircle,
+                StartDateInNextYear = x.StartDateInNextYear,
+                StartDateInPreviousYear = x.StartDateInPreviousYear,
+                StartDateInCurrentYear = x.StartDateInCurrentYear,
+                ShiftsCount = x.ShiftsCount
+            }).FirstOrDefaultAsync();
     }
 
     private Task<PeriodCalendar> LoadPeriodCalendarAsync(int employeeId, int period)
@@ -195,28 +383,34 @@ public class CalculationSalaryMessageHandler : BaseMessageHandler<CalculationSal
             .FirstOrDefaultAsync();
     }
 
-    private Task<List<Formula>> LoadFormulasAsync(int organizationId)
+    private Task<List<Formula>> LoadFormulasAsync(int organizationId, IEnumerable<int> codes)
     {
         return Work.GetCollection<Formula>()
-            .Find(x => x.OrganizationId == organizationId)
+            .Find(x => x.OrganizationId == organizationId && codes.Contains(x.Code))
             .ToListAsync();
     }
 
 
     private class CalculationLoadedData
     {
-        public Formula Formula { get; set; }
+        public ILookup<short, FinanceData> FinanceDict { get; set; }
+        public ILookup<int, Formula> FormulaDict { get; set; }
         public Employee Employee { get; set; }
         public PeriodCalendar Calendar { get; set; }
-        public Regime Regime { get; set; }
-        public Dictionary<string, string> Formulas { get; set; }
+        public CalculationRegime Regime { get; set; }
         public Dictionary<string, decimal> BaseAmounts { get; set; }
+        public Dictionary<string, Formula[]> Formulas { get; set; }
     }
 
     private class BaseAmountShort
     {
         public string ExprName { get; set; }
         public decimal Value { get; set; }
+
+        public BaseAmountShort()
+        {
+            
+        }
 
         public BaseAmountShort(string name, decimal value)
         {

@@ -21,11 +21,6 @@ public class ScheduleMessageHandler : BaseMessageHandler<DaysSettingMessage>
     private IOrganizationUnitOfWork _organizationUnitOfWork;
     protected new IScheduleUnitOfWork Work;
 
-    private readonly Time _morning = new(6, 0);
-    private readonly Time _evening = new(18, 0);
-    private readonly Time _night = new(22, 0);
-    private readonly Time _day = new(24, 0);
-
     public ScheduleMessageHandler(IScheduleUnitOfWork work, IOrganizationUnitOfWork orgWork,
         ILogger<ScheduleMessageHandler> logger, IMapper mapper) : base(work, logger, mapper)
     {
@@ -48,7 +43,7 @@ public class ScheduleMessageHandler : BaseMessageHandler<DaysSettingMessage>
         DaysSettingMessage msg)
     {
         var autoEmpDays = new List<EmpDay>();
-        var holidays = (await LoadHolidaysAsync(msg.DateFrom.Year)).ToArray();
+        var holidays = await RegimeHelper.LoadHolidaysAsync(msg.DateFrom.Year);
         var empDaysId = Work.GetCollection<EmpDay>().NewNumberId();
 
         await Parallel.ForEachAsync(calculationRegimes, async (regime, token) =>
@@ -99,9 +94,7 @@ public class ScheduleMessageHandler : BaseMessageHandler<DaysSettingMessage>
                         reserveForHoliday = true;
                     var newDetail = workDayDetail;
                     
-                    var hoursForShifts = msg.Type == EDayType.Work
-                        ? CreateHoursFromRegime(newDetail, isHoliday, nextDayHoliday)
-                        : new HoursDetail();
+                    var hoursForShifts = RegimeHelper.CreateHoursFromRegime(newDetail, isHoliday, nextDayHoliday);
                     hours.Add(i+1, hoursForShifts);
                 }
                 
@@ -124,55 +117,6 @@ public class ScheduleMessageHandler : BaseMessageHandler<DaysSettingMessage>
         });
 
         return autoEmpDays;
-    }
-
-    private HoursDetail CreateHoursFromRegime(WorkDayDetail workDayDetail, bool isHoliday, bool nextDayHoliday)
-    {
-        var startTime = isHoliday ? workDayDetail.StartTimeInHoliday : workDayDetail.StartTime;
-        var endTime = isHoliday
-            ? workDayDetail.IsEndTimeInHolidayNextDay ?? false
-                ? workDayDetail.EndTimeInHoliday + _day
-                : workDayDetail.EndTimeInHoliday
-            : workDayDetail.IsEndTimeNextDay
-                ? workDayDetail.EndTime + _day
-                : workDayDetail.EndTime;
-
-        var shortDay = nextDayHoliday && (workDayDetail.IsHolidayShort ?? false) ? decimal.One : decimal.Zero;
-        
-        var summaryHours = Time.ConvertToDecimal(endTime - startTime) - 
-                           (!workDayDetail.IsLaunchPaid ? workDayDetail.LaunchTime : decimal.Zero) - shortDay;
-        var dayHours = GetWorkTimeByType(ref startTime, endTime, _morning, _evening) -
-            (!workDayDetail.IsLaunchPaid ? workDayDetail.LaunchTime : decimal.Zero) - shortDay; // 06:00 - 18:00
-        var eveningHours = GetWorkTimeByType(ref startTime, endTime, _evening, _night); // 18:00 - 22:00
-        var nightHours = GetWorkTimeByType(ref startTime, endTime, _night, _morning+_day); // 22:00 - 06:00
-        var extraDay = GetWorkTimeByType(ref startTime, endTime, _morning + _day, _evening + _day);
-        var extraEvening = GetWorkTimeByType(ref startTime, endTime, _evening + _day, _night + _day);
-        var extraNight = GetWorkTimeByType(ref startTime, endTime, _night + _day, _morning + _day + _day);
-        return new HoursDetail()
-        {
-            Day = dayHours + extraDay,
-            Evening = eveningHours + extraEvening,
-            Night = nightHours + extraNight,
-            Holiday = isHoliday,
-            Summary = summaryHours,
-        };
-    }
-
-    private decimal GetWorkTimeByType(ref Time workStart, Time workEnd, Time start, Time end)
-    {
-        var total = 0m;
-        if (workStart >= start && workStart < end)
-        {
-            if (workEnd <= end)
-                total = Time.ConvertToDecimal(workEnd - workStart);
-            else
-            {
-                total = Time.ConvertToDecimal(end - workStart);
-                workStart = end;
-            }
-        }
-        
-        return total;
     }
 
     private async Task<List<CalculationRegime>> GetUsedRegimesAsync(DaysSettingMessage msg)
@@ -219,24 +163,6 @@ public class ScheduleMessageHandler : BaseMessageHandler<DaysSettingMessage>
         return builder.And(definition);
     }
 
-    private async Task<IEnumerable<DateTime>> LoadHolidaysAsync(int year, string region = "UA")
-    {
-        using (var httpClient = new HttpClient())
-        {
-            var response = await httpClient.GetAsync($"https://date.nager.at/api/v3/PublicHolidays/{year}/{region}");
-            if (response.IsSuccessStatusCode)
-            {
-                var holidaysJson = await response.Content.ReadAsStringAsync();
-                return (JsonConvert.DeserializeObject<Holiday[]>(holidaysJson) ?? Array.Empty<Holiday>()).Select(x =>
-                    x.Date);
-            }
-            else
-            {
-                throw new HttpRequestException();
-            }
-        }
-    }
-
     private Task<DeleteResult> DeleteExistingDatesAsync(IEnumerable<int> empIds, DaysSettingMessage msg)
     {
         var builder = Builders<EmpDay>.Filter;
@@ -247,18 +173,5 @@ public class ScheduleMessageHandler : BaseMessageHandler<DaysSettingMessage>
                              & builder.Eq(x => x.OrganizationId, msg.OrganizationId));
 
         return result;
-    }
-
-    private class Holiday
-    {
-        public DateTime Date { get; set; }
-        public string LocalName { get; set; }
-        public string Name { get; set; }
-        public string CountryCode { get; set; }
-        public bool Fixed { get; set; }
-        public bool Global { get; set; }
-        public object[] Counties { get; set; }
-        public object LaunchYear { get; set; }
-        public string[] Types { get; set; }
     }
 }

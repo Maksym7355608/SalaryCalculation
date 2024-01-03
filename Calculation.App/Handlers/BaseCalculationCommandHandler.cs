@@ -11,5 +11,6 @@ public class BaseCalculationCommandHandler : BaseCommandHandler
 
     public BaseCalculationCommandHandler(ICalculationUnitOfWork work, ILogger<BaseCommandHandler> logger, IMapper mapper) : base(work, logger, mapper)
     {
+        Work = work;
     }
 }

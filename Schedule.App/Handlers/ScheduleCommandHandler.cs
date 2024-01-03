@@ -367,7 +367,7 @@ public class ScheduleCommandHandler : BaseScheduleCommandHandler, IScheduleComma
         return employees.ToDictionary(k => k.Id, v => v.RegimeId);
     }
 
-    private PeriodCalendar CreateCalendar(IEnumerable<EmpDay> empDays, int period, int regimeId)
+    public PeriodCalendar CreateCalendar(IEnumerable<EmpDay> empDays, int period, int regimeId)
     {
         empDays = empDays.Where(x => x.Date >= period.ToDateTime() && x.Date < period.ToDateTime().AddMonths(1))
             .ToArray();

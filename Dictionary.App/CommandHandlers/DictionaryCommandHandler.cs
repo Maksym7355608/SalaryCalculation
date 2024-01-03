@@ -60,7 +60,6 @@ public class DictionaryCommandHandler : BaseCommandHandler, IDictionaryCommandHa
         var definition = new List<FilterDefinition<FinanceData>>()
         {
             builder.Eq(x => x.OrganizationId, command.OrganizationId),
-            builder.Eq(x => x.IsBaseAmount, command.IsBaseAmount)
         };
 
         if(!string.IsNullOrWhiteSpace(command.Name))
@@ -106,7 +105,8 @@ public class DictionaryCommandHandler : BaseCommandHandler, IDictionaryCommandHa
     public async Task<bool> CreateBaseAmount(BaseAmountCreateCommand command)
     {
         var existingItem = await Work.GetCollection<BaseAmount>()
-            .Find(x => x.Name == command.Name || x.ExpressionName == command.ExpressionName)
+            .Find(x => (x.Name == command.Name || x.ExpressionName == command.ExpressionName)
+                && (!x.DateTo.HasValue || x.DateTo > command.DateFrom))
             .AnyAsync();
         if (existingItem)
             throw new DuplicateNameException();
@@ -132,7 +132,8 @@ public class DictionaryCommandHandler : BaseCommandHandler, IDictionaryCommandHa
     public async Task<bool> CreateFormula(FormulaCreateCommand command)
     {
         var existingItem = await Work.GetCollection<Formula>()
-            .Find(x => x.Name == command.Name || x.ExpressionName == command.ExpressionName)
+            .Find(x => x.ExpressionName == command.ExpressionName && x.Condition == command.Condition 
+                                 && (!x.DateTo.HasValue || x.DateTo < command.DateFrom))
             .AnyAsync();
         if (existingItem)
             throw new DuplicateNameException();
