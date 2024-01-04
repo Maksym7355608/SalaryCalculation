@@ -1,5 +1,5 @@
 import {UserModel} from "../../models/BaseModels";
-import React, {ReactElement} from "react";
+import React, {ReactElement, useState} from "react";
 import OrganizationSettings from "../../views/organization/OrganizationSettings";
 import {NavLink} from "react-router-dom";
 import Home from "../../views/home/Home";
@@ -8,6 +8,9 @@ import {Organization} from "../../views/organization/Organization";
 import Employee from "../../views/employees/Employee";
 import {EPermission} from "../../models/Enums";
 import ScheduleSearch from "../../views/schedule/Search";
+import Schedule from "../../views/schedule/Schedule";
+import { Nav } from "react-bootstrap";
+import {Regime} from "../../views/schedule/Regime";
 
 interface MenuItem{
     id: number | string;
@@ -23,28 +26,64 @@ const user = JSON.parse(localStorage.getItem('user') as string) as UserModel;
 
 export function Menu() {
     const items = InitMenu();
+    const [open, setOpen] = useState<number | string | undefined>();
+
+    const renderMenuItem = (item: MenuItem) => {
+        if(!item.link || item.parentId)
+            return null;
+        if(!items.some(i => i.parentId == item.id))
+            return (
+                <Nav.Item key={item.id}  className='mt-3'>
+                    <NavLink to={item.link} className="menu-item">
+                        <i className="material-icons">{item.icon}</i> {item.text}
+                    </NavLink>
+                </Nav.Item>);
+
+        const children = items.filter(i => i.parentId == item.id);
+        const condition = !open || open != item.id;
+        return (
+            <Nav.Item key={item.id} className='mt-3'>
+                <label onClick={() => condition ? setOpen(item.id) : setOpen(undefined)} className="menu-item">
+                    <i className="material-icons">{item.icon}</i> {item.text} <span className="material-icons">{condition ? "expand_more" : "expand_less"}</span>
+                </label>
+                <Nav hidden={condition} className='bg-blue-900'>
+                    <Nav.Item className='mt-1'>
+                        <NavLink to={item.link} className="menu-item-child">
+                            <i className="material-icons small">{item.icon}</i> {item.text}
+                        </NavLink>
+                    </Nav.Item>
+                        {
+                            children.map(ch => ch.link && (
+                                <Nav.Item className='mt-1'>
+                                    <NavLink to={ch.link} className="menu-item-child">
+                                        <i className="material-icons small">{ch.icon}</i> {ch.text}
+                                    </NavLink>
+                                </Nav.Item>
+                            ))
+                        }
+
+                </Nav>
+            </Nav.Item>
+        );
+    }
+
     return (
         <div>
-            <ul className="position-relative">
-                <li>
+            <Nav variant="pills" className="flex-column mt-2">
+                <Nav.Item className='mt-2'>
                     <NavLink to="/user/settings" className="menu-item">
-                        <i className="material-icons">account_circle</i>  {`${user.firstName} ${user.lastName}`}
+                        <i className="material-icons">account_circle</i> {`${user.firstName} ${user.lastName}`}
                     </NavLink>
-                </li>
+                </Nav.Item>
                 {items.map(item => {
-                        return item.link && <li key={item.id}>
-                            <NavLink to={item.link} className="menu-item">
-                                <i className="material-icons">{item.icon}</i> {item.text}
-                            </NavLink>
-                        </li>
-                    }
-                )}
-                <li className="settings-link">
+                    return renderMenuItem(item);
+                })}
+                <Nav.Item className="settings-link">
                     <NavLink to="/settings" className="menu-item">
                         <i className="material-icons">settings</i> Налаштування
                     </NavLink>
-                </li>
-            </ul>
+                </Nav.Item>
+            </Nav>
         </div>
     );
 }
@@ -82,10 +121,14 @@ export function InitMenu() : MenuItem[] {
                 ];
                 break;
             case EPermission.createEmployees:
-                item = [getItem(permission, <Employee/>, "Управління працівниками", `/employee/:id`)];
+                item = [getItem(permission, <Employee/>, "Управління працівниками", `/employee/:id`, '', '/employee/create', 3)];
                 break;
             case EPermission.searchSchedules :
-                item = [getItem(permission, <ScheduleSearch/>,"Табелювання", `/schedule/search`, "calendar_today", `/schedule/search`)];
+                item = [
+                    getItem(permission, <ScheduleSearch/>,"Табелювання", `/schedule/search`, "calendar_today", `/schedule/search`),
+                    getItem('regime', <Regime/>, "Режим роботи", `/schedule/regime/:id`, 'schedule', '/schedule/regime/create', permission),
+                    getItem('schedule', <Schedule/>,"Табелювання працівника", `/schedule/:id/:period`)
+                ];
                 break;
             case EPermission.viewCalculation :
                 item = [getItem(permission, <OrganizationSettings/>,"Розрахунок", `/calculation/search`, "calculate", `/calculation/search`)];

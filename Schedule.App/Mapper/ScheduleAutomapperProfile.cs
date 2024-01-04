@@ -19,7 +19,9 @@ public class ScheduleAutomapperProfile : Profile
 
         CreateMap<WorkDayDetail, WorkDayDetailDto>().ReverseMap();
 
-        CreateMap<PeriodCalendar, PeriodCalendarDto>().ReverseMap();
+        CreateMap<PeriodCalendar, PeriodCalendarDto>()
+            .ForMember(dst => dst.Regime, src => src.Ignore())
+            .ReverseMap();
 
         CreateMap<HoursDetail, HoursDetailDto>().ReverseMap();
 

@@ -41,9 +41,18 @@
 .menu-item {
     text-decoration: none;
     color: white;
-    font-size: 22px;
+    font-size: 18px;
     margin-right: 20px;
     margin-top: 15px;
+}
+
+.menu-item-child {
+    text-decoration: none;
+    color: white;
+    font-size: 16px;
+    margin-right:-20px;
+    padding-right: 25px;
+    margin-top: 10px;
 }
 
 .active {
@@ -54,13 +63,14 @@
     color: #FF8A35;
 }
 
-li {
-    margin-left: -3vh;
-    margin-right: -20px;
-    margin-top: 4vh;
+.menu-item-child:hover {
+    color: #FF8A35;
 }
+
 ul {
     list-style: none;
+    margin-left: -30px;
+    width: 220px;
 }
 
 .settings-link {

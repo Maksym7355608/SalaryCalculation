@@ -29,7 +29,9 @@ export function enumToIdNamePair(type: any, localizer?: Record<string, string>) 
 export function toShortDateString(date?: Date) {
     if(!date)
         return undefined;
-    return date.toString().split('T')[0];
+    const datestring = date.getFullYear() + "-" + ("0" + (date.getMonth() + 1)).slice(-2) + "-" +
+        ("0" + date.getDate()).slice(-2)
+    return datestring;
 }
 
 export function toPeriodString(date?: Date) {

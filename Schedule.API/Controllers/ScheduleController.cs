@@ -98,6 +98,13 @@ public class ScheduleController : BaseScheduleController
     #endregion
 
     #region Employee day
+    
+    [HttpGet("calendar/day/{id}/{period}")]
+    public async Task<IActionResult> GetEmpDaysAsync([FromRoute] int id, [FromRoute]int period)
+    {
+        var days = await ScheduleCommandHandler.GetEmpDaysByEmployeeAsync(id, period);
+        return GetAjaxResponse(IsValid, days, Errors);
+    }
 
     [HttpPost("calendar/day/search")]
     public async Task<IActionResult> GetEmpDaysAsync([FromBody] WorkDaySearchCommand command)
