@@ -74,7 +74,7 @@ export default function ScheduleSearch() {
                 columns = [...columns, createColumn(day)]
             })
         }
-        columns = [...columns, { field: 'actions', text: '', sortable: false }]
+        columns = [...columns, {field: 'summary', text: 'Σ', sortable: true}, { field: 'actions', text: '', sortable: false }]
         return columns;
     }
 
@@ -86,6 +86,7 @@ export default function ScheduleSearch() {
             emp.schedule.forEach(s => {
                 row[s.day] = s.work;
             })
+            row['summary'] = emp.schedule.reduce((a, b) => a+parseFloat(b.work), 0);
             row['actions'] = (
                 <div className='inline-flex'>
                     <Link to={`/schedule/${emp.id}/${emp.period}?handler=info`} className='btn btn-sm btn-light'><i className='material-icons small'>info</i></Link>

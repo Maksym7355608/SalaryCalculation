@@ -1,4 +1,6 @@
-﻿namespace Schedule.App.Dto;
+﻿using SalaryCalculation.Data.BaseModels;
+
+namespace Schedule.App.Dto;
 
 public class PeriodCalendarDto
 {
@@ -9,5 +11,5 @@ public class PeriodCalendarDto
     public int SickLeave { get; set; }
     public int EmployeeId { get; set; }
     public int OrganizationId { get; set; }
-    public int RegimeId { get; set; }
+    public IdNamePair Regime { get; set; }
 }

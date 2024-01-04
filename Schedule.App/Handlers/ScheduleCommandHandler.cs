@@ -5,6 +5,7 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using Organization.Data.Data;
 using Organization.Data.Entities;
+using SalaryCalculation.Data.BaseModels;
 using SalaryCalculation.Shared.Common.Validation;
 using SalaryCalculation.Shared.Extensions.EnumExtensions;
 using SalaryCalculation.Shared.Extensions.MoreLinq;
@@ -163,7 +164,14 @@ public class ScheduleCommandHandler : BaseScheduleCommandHandler, IScheduleComma
         if (calendar == null)
             throw new EntityNotFoundException("Employee {0} don`t have work calendar from period {1}",
                 employeeId.ToString(), period.ToShortPeriodString());
-        return Mapper.Map<PeriodCalendarDto>(calendar);
+        var dto = Mapper.Map<PeriodCalendarDto>(calendar);
+        dto.Regime = await Work.GetCollection<Regime>()
+            .Find(x => x.Id == calendar.RegimeId)
+            .Project(x => new IdNamePair()
+            {
+                Id = x.Id, Name = x.Name
+            }).FirstAsync();
+        return dto;
     }
 
     public async Task<IEnumerable<EmployeeScheduleDto>> GetWorkDaysAsync(WorkDaySearchCommand command)
