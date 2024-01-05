@@ -41,6 +41,19 @@ public class ScheduleCommandHandler : BaseScheduleCommandHandler, IScheduleComma
             .ToListAsync();
         return Mapper.Map<IEnumerable<RegimeDto>>(regimes);
     }
+    
+    public async Task<IEnumerable<IdNamePair>> GetRegimesShortAsync(int organizationId)
+    {
+        var regimes = await _regimeCollection
+            .Find(x => x.OrganizationId == organizationId)
+            .Project(x => new IdNamePair()
+            {
+                Id = x.Id,
+                Name = x.Name
+            })
+            .ToListAsync();
+        return regimes;
+    }
 
     public async Task<RegimeDto> GetRegimeAsync(int id)
     {

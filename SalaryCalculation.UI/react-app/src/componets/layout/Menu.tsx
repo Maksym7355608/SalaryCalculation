@@ -11,6 +11,7 @@ import ScheduleSearch from "../../views/schedule/Search";
 import Schedule from "../../views/schedule/Schedule";
 import { Nav } from "react-bootstrap";
 import {Regime} from "../../views/schedule/Regime";
+import CalculationSearch from "../../views/calculation/Search";
 
 interface MenuItem{
     id: number | string;
@@ -131,7 +132,7 @@ export function InitMenu() : MenuItem[] {
                 ];
                 break;
             case EPermission.viewCalculation :
-                item = [getItem(permission, <OrganizationSettings/>,"Розрахунок", `/calculation/search`, "calculate", `/calculation/search`)];
+                item = [getItem(permission, <CalculationSearch/>,"Розрахунок", `/calculation/search`, "calculate", `/calculation/search`)];
                 break;
             case EPermission.viewDictionary :
                 item = [getItem(permission, <OrganizationSettings/>,"Довідник", `/dictionary`, "feed", `/dictionary`)];

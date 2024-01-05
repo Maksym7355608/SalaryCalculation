@@ -46,7 +46,7 @@ public class CalculationSalaryMessageHandler : BaseMessageHandler<CalculationSal
     private async Task<PaymentCard> CalculateSalaryAsync(CalculationLoadedData loadedData, CalculationSalaryMessage msg)
     {
         var result = new PaymentCard();
-        result.Employee = new IdNamePair(loadedData.Employee.Id, loadedData.Employee.RollNumber);
+        result.Employee = new IdNamePair(loadedData.Employee.Id, loadedData.Employee.Name.ShortName);
         result.OrganizationId = msg.OrganizationId;
         result.CalculationDate = DateTime.Now;
         result.CalculationPeriod = msg.Period;
@@ -62,6 +62,7 @@ public class CalculationSalaryMessageHandler : BaseMessageHandler<CalculationSal
         result.PayedAmount = result.AccrualAmount - result.MaintenanceAmount;
         result.AccrualDetails = operations.Where(x => x.Sign == 1).Select(x => x.Id);
         result.MaintenanceDetails = operations.Where(x => x.Sign == -1).Select(x => x.Id);
+        result.Id = (int)Work.GetCollection<PaymentCard>().NewNumberId();
         return result;
     }
 

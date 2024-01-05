@@ -22,6 +22,13 @@ public class ScheduleController : BaseScheduleController
         return GetAjaxResponse(IsValid, regimes, Errors);
     }
 
+    [HttpGet("regime/by-organization/{organizationId}/short")]
+    public async Task<IActionResult> GetRegimesByOrganizationShortAsync([FromRoute] int organizationId)
+    {
+        var regimes = await ScheduleCommandHandler.GetRegimesShortAsync(organizationId);
+        return GetAjaxResponse(IsValid, regimes, Errors);
+    }
+
     [HttpGet("regime/{id}")]
     public async Task<IActionResult> GetRegimeByIdAsync([FromRoute] int id)
     {

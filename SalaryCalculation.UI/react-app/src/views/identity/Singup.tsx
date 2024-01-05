@@ -13,7 +13,7 @@ export default function SignUp() {
         loaded: false,
         organizations: []
     })
-    const [selected, setSelected] = useState<number>();
+    const [selected, setSelected] = useState<number>(-1);
     const {
         register,
         handleSubmit,
@@ -21,10 +21,13 @@ export default function SignUp() {
         formState: { errors },
     } = useForm<SignUpForm>()
 
-    const onSubmit: SubmitHandler<SignUpForm> = (data) => signUp(data).then(response => {
-        if(response)
-            navigate('/login');
-    });
+    const onSubmit: SubmitHandler<SignUpForm> = (data) => {
+        data.organization = selected;
+        signUp(data).then(response => {
+            if(response)
+                navigate('/login');
+        });
+    }
 
     useEffect(() => {
         if (state.loaded)
@@ -35,6 +38,7 @@ export default function SignUp() {
                 organizations: orgResponse,
                 loaded: true
             });
+            setSelected(orgResponse[0].id);
         });
     });
 
@@ -90,9 +94,8 @@ export default function SignUp() {
                                placeholder="Введіть електронну адреса"/>
                     </div>
                     <div className="form-group mb-1">
-                        <input type='hidden' value={selected} {...register('organization')}/>
                         <label htmlFor="organization" className="form-label text-auth-2">Організація</label>
-                        <SelectList setState={setSelected}
+                        <SelectList setState={(state) => setSelected(state as number)}
                                     useEmpty={false} emptyName={undefined} id="organization"
                                     items={state.organizations}/>
                     </div>

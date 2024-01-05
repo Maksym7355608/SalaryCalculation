@@ -1,10 +1,11 @@
-import {useParams, useSearchParams} from "react-router-dom";
+import {Link, useParams, useSearchParams} from "react-router-dom";
 import RestUnitOfWork from "../../store/rest/RestUnitOfWork";
 import {useEffect, useState} from "react";
 import {IdNamePair} from "../../models/BaseModels";
 import {Col, Container, Row, Table} from "react-bootstrap";
-import {getDaysByMonth, monthDict} from "../../store/actions";
+import {clearErrors, getDaysByMonth, monthDict, nextPeriod, previousPeriod} from "../../store/actions";
 import {EmpDay, PeriodCalendar} from "../../models/schedule";
+import { Icon } from "../../componets/helpers/Icon";
 
 export default function Schedule() {
     const { id, period } = useParams();
@@ -20,6 +21,7 @@ export default function Schedule() {
     const [periodCalendar, setCalendar] = useState<PeriodCalendar>()
 
     useEffect(() => {
+        clearErrors();
         restClient.organization.getEmployeeAsync(empId).then(res => {
             setEmployee({id: res.id, name: res.nameGenitive})
         })
@@ -29,7 +31,7 @@ export default function Schedule() {
         restClient.schedule.getCalendarAsync(empId, periodId).then(res => {
             setCalendar(res);
         })
-    }, []);
+    }, [period]);
 
     const handleZero = (n?: number) => {
         return n && n != 0 ? n : "-";
@@ -171,6 +173,10 @@ export default function Schedule() {
                         : <h4 className='d-flex justify-content-center'>Підсумки за місяць відсутні</h4>}
                 </div>
 
+                <div className='row'>
+                    <Link to={`/schedule/${empId}/${previousPeriod(periodId)}`} className='col text-secondary'><Icon name='arrow_back_ios'/></Link>
+                    <Link to={`/schedule/${empId}/${nextPeriod(periodId)}`} className='col text-secondary text-end'><Icon name='arrow_forward_ios'/></Link>
+                </div>
                 <button type='submit' className='btn btn-primary' hidden={!isEditMode}>Зберегти зміни</button>
             </form>
         </Container>
