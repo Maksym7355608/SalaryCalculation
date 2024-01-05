@@ -64,7 +64,7 @@ public class DictionaryCommandHandler : BaseCommandHandler, IDictionaryCommandHa
 
         if(!string.IsNullOrWhiteSpace(command.Name))
             definition.Add(builder.Regex(x => x.Name, new BsonRegularExpression(command.Name, "i")));
-        if(command.Codes.Any())
+        if(command.Codes != null && command.Codes.Any())
             definition.Add(builder.In(x => x.Code, command.Codes));
         
         

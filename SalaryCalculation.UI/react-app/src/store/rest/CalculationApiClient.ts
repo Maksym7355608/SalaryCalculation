@@ -1,8 +1,8 @@
 import RestApiClient, {RestApiProps} from "./RestApiClient";
 import {PaymentCardSearchCommand} from "../../models/commands/CalculationCommand";
-import {PaymentCard} from "../../models/calculation";
+import {Operation, PaymentCard} from "../../models/calculation";
 
-export class CalculationApiClient {
+export default class CalculationApiClient {
     private readonly url = "http://localhost:5217";
     private readonly apiClient: RestApiClient;
 
@@ -17,5 +17,20 @@ export class CalculationApiClient {
     async searchPaymentCardsAsync(cmd: PaymentCardSearchCommand) {
         const response = await this.apiClient.postAsync('/api/paymentCard/search', cmd);
         return response.data as PaymentCard[];
+    }
+
+    async deletePaymentCardAsync(id: number) {
+        const response = await this.apiClient.deleteAsync(`/api/paymentCard/${id}`);
+        return response.isSuccess;
+    }
+
+    async getPaymentCardAsync(id: number) {
+        const response = await this.apiClient.getAsync(`/api/paymentCard/${id}`);
+        return response.data as PaymentCard;
+    }
+
+    async getOperationsAsync(employeeId: number, period?: number) {
+        const response = await this.apiClient.getAsync(`/api/operations/by-employee/${employeeId}/${period}`);
+        return response.data as Operation[];
     }
 }

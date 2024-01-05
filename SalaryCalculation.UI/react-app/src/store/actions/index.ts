@@ -56,7 +56,7 @@ export function toPeriodString(date?: Date) {
 }
 
 export function toPeriod(date?: Date) {
-    return parseInt(toPeriodString(date)?.replace('-', '') ?? "0")
+    return parseInt(toPeriodString(date)?.replace('-', '') ?? '')
 }
 
 export function getDaysByMonth(month: number, isLeap?: boolean) : string[] {

@@ -56,7 +56,7 @@ export function AutoScheduleModal({show, setShow}: {show: boolean, setShow: (sho
                                {id: 'date-to', label: 'Дата з', control: (<input type='date' className='form-control' {...register('dateTo')}/>)},
                                {id: 'organization-unit', label: 'Підрозділ', control: (<SelectList id='organization-units' items={units} setState={(state) => setUnit(state as number)} useEmpty emptyName='Оберіть підрозділ'/>)},
                                {id: 'position', label: 'Посада', control: (<SelectList id='positions' items={positions} setState={(state) => setPos(state as number)} useEmpty emptyName='Оберіть посаду'/>)},
-                               {id: 'regime', label: 'Посада', control: (<SelectList id='regimes' items={regimes} setState={(state) => setReg(state as number)} useEmpty emptyName='Оберіть режим'/>)},
+                               {id: 'regime', label: 'Режим', control: (<SelectList id='regimes' items={regimes} setState={(state) => setReg(state as number)} useEmpty emptyName='Оберіть режим'/>)},
                            ]} handleActionBtn={handleSubmit(submitHandler)}/>
     );
 }

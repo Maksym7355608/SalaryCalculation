@@ -120,7 +120,7 @@ export const Organization = () => {
                     <Form.Label className="col-2">Бухгалтер</Form.Label>
                     <Form.Control className="col-3" {...register('accountant')} defaultValue={organization?.accountant}/>
                 </div>
-                <line/>
+                <hr/>
                 <h4>Банківські рахунки</h4>
                 {
                     !isBankRerender && organization?.bankAccounts.map((item, index) => (
