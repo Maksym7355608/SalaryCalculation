@@ -5,7 +5,7 @@ import {IdNamePair} from "../../models/BaseModels";
 interface SelectListProps {
     id: string;
     items: IdNamePair[];
-    setState: (set: any) => void;
+    setState: (set: number | number[] | undefined) => void;
     useEmpty?: boolean;
     emptyName?: string;
     value?: number | number[];

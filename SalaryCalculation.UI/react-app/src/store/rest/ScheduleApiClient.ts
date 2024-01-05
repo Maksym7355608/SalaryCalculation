@@ -19,7 +19,8 @@ export default class ScheduleApiClient extends Component {
     }
 
     async getRegimesShortAsync(organizationId: number) : Promise<IdNamePair[]> {
-        return [];
+        const response = await this.apiClient.getAsync(`/api/schedule/regime/by-organization/${organizationId}/short`)
+        return response.data as IdNamePair[];
     }
 
     async getScheduleShortAsync(data: any) {
@@ -52,5 +53,10 @@ export default class ScheduleApiClient extends Component {
             sick: data.sickLeave,
             regime: data.regime,
         } as PeriodCalendar;
+    }
+
+    async setWorkDaysByRegimeAsync(data: any) {
+        const response = await this.apiClient.postAsync('/api/schedule/calendar/calculate/day/mass', data);
+        return response.isSuccess;
     }
 }

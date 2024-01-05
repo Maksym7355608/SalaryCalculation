@@ -1,4 +1,5 @@
-﻿using Schedule.App.Commands;
+﻿using SalaryCalculation.Data.BaseModels;
+using Schedule.App.Commands;
 using Schedule.App.Dto;
 
 namespace Schedule.App.Abstract;
@@ -25,4 +26,5 @@ public interface IScheduleCommandHandler
     Task<bool> CalculatePeriodCalendarAsync(int employeeId, int period, int regimeId);
     Task MassCalculatePeriodCalendarAsync(PeriodCalendarMassCalculateCommand command);
     Task QuickSettingDaysAsync(DaysSettingMessage msg);
+    Task<IEnumerable<IdNamePair>> GetRegimesShortAsync(int organizationId);
 }

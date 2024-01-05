@@ -60,12 +60,12 @@ class RestApiClient extends React.Component<RestApiProps> {
     private handleResponse(response : AxiosResponse<RestResponse, any>) : RestResponse{
         if(response.status != 200)
         {
-            this.handleError("requestInvalid", 'Network response was not ok');
+            this.handleError("request-validation", 'Network response was not ok');
             return {isSuccess: false} as RestResponse;
         }
         const result = response.data;
         if(!result.isSuccess)
-            this.handleError("responseInvalid", result.errors?.join(", ") as string);
+            this.handleError("response-validation", result.errors?.join(", ") as string);
         return result;
     }
 

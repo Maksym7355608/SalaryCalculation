@@ -72,20 +72,19 @@ const UnitSettings: React.FC<{units: OrganizationUnitDto[]}> = ({units}) => {
         const shortUnits = organizationUnits.map(o => {return {id: o.id, name: o.name}}) ?? [];
         const createBody = [
             {id: 'unitName', label: "Назва", control: <Form.Control {...register('name')} type="text" placeholder="Введіть назву посади"/>},
-            {id: 'parentId', control: <input type='hidden' {...register('parent')} value={sUnit}/>},
-            {id: 'units', label: "Підрозділ", control: <SelectList setState={setUnit} id={"units"} useEmpty={true} emptyName='Оберіть батьківський підрозділ' items={shortUnits}/>},
+            {id: 'units', label: "Підрозділ", control: <SelectList setState={(state) => setUnit(state as number)} id={"units"} useEmpty={true} emptyName='Оберіть батьківський підрозділ' items={shortUnits}/>},
         ];
         const editBody = [
             {id: 'edit-unit-id', control: <Form.Control {...register('id')} type='number' value={selected?.id} hidden={true} id='edit-unit-id'/>},
             {id: 'edit-unitName', label: "Назва", control: <Form.Control {...register('name')} type="text" placeholder="Введіть назву посади" defaultValue={selected?.name}/>},
-            {id: 'edit-parentId', control: <input type='hidden' {...register('parent')} value={sUnit}/>},
-            {id: 'edit-units', label: "Підрозділ", control: <SelectList setState={setUnit} id={"units"} useEmpty={true} emptyName='Оберіть батьківський підрозділ' items={shortUnits} value={selected?.organizationUnitId}/>},
+            {id: 'edit-units', label: "Підрозділ", control: <SelectList setState={(state) => setUnit(state as number)} id={"units"} useEmpty={true} emptyName='Оберіть батьківський підрозділ' items={shortUnits} value={selected?.organizationUnitId}/>},
         ];
         const deleteBody = [
             {id: 'delete-unit-id', control: <Form.Control {...register('id')} id={'delete-unit-id'} type='number' value={selected?.id} hidden={true}/>}
         ];
 
         const handleCreate = (data: any) => {
+            data['parent'] = sUnit;
             if(!data.name) {
                 console.error('name must be not empty');
                 handleError('name', `Назва не повинна бути пуста`);
@@ -107,6 +106,7 @@ const UnitSettings: React.FC<{units: OrganizationUnitDto[]}> = ({units}) => {
         }
 
         const handleEdit = (data: any) => {
+            data['parent'] = sUnit;
             if(!data.name) {
                 console.error('name must be not empty');
                 handleError('unitName', `Назва не повинна бути пуста`);

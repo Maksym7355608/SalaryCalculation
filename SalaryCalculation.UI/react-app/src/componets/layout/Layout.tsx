@@ -29,8 +29,8 @@ const Layout : React.FC<LayoutProps> = ({title, children}) => {
                             <Header title={title}/>
                             <div>
                                 {children}
-                                <span id="requestInvalid" className="text-danger"></span>
-                                <span id="responseInvalid" className="text-danger"></span>
+                                <span id="request-validation" className="text-danger"></span>
+                                <span id="response-validation" className="text-danger"></span>
                             </div>
                         </main>
                         <footer>

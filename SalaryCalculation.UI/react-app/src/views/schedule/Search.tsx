@@ -10,6 +10,8 @@ import RestUnitOfWork from "../../store/rest/RestUnitOfWork";
 import CustomDataTable from "../../componets/helpers/CustomDataTable";
 import {EmployeeWithSchedule} from "../../models/employees";
 import {Link} from "react-router-dom";
+import {Icon} from "../../componets/helpers/Icon";
+import {AutoScheduleModal} from "../../componets/schedule/AutoScheduleModal";
 
 interface IScheduleSearchForm {
     rollNumber?: string;
@@ -27,6 +29,7 @@ export default function ScheduleSearch() {
     const [period, setPeriod] = useState<Nullable<Date>>(new Date(Date.now()));
     const [sUnits, setUnits] = useState<number[] | undefined>();
     const [sPos, setPos] = useState<number[] | undefined>();
+    const [show, setShow] = useState<boolean>(false);
     const submitHandler : SubmitHandler<IScheduleSearchForm> = (data) => handleSearch(data);
 
     useEffect(() => {
@@ -124,7 +127,7 @@ export default function ScheduleSearch() {
                             <input type="hidden" value={sUnits?.toString()} {...register('organizationUnitIds')}/>
                             <Form.Label>Підрозділи</Form.Label>
                             <div className='w-100 d-flex from-picker' style={{height: '37.5px'}}>
-                                <SelectList multiple={true} id='units' setState={setUnits} items={units}/>
+                                <SelectList multiple={true} id='units' setState={(state) => setUnits(state as number[])} items={units}/>
                             </div>
                         </Form.Group>
                     </Col>
@@ -133,24 +136,24 @@ export default function ScheduleSearch() {
                             <input type="hidden" value={sPos?.toString()} {...register('positionsIds')}/>
                             <Form.Label>Посади</Form.Label>
                             <div className='w-100 d-flex from-picker' style={{height: '37.5px'}}>
-                                <SelectList multiple={true} id='positions' setState={setPos} items={positions}/>
+                                <SelectList multiple={true} id='positions' setState={(state) => setPos(state as number[])} items={positions}/>
                             </div>
                         </Form.Group>
                     </Col>
                 </Row>
                 <div className='card-group mt-3 ms-3'>
-                    <Button type='submit' variant='primary' size='sm' className='me-1'><i className='material-icons small'>search</i> Пошук</Button>
+                    <Button type='submit' variant='primary' size='sm' className='me-1'><Icon name='search' small/> Пошук</Button>
                     <Button type='reset' variant='secondary' size='sm' className='me-1'>Очистити</Button>
-                    <Button type='button' variant='light' size='sm' className='me-1'><i className='material-icons small'>autorenew</i> Автозаповнення</Button>
-                    <Button type='button' variant='warning' size='sm'><i className='material-icons small'>schedule</i> Режими</Button>
+                    <Button type='button' variant='light' size='sm' className='me-1' onClick={() => setShow(!show)}><Icon name='autorenew' small/> Автоматичне табелювання</Button>
+                    <Button type='button' variant='warning' size='sm'><Icon name='schedule' small/> Режими</Button>
                 </div>
             </Form>
-                <div className="mt-3 mb-3">
-                    <CustomDataTable columns={getTableColumns()} rows={createTableRows()} header={{
-                        centerHead: <p>{period ? monthDict[period.getMonth()] : undefined}</p>
-                    }}/>
-                </div>
-
+            <div className="mt-3 mb-3">
+                <CustomDataTable columns={getTableColumns()} rows={createTableRows()} header={{
+                    centerHead: <p>{period ? monthDict[period.getMonth()] : undefined}</p>
+                }}/>
+            </div>
+            <AutoScheduleModal show={show} setShow={setShow}/>
         </Container>
     );
 }

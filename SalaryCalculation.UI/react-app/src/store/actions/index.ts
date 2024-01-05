@@ -1,5 +1,6 @@
 import {IdNamePair, UserModel} from "../../models/BaseModels";
 import {EPermission} from "../../models/Enums";
+import {isDate} from "util";
 
 export const user = () => {
     return JSON.parse(localStorage.getItem('user') as string) as UserModel;
@@ -10,7 +11,17 @@ export const hasPermission = (permission : EPermission) => {
 }
 
 export function handleError(id: string, message: string) {
-    $('#' + id + '-validation').text(message);
+    const errorElement = document.getElementById(id + '-validation');
+    if (errorElement) {
+        errorElement.textContent = message;
+    }
+}
+
+export function clearErrors() {
+    const errorElements = document.querySelectorAll('[id$="-validation"]');
+    errorElements.forEach((element) => {
+        element.textContent = '';
+    });
 }
 
 export function enumToIdNamePair(type: any, localizer?: Record<string, string>) : IdNamePair[] {
@@ -29,6 +40,8 @@ export function enumToIdNamePair(type: any, localizer?: Record<string, string>) 
 export function toShortDateString(date?: Date) {
     if(!date)
         return undefined;
+    if(!isDate(date))
+        return (date as string).split('T')[0];
     const datestring = date.getFullYear() + "-" + ("0" + (date.getMonth() + 1)).slice(-2) + "-" +
         ("0" + date.getDate()).slice(-2)
     return datestring;
@@ -40,6 +53,10 @@ export function toPeriodString(date?: Date) {
     let parsed : string[] = toShortDateString(date)?.split('-') as string[];
     parsed.pop();
     return parsed.join('-');
+}
+
+export function toPeriod(date?: Date) {
+    return parseInt(toPeriodString(date)?.replace('-', '') ?? "0")
 }
 
 export function getDaysByMonth(month: number, isLeap?: boolean) : string[] {
@@ -72,6 +89,22 @@ export function getDaysByMonth(month: number, isLeap?: boolean) : string[] {
     for (let i = 1; i <= daysCount; i++)
         result = [...result, i.toString()];
     return result;
+}
+
+export const nextPeriod = (period: number) => {
+    const month = period % 100;
+    if (month < 12)
+        return ++period;
+    else
+        return (period / 100 + 1) * 100 + 1;
+}
+
+export const previousPeriod = (period: number) => {
+    const month = period % 100;
+    if (month > 1)
+        return --period;
+    else
+        return (period / 100 - 1) * 100 + 12;
 }
 
 export const monthDict = [

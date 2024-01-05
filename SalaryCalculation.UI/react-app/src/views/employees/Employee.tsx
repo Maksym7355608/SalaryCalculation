@@ -1,4 +1,4 @@
-import {useParams, useSearchParams} from "react-router-dom";
+import {useNavigate, useParams, useSearchParams} from "react-router-dom";
 import RestUnitOfWork from "../../store/rest/RestUnitOfWork";
 import {SubmitHandler, useForm} from "react-hook-form";
 import React, {useEffect, useState} from "react";
@@ -18,27 +18,28 @@ import DeleteEmployeeModal from "../../componets/employee/DeleteEmployeeModal";
 
 export default function Employee() {
     const {id} = useParams();
+    const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
     const handler = searchParams.get('handler');
     const restClient = new RestUnitOfWork();
-    const isEditMode = handler == 'edit';
+    const isEditMode = handler?.toLowerCase() == 'edit';
     const empId = parseInt(id as string);
 
     const [employee, setEmployee] = useState<EmployeeModel | undefined>(undefined);
-    const [units, setUnits] = useState<IdNamePair[]>();
-    const [positions, setPositions] = useState<PositionDto[]>();
+    const [units, setUnits] = useState<IdNamePair[]>([]);
+    const [positions, setPositions] = useState<PositionDto[]>([]);
     const [regimes, setRegimes] = useState<IdNamePair[]>([]);
     const [isInfoMode, setIsInfoMode] = useState(false);
     const sexList = enumToIdNamePair(ESex);
     const marriedStatusList = enumToIdNamePair(EMarriedStatus);
     const benefitsList = enumToIdNamePair(EBenefit);
 
-    const [sUnit, setUnit] = useState<number | undefined>();
-    const [sPosition, setPosition] = useState<number | undefined>();
-    const [sRegime, setRegime] = useState<number | undefined>();
-    const [sSex, setSex] = useState<number | undefined>();
-    const [sStatus, setStatus] = useState<number | undefined>();
-    const [sBenefits, setBenefits] = useState<number[]>()
+    const [sUnit, setUnit] = useState<number>(0);
+    const [sPosition, setPosition] = useState<number>(0);
+    const [sRegime, setRegime] = useState<number>(0);
+    const [sSex, setSex] = useState<number>(0);
+    const [sStatus, setStatus] = useState<number>(0);
+    const [sBenefits, setBenefits] = useState<number[]>([])
 
 
     const [deleteModal, setDeleteModel] = useState(false);
@@ -59,14 +60,22 @@ export default function Employee() {
             const shortRegimes = await restClient.schedule.getRegimesShortAsync(user().organization);
 
             setUnits(shortUnits);
+            setUnit(shortUnits[0]?.id);
             setPositions(pos);
+            setPosition(pos[0]?.id);
             setRegimes(shortRegimes);
+            setRegime(shortRegimes[0].id);
         }
 
         fetch();
-    }, []);
+    }, [isEditMode]);
 
     const handleUpdate = (data: EmployeeModel) => {
+        data.organizationUnitId = sUnit;
+        data.positionId = sPosition;
+        data.sex = sSex;
+        data.marriedStatus = sStatus;
+        data.benefits = sBenefits;
         const cmd = mapEmployeeModelToUpdateCommand(data);
         restClient.organization.updateEmployeeAsync(cmd)
             .then(response => {
@@ -78,6 +87,11 @@ export default function Employee() {
     }
 
     const handleCreate = (data: EmployeeModel) => {
+        data.organizationUnitId = sUnit;
+        data.positionId = sPosition;
+        data.sex = sSex;
+        data.marriedStatus = sStatus;
+        data.benefits = sBenefits;
         const cmd = mapEmployeeModelToCreateCommand(data);
         restClient.organization.createEmployeeAsync(cmd)
             .then(response => {
@@ -133,24 +147,21 @@ export default function Employee() {
                 </Form.Group>
 
                 <Form.Group className="row input-group mt-2" controlId="organizationUnitId">
-                    <input type='hidden' value={sUnit}/>
                     <Form.Label className="col-2">Підрозділ</Form.Label>
-                    <SelectList setState={setUnit} id={'organizationUnitId'} items={units ?? []}
+                    <SelectList setState={(state) => setUnit(state as number)} id={'organizationUnitId'} items={units ?? []}
                                 disabled={isInfoMode} value={employee?.organizationUnitId}/>
                 </Form.Group>
 
                 <Form.Group className="row input-group mt-2" controlId="position">
-                    <input type='hidden' {...register('positionId')} value={sPosition}/>
                     <Form.Label className="col-2">Посада</Form.Label>
-                    <SelectList setState={setPosition} id={'position'}
+                    <SelectList setState={(state) => setPosition(state as number)} id={'position'}
                                 items={mapPositionsToIdNamePair(positions, sUnit)}
                                 disabled={sUnit === undefined || isInfoMode} value={employee?.positionId}/>
                 </Form.Group>
 
                 <Form.Group className="row input-group mt-2" controlId="regimes">
-                    <input type='hidden' {...register('regimeId')} value={sRegime}/>
                     <Form.Label className="col-2">Режим</Form.Label>
-                    <SelectList setState={setRegime} id={'regimes'} items={regimes}
+                    <SelectList setState={(state) => setRegime(state as number)} id={'regimes'} items={regimes}
                                 disabled={sUnit === undefined || isInfoMode} useEmpty={true} emptyName={'--- ---'}/>
                 </Form.Group>
 
@@ -167,24 +178,21 @@ export default function Employee() {
                 </Form.Group>
 
                 <Form.Group className="row input-group mt-2" controlId="sex">
-                    <input type='hidden' {...register('sex')} value={sSex}/>
                     <Form.Label className="col-2">Стать</Form.Label>
-                    <SelectList setState={setSex} id="sex" items={sexList}
+                    <SelectList setState={(state) => setSex(state as number)} id="sex" items={sexList}
                                 disabled={isInfoMode} value={employee?.sex}/>
                 </Form.Group>
 
                 <Form.Group className="row input-group mt-2" controlId="marriedStatus">
-                    <input type='hidden' {...register('marriedStatus')} value={sStatus}/>
                     <Form.Label className="col-2">Сімейний стан</Form.Label>
-                    <SelectList setState={setStatus} id="marriedStatus" items={marriedStatusList}
+                    <SelectList setState={(state) => setStatus(state as number)} id="marriedStatus" items={marriedStatusList}
                                 disabled={isInfoMode} value={employee?.marriedStatus}/>
                 </Form.Group>
 
                 <Form.Group className="row input-group mt-2" controlId="benefits">
-                    <input type='hidden' value={sBenefits?.toString()} {...register('benefits')}/>
                     <Form.Label className="col-2">Пільги</Form.Label>
                      <div className='col-10 p-0' style={{height: '48px'}}>
-                         <SelectList setState={setBenefits} id="benefits" items={benefitsList} multiple={true}
+                         <SelectList setState={(state) => setBenefits(state as number[])} id="benefits" items={benefitsList} multiple={true}
                                      disabled={isInfoMode} value={employee?.benefits}/>
                      </div>
                 </Form.Group>
@@ -240,11 +248,13 @@ export default function Employee() {
                 {!isInfoMode && <Button type='submit' variant='primary' className='mt-4'>Зберегти</Button>}
                 {isInfoMode && (
                     <div className='row-gap-sm-0 mt-4'>
-                        <Button className='me-2' type='button' variant='warning' onClick={() => setSearchParams({handler: 'edit'})}>Редагування</Button>
+                        <Button className='me-2' type='button' variant='warning' onClick={() => {
+                            navigate(`/employee/${empId}?handler=edit`);
+                        }}>Редагування</Button>
                         <Button className='me-2' type='button' variant='danger' onClick={() => setDeleteModel(true)}>Видалити працівника</Button>
                         <Button className='me-2' type='button' variant='info'>Графік роботи</Button>
                         <Button className='me-2' type='button' variant='secondary'>Виписки</Button>
-                        <DeleteEmployeeModal deleteId={empId} show={deleteModal}/>
+                        <DeleteEmployeeModal deleteId={empId} show={deleteModal} setShow={setDeleteModel}/>
                     </div>
                 )}
             </Form>

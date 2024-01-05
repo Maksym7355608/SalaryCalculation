@@ -181,7 +181,7 @@ export function Regime() {
                         <Form.Label>Циклічний</Form.Label>
                     </Col>
                     <Col md={9}>
-                        <Form.Check {...register('isCircle')} />
+                        <Form.Check {...register('isCircle')}/>
                     </Col>
                 </Row>
                 <Row>

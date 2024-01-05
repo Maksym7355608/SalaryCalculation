@@ -3,10 +3,8 @@ import RestUnitOfWork from "../../store/rest/RestUnitOfWork";
 import {useForm} from "react-hook-form";
 import {CustomModalDialog} from "../helpers/CustomModalDialog";
 
-const DeleteEmployeeModal : React.FC<{deleteId: number | undefined, show: boolean}> = ({
-    deleteId, show
-                                                                                       }) => {
-    const [showDelete, setShowDelete] = useState(show);
+const DeleteEmployeeModal : React.FC<{deleteId: number | undefined, show: boolean, setShow: (show: boolean) => void}> = ({
+    deleteId, show, setShow }) => {
     const restClient = new RestUnitOfWork();
     const {
         register,
@@ -26,10 +24,11 @@ const DeleteEmployeeModal : React.FC<{deleteId: number | undefined, show: boolea
     ]
 
     return (
-        <CustomModalDialog show={showDelete} handleChangeShow={(show) => setShowDelete(show)}
+        <CustomModalDialog show={show} handleChangeShow={(show) => setShow(show)}
                            headerText='Видалити працівника'
                            body={modalBody} id='delete-modal'
-                           handleActionBtn={(data) => handleDelete(data.id)}/>
+                           handleActionBtn={(data) => handleDelete(data.id)}
+        footer={{actionBtnStyle: 'danger', actionBtnText: 'Видалити'}}/>
     );
 }
 

@@ -41,9 +41,13 @@ export default function Home() {
         formState: { errors },
     } = useForm<IHomeForm>()
 
-    const onSubmit: SubmitHandler<IHomeForm> = (data) => searchEmployees(data).then(res => {
-        setEmployees(mapToEmployeeShortModel(res))
-    });
+    const onSubmit: SubmitHandler<IHomeForm> = (data) => {
+        data.organizationUnit = selectedUnit;
+        data.position = selectedPos;
+        searchEmployees(data).then(res => {
+            setEmployees(mapToEmployeeShortModel(res))
+        });
+    }
 
     const createEmployeeActions = (employee: EmployeeShortModel) => {
         return (
@@ -93,11 +97,10 @@ export default function Home() {
                         <span id="roll-number-validation" className="text-danger"></span>
                     </div>
                     <div className="col-4">
-                        <input type='hidden' value={selectedPos} {...register('position')}/>
                         <label className="form-label" htmlFor="position">
                             Посада
                         </label>
-                        <SelectList setState={setPos} useEmpty={true} emptyName={"Оберіть посаду"} id={"position"} items={positions}/>
+                        <SelectList setState={(state) => setPos(state as number)} useEmpty={true} emptyName={"Оберіть посаду"} id={"position"} items={positions}/>
                     </div>
                     <div className="col-4">
                         <label className="form-label" htmlFor="salary-from">
@@ -108,11 +111,10 @@ export default function Home() {
                 </div>
                 <div className="row w-100 mt-1 ps-4">
                     <div className="col-4">
-                        <input type='hidden' value={selectedUnit} {...register('organizationUnit')}/>
                         <label className="form-label" htmlFor="organization-unit">
                             Підрозділ
                         </label>
-                        <SelectList setState={setUnit} useEmpty={true} emptyName={"Оберіть підрозділ"} id={"organization-unit"} items={organizationUnits}/>
+                        <SelectList setState={(state) => setUnit(state as number)} useEmpty={true} emptyName={"Оберіть підрозділ"} id={"organization-unit"} items={organizationUnits}/>
                     </div>
                     <div className="col-4">
                         <label className="form-label" htmlFor="employment-date">
@@ -146,7 +148,7 @@ export default function Home() {
             <div className="mt-3 mb-3">
                 <CustomDataTable columns={columnDefs} rows={createEmployeeWithActions()}/>
             </div>
-            <DeleteEmployeeModal deleteId={deleteId} show={showDelete}/>
+            <DeleteEmployeeModal deleteId={deleteId} show={showDelete} setShow={setShowDelete}/>
         </div>
     );
 }

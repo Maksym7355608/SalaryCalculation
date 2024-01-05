@@ -5,7 +5,10 @@ using Calculation.App.DtoModels;
 using Calculation.Data;
 using Calculation.Data.Entities;
 using Microsoft.Extensions.Logging;
+using MongoDB.Bson;
 using MongoDB.Driver;
+using Organization.Data.Data;
+using Organization.Data.Entities;
 using Progress.App;
 using SalaryCalculation.Data.BaseHandlers;
 using SalaryCalculation.Shared.Common.Validation;
@@ -16,11 +19,13 @@ namespace Calculation.App.Handlers;
 public class PaymentCardCommandHandler : BaseCalculationCommandHandler, IPaymentCardCommandHandler
 {
     private IOperationCommandHandler _operationCommandHandler;
+    private readonly IOrganizationUnitOfWork _organizationUnitOfWork;
 
     public PaymentCardCommandHandler(ICalculationUnitOfWork work, ILogger<BaseCommandHandler> logger, IMapper mapper,
-        IOperationCommandHandler operationCommandHandler) : base(work, logger, mapper)
+        IOperationCommandHandler operationCommandHandler, IOrganizationUnitOfWork organizationUnitOfWork) : base(work, logger, mapper)
     {
         _operationCommandHandler = operationCommandHandler;
+        _organizationUnitOfWork = organizationUnitOfWork;
     }
 
     public async Task<PaymentCardDto> GetPaymentCardAsync(int id)
@@ -61,10 +66,22 @@ public class PaymentCardCommandHandler : BaseCalculationCommandHandler, IPayment
         {
             filter &= filterBuilder.Eq(p => p.OrganizationId, command.OrganizationId);
         }
-        if (command.EmployeeNumbers != null && command.EmployeeNumbers.Any())
-        {
-            filter &= filterBuilder.In(p => p.Employee.Name, command.EmployeeNumbers);
-        }
+
+        var employeeFilterBuilder = Builders<Employee>.Filter;
+        var employeeFilter = employeeFilterBuilder.Empty;
+        if (command.OrganizationUnitId.HasValue)
+            employeeFilter &= employeeFilterBuilder.Eq(p => p.OrganizationUnit.Id, command.OrganizationUnitId.Value);
+        if (command.PositionId.HasValue)
+            employeeFilter &= employeeFilterBuilder.Eq(p => p.Position.Id, command.PositionId.Value);
+        if(!string.IsNullOrWhiteSpace(command.RollNumber))
+            employeeFilter &= employeeFilterBuilder.Regex(p => p.RollNumber, new BsonRegularExpression(command.RollNumber, "/b"));
+        var employeeIds = await _organizationUnitOfWork.GetCollection<Employee>()
+            .Find(employeeFilter)
+            .Project(x => x.Id)
+            .ToListAsync();
+        if (employeeIds.Count > 0)
+            filter &= filterBuilder.In(x => x.Employee.Id, employeeIds);
+        
         var paymentCards = await Work.GetCollection<PaymentCard>().Find(filter).ToListAsync();
         
         var paymentCardDtos = Mapper.Map<IEnumerable<PaymentCardDto>>(paymentCards);
