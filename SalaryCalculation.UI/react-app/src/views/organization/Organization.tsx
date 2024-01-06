@@ -5,7 +5,7 @@ import {OrganizationDto, BankDto} from "../../models/DTO";
 import RestUnitOfWork from "../../store/rest/RestUnitOfWork";
 import {SubmitHandler, useForm, useFieldArray} from "react-hook-form";
 
-export const Organization = () => {
+const Organization = () => {
     const [organization, setOrganization] = useState<OrganizationDto | undefined>(undefined)
     const [isEditMode, setIsEditMode] = useState(false);
     const [isBankRerender, setRerender] = useState(false);
@@ -147,3 +147,5 @@ export const Organization = () => {
         </Container>
     );
 };
+
+export default Organization;

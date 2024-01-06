@@ -73,7 +73,7 @@ export default function CalculationSearch() {
     ];
     return (
         <Container fluid>
-            <Form onSubmit={handleSubmit(submitHandler)} className="form-search pt-1 pb-1">
+            <Form onSubmit={handleSubmit(submitHandler)} className="form-search pt-1 pb-2 pe-2">
                 <Row className='w-100 ps-4'>
                     <Form.Group className='col'>
                         <Form.Label>Табельний номер</Form.Label>

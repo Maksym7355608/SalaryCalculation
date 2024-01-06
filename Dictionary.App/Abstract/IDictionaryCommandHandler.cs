@@ -1,4 +1,5 @@
 ﻿using Dictionary.App.Commands;
+using Dictionary.App.Dto;
 using Dictionary.Models;
 using MongoDB.Bson;
 
@@ -6,9 +7,9 @@ namespace Dictionary.App.Abstract;
 
 public interface IDictionaryCommandHandler
 {
-    Task<List<BaseAmount>> SearchBaseAmounts(BaseAmountsSearchCommand command);
-    Task<List<FinanceData>> SearchFinanceData(FinanceDataSearchCommand command);
-    Task<List<Formula>> SearchFormulas(FormulasSearchCommand command);
+    Task<List<BaseAmountDto>> SearchBaseAmounts(BaseAmountsSearchCommand command);
+    Task<List<FinanceDataDto>> SearchFinanceData(FinanceDataSearchCommand command);
+    Task<List<FormulaDto>> SearchFormulas(FormulasSearchCommand command);
 
     Task<bool> CreateBaseAmount(BaseAmountCreateCommand command);
     Task<bool> CreateFinanceData(FinanceDataCreateCommand command);

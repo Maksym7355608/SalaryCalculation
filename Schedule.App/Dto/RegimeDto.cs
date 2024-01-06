@@ -10,11 +10,11 @@ public class RegimeDto
 
     public int DaysCount { get; set; }
 
-    public IEnumerable<WorkDayDetailDto> WorkDayDetails { get; set; }
+    public IEnumerable<WorkDayDetailDto> WorkDays { get; set; }
 
-    public IEnumerable<int> RestDayDetails { get; set; }
+    public string RestDays { get; set; }
     
-    public int RestDayCount => RestDayDetails.Count();
+    public int RestDayCount => RestDays.Count();
 
     public DateTime StartDateInCurrentYear { get; set; }
 

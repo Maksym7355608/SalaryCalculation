@@ -37,7 +37,7 @@ export default function OperationsData() {
                 name: op.name,
                 sign: op.sign > 0 ? 'Нарахування' : 'Утримання',
                 actions: (<>
-                    <Button type='button' variant='light' size='sm'><Icon name='edit' small/></Button>
+                    <Button type='button' variant='light' size='sm'><Icon name='edit_square' small/></Button>
                     <Button type='button' variant='light' size='sm'><Icon name='close' small/></Button>
                 </>)
             };
@@ -48,8 +48,8 @@ export default function OperationsData() {
 
     return (
         <Container fluid>
-            <Form onSubmit={handleSubmit(submitHandler)} className='form-search pt-1 pb-2'>
-                <Row className='w-100 ms-1'>
+            <Form onSubmit={handleSubmit(submitHandler)} className='form-search pt-1 pb-2 pe-2'>
+                <Row className='ps-3'>
                     <Col>
                         <Form.Group>
                             <Form.Label>Коди</Form.Label>

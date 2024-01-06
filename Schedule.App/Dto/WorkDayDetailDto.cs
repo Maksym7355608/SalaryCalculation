@@ -2,7 +2,7 @@
 
 public class WorkDayDetailDto
 {
-    public IEnumerable<int> DaysOfWeek { get; set; }
+    public string DaysOfWeek { get; set; }
 
     public TimeDto StartTime { get; set; }
 

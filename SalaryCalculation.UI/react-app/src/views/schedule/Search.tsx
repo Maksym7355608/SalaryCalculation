@@ -102,7 +102,7 @@ export default function ScheduleSearch() {
 
     return (
         <Container fluid>
-            <Form onSubmit={handleSubmit(submitHandler)} className="form-search pt-1 pb-2">
+            <Form onSubmit={handleSubmit(submitHandler)} className="form-search pt-1 pb-2 pe-2">
                 <Row className='w-100 ms-1'>
                     <Col>
                         <Form.Group>

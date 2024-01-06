@@ -1,19 +1,23 @@
 import {UserModel} from "../../models/BaseModels";
 import React, {ReactElement, useState} from "react";
-import OrganizationSettings from "../../views/organization/OrganizationSettings";
 import {NavLink} from "react-router-dom";
+import {EPermission} from "../../models/Enums";
+import { Nav, Row } from "react-bootstrap";
+import OrganizationSettings from "../../views/organization/OrganizationSettings";
 import Home from "../../views/home/Home";
 import OrganizationPermissions from "../../views/organization/OrganizationPermissions";
-import {Organization} from "../../views/organization/Organization";
+import Organization from "../../views/organization/Organization";
 import Employee from "../../views/employees/Employee";
-import {EPermission} from "../../models/Enums";
 import ScheduleSearch from "../../views/schedule/Search";
 import Schedule from "../../views/schedule/Schedule";
-import { Nav, Row } from "react-bootstrap";
-import {Regime} from "../../views/schedule/Regime";
+import Regime from "../../views/schedule/Regime";
 import CalculationSearch from "../../views/calculation/Search";
-import {CalculationDetail} from "../../views/calculation/Details";
+import CalculationDetail from "../../views/calculation/Details";
 import OperationsData from "../../views/dictionary/Operations";
+import BaseAmounts from "../../views/dictionary/BaseAmounts";
+import Formulas from "../../views/dictionary/Formulas";
+import IndexFormula from "../../views/dictionary/IndexFormula";
+import {Regimes} from "../../views/dictionary/Regimes";
 
 interface MenuItem{
     id: number | string;
@@ -22,7 +26,7 @@ interface MenuItem{
     icon?: string;
     link?: string;
     ref: string;
-    parentId: number | undefined;
+    parentId?: number | string;
 }
 
 const user = JSON.parse(localStorage.getItem('user') as string) as UserModel;
@@ -100,7 +104,7 @@ export function InitMenu() : MenuItem[] {
     const permissions = user?.permissions ?? [];
     let items : MenuItem[] = [];
 
-    const getItem = (id: number | string, page: ReactElement, text: string, ref: string, icon?: string, link?: string, parentId?: number) : MenuItem =>  {
+    const getItem = (id: number | string, page: ReactElement, text: string, ref: string, icon?: string, link?: string, parentId?: number | string) : MenuItem =>  {
         return {
             id: id,
             page: page,
@@ -144,7 +148,13 @@ export function InitMenu() : MenuItem[] {
                 ];
                 break;
             case EPermission.viewDictionary :
-                item = [getItem('operationData', <OperationsData/>,"Довідник", `/dictionary/operations`, "feed", `/dictionary/operations`)];
+                item = [
+                    getItem('operationData', <OperationsData/>,"Довідник", `/dictionary/operations`, "feed", `/dictionary/operations`),
+                    getItem('baseAmounts', <BaseAmounts/>, "Базові суми", `/dictionary/base-amounts`, 'foundation', `/dictionary/base-amounts`, 'operationData'),
+                    getItem('formulas', <Formulas/>, "Формули", `/dictionary/formulas`, 'functions', `/dictionary/formulas`, 'operationData'),
+                    getItem('regimes', <Regimes/>, "Режими", `/dictionary/regimes`, 'schedule', `/dictionary/regimes`, 'operationData'),
+                    getItem('formula', <IndexFormula/>, "Управління Формулами", `/dictionary/formula/:id`),
+                ];
                 break;
             case EPermission.createDocuments :
                 item = [getItem(permission, <OrganizationSettings/>,"Звітність", `/reports`, "insert_chart", `/reports`)];

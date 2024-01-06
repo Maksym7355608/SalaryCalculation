@@ -2,7 +2,7 @@ import {Component} from "react";
 import RestApiClient, {RestApiProps} from "./RestApiClient";
 import {IdNamePair} from "../../models/BaseModels";
 import {EmployeeWithSchedule} from "../../models/employees";
-import {EmpDay, PeriodCalendar} from "../../models/schedule";
+import {EmpDay, PeriodCalendar, RegimeModel} from "../../models/schedule";
 import {toPeriodString, toShortDateString} from "../actions";
 
 export default class ScheduleApiClient extends Component {
@@ -16,6 +16,11 @@ export default class ScheduleApiClient extends Component {
         if (token)
             settings.token = token as string;
         this.apiClient = new RestApiClient(settings);
+    }
+
+    async getRegimesAsync(organizationId: number) {
+        const response = await this.apiClient.getAsync(`/api/schedule/regime/by-organization/${organizationId}`)
+        return response.data as RegimeModel[];
     }
 
     async getRegimesShortAsync(organizationId: number) : Promise<IdNamePair[]> {

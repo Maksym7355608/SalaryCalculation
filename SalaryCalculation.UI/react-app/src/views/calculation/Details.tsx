@@ -6,7 +6,7 @@ import {Card, Col, Container, Row} from "react-bootstrap";
 import {PeriodCalendar} from "../../models/schedule";
 import {toShortDateString} from "../../store/actions";
 
-export function CalculationDetail() {
+export default function CalculationDetail() {
     const { id } = useParams();
     const restClient = new RestUnitOfWork();
 
