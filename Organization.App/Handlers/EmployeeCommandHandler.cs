@@ -90,7 +90,7 @@ public class EmployeeCommandHandler : BaseOrganizationCommandHandler, IEmployeeC
         
         var employee = new Employee()
         {
-            Id = (int)_collection.NewNumberId(),
+            Id = await Work.NextValue<Employee, int>(),
             RollNumber = command.RollNumber,
             Name = new Person()
             {

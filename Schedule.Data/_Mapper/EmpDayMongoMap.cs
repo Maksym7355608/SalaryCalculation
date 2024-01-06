@@ -1,4 +1,5 @@
-﻿using MongoDB.Bson.IO;
+﻿using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using Schedule.Data.BaseModels;
@@ -31,6 +32,12 @@ public class HoursDetailSerializer : SerializerBase<HoursDetail>
     {
         var bsonWriter = context.Writer;
 
+        if (value == null)
+        {
+            bsonWriter.WriteNull();
+            return;
+        }
+
         bsonWriter.WriteStartDocument();
         bsonWriter.WriteDecimal128("s", value.Summary); // Мапінг поля Summary на s
         bsonWriter.WriteDecimal128("d", value.Day); // Мапінг поля Day на d
@@ -43,6 +50,12 @@ public class HoursDetailSerializer : SerializerBase<HoursDetail>
     public override HoursDetail Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
     {
         var bsonReader = context.Reader;
+
+        if (bsonReader.GetCurrentBsonType() == BsonType.Null)
+        {
+            bsonReader.ReadNull();
+            return null;
+        }
 
         bsonReader.ReadStartDocument();
         var summary = bsonReader.ReadDecimal128("s"); // Мапінг поля Summary на s
@@ -62,6 +75,7 @@ public class HoursDetailSerializer : SerializerBase<HoursDetail>
         };
     }
 }
+
 
 /// <summary>
 /// Базовий інтерфейс профілю доменної моделі

@@ -89,7 +89,10 @@ export default function ScheduleSearch() {
             emp.schedule.forEach(s => {
                 row[s.day] = s.work;
             })
-            row['summary'] = emp.schedule.reduce((a, b) => a+parseFloat(b.work), 0);
+            row['summary'] = emp.schedule.reduce((a, b) => {
+                const p = parseFloat(b.work);
+                return a + (!isNaN(p) ? p : 0);
+            }, 0);
             row['actions'] = (
                 <div className='inline-flex'>
                     <Link to={`/schedule/${emp.id}/${emp.period}?handler=info`} className='btn btn-sm btn-light'><i className='material-icons small'>info</i></Link>

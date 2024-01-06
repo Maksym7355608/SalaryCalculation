@@ -13,6 +13,22 @@ public class WorkDayCreateCommand : BaseCommand
     public int OrganizationId { get; set; }
 }
 
+public class WorkDaysUpdateCommand : BaseCommand
+{
+    public int OrganizationId { get; set; }
+    public int EmployeeId { get; set; }
+    public IEnumerable<Hours> Hours { get; set; }
+}
+
+public class Hours
+{
+    public DateTime Date { get; set; }
+    public decimal Day { get; set; }
+    public decimal Evening { get; set; }
+    public decimal Night { get; set; }
+    public string Summary { get; set; }
+}
+
 public class WorkDaySearchCommand : BaseCommand
 {
     public int Period { get; set; }

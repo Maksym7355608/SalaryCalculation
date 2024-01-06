@@ -13,6 +13,7 @@ using SalaryCalculation.Shared.Extensions.PeriodExtensions;
 using Schedule.App.Abstract;
 using Schedule.App.Commands;
 using Schedule.App.Dto;
+using Schedule.App.Helpers;
 using Schedule.Data.BaseModels;
 using Schedule.Data.Data;
 using Schedule.Data.Entities;
@@ -70,7 +71,7 @@ public class ScheduleCommandHandler : BaseScheduleCommandHandler, IScheduleComma
         var newRegime = Mapper.Map<Regime>(command);
         if (Work.GetCollection<Regime>().Find(x => x.Code == newRegime.Code).Any())
             throw new DuplicateNameException("Regime with the same code exist");
-        newRegime.Id = (int)_regimeCollection.NewNumberId();
+        newRegime.Id = await Work.NextValue<Regime, int>();
         await _regimeCollection
             .InsertOneAsync(newRegime);
         return true;
@@ -261,33 +262,49 @@ public class ScheduleCommandHandler : BaseScheduleCommandHandler, IScheduleComma
         {
             EmployeeId = employeeId,
             Date = x.Date.ToShortUADateString(),
-            Day = x.Hours.Day,
-            Evening = x.Hours.Evening,
-            Night = x.Hours.Night,
+            Day = x.Hours?.Day,
+            Evening = x.Hours?.Evening,
+            Night = x.Hours?.Night,
             Summary = x.DayType == (int)EDayType.Work
-                ? x.Hours.Summary.ToString()
+                ? x.Hours?.Summary.ToString()
                 : ((EDayType)x.DayType).GetDescription(),
         });
         return dto;
     }
 
-    public async Task<bool> SetWorkDayAsync(WorkDayCreateCommand command)
+    public async Task<bool> SetWorkDayAsync(WorkDaysUpdateCommand command)
     {
-        var empDay = Mapper.Map<EmpDay>(command);
-        var isExist = await _dayCollection
-            .ReplaceOneAsync(x => x.EmployeeId == command.EmployeeId && x.OrganizationId == command.OrganizationId &&
-                                 x.Date == command.Date, empDay);
-        if (isExist.ModifiedCount == 0)
+        var holidays = await RegimeHelper.LoadHolidaysAsync(command.Hours.First().Date.Year);
+        var dates = command.Hours.First().Date.ToPeriod().ToDateTime();
+        await Work.GetCollection<EmpDay>().DeleteManyAsync(x => x.EmployeeId == command.EmployeeId
+                                                                && x.OrganizationId == command.OrganizationId &&
+                                                                x.Date >= dates && x.Date < dates.AddMonths(1));
+        var id = await Work.NextValue<EmpDay, long>(command.Hours.Count());
+        var empDays = command.Hours.Select(h => new EmpDay()
         {
-            empDay.Id = _dayCollection.NewNumberId();
-            await _dayCollection.InsertOneAsync(empDay);
-            return true;
-        }
-
-        return isExist.ModifiedCount > 0;
+            Id = id--,
+            OrganizationId = command.OrganizationId,
+            EmployeeId = command.EmployeeId,
+            Date = h.Date.AddHours(3),
+            DayType = h.Summary == EDayType.Vacation.GetDescription() ? (int)EDayType.Vacation :
+                h.Summary == EDayType.Sick.GetDescription() ? (int)EDayType.Sick : holidays.Contains(h.Date) 
+                    ? (int)EDayType.Holiday : (int)EDayType.Work,
+            Hours = h.Summary == "V" || h.Summary == "L"
+                ? null
+                : new HoursDetail
+                {
+                    Summary = decimal.Parse(h.Summary),
+                    Day = h.Day,
+                    Evening = h.Evening,
+                    Night = h.Night,
+                    Holiday = holidays.Contains(h.Date)
+                }
+        }).ToArray();
+        await Work.GetCollection<EmpDay>().InsertManyAsync(empDays);
+        return true;
     }
     
-    public async Task<bool> CalculatePeriodCalendarAsync(int employeeId, int period, int regimeId)
+    public async Task<bool> CalculatePeriodCalendarAsync(int employeeId, int period)
     {
         var dateFrom = period.ToDateTime();
         var dateTo = dateFrom.AddMonths(1);
@@ -296,6 +313,11 @@ public class ScheduleCommandHandler : BaseScheduleCommandHandler, IScheduleComma
         var empDays = await Work.GetCollection<EmpDay>()
             .Find(filter)
             .ToListAsync();
+
+        var regimeId = await _organizationUnitOfWork.GetCollection<Employee>()
+            .Find(x => x.Id == employeeId)
+            .Project(x => x.RegimeId)
+            .FirstAsync();
 
         var calendar = CreateCalendar(empDays, period, regimeId);
 
@@ -392,16 +414,17 @@ public class ScheduleCommandHandler : BaseScheduleCommandHandler, IScheduleComma
     {
         empDays = empDays.Where(x => x.Date >= period.ToDateTime() && x.Date < period.ToDateTime().AddMonths(1))
             .ToArray();
-        var holidayHours = empDays.Where(x => x.Hours.Holiday).Select(x => x.Hours).ToArray();
+        var workDays = empDays.Where(x => x.Hours != null).ToArray();
+        var holidayHours = workDays.Where(x => x.Hours?.Holiday ?? false).Select(x => x.Hours).ToArray();
         return new PeriodCalendar()
         {
             EmployeeId = empDays.First().EmployeeId,
             Hours = new HoursDetails()
             {
-                Summary = empDays.Sum(x => x.Hours.Summary),
-                Day = empDays.Sum(x => x.Hours.Day),
-                Evening = empDays.Sum(x => x.Hours.Evening),
-                Night = empDays.Sum(x => x.Hours.Night),
+                Summary = workDays.Sum(x => x.Hours?.Summary ?? 0),
+                Day = workDays.Sum(x => x.Hours.Day),
+                Evening = workDays.Sum(x => x.Hours.Evening),
+                Night = workDays.Sum(x => x.Hours.Night),
                 HolidaySummary = holidayHours.Sum(x => x.Summary),
                 HolidayDay = holidayHours.Sum(x => x.Day),
                 HolidayNight = holidayHours.Sum(x => x.Night),

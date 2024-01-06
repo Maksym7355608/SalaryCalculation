@@ -64,4 +64,14 @@ export default class ScheduleApiClient extends Component {
         const response = await this.apiClient.postAsync('/api/schedule/calendar/calculate/day/mass', data);
         return response.isSuccess;
     }
+
+    async updateWorkDaysAsync(cmd: any) {
+        const response = await this.apiClient.postAsync('/api/schedule/calendar/day/set', cmd);
+        return response.isSuccess;
+    }
+
+    async calculatePeriodCalendarAsync(period: number, employeeId: number) {
+        const response = await this.apiClient.getAsync(`/api/schedule/calendar/calculate/period/${period}/employee/${employeeId}`);
+        return response.isSuccess;
+    }
 }

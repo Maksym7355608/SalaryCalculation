@@ -121,7 +121,7 @@ public class ScheduleController : BaseScheduleController
     }
 
     [HttpPost("calendar/day/set")]
-    public async Task<IActionResult> SetEmpDayAsync([FromBody] WorkDayCreateCommand command)
+    public async Task<IActionResult> SetEmpDayAsync([FromBody] WorkDaysUpdateCommand command)
     {
         var day = await ScheduleCommandHandler.SetWorkDayAsync(command);
         return GetAjaxResponse(IsValid && day, Errors);
@@ -130,12 +130,11 @@ public class ScheduleController : BaseScheduleController
 
     #region Calculation
 
-    [HttpGet("calendar/calculate/period/{period}/by-regime/{regimeId}/employee/{empId}")]
-    public async Task<IActionResult> CalculatePeriodCalendarAsync([FromRoute] int period, [FromRoute] int regimeId,
-        [FromRoute] int empId)
+    [HttpGet("calendar/calculate/period/{period}/employee/{empId}")]
+    public async Task<IActionResult> CalculatePeriodCalendarAsync([FromRoute] int period, [FromRoute] int empId)
     {
         using var op = Operation.Begin("Calculating period calendar is started");
-        var isCalc = await ScheduleCommandHandler.CalculatePeriodCalendarAsync(empId, period, regimeId);
+        var isCalc = await ScheduleCommandHandler.CalculatePeriodCalendarAsync(empId, period);
         op.Complete();
         return GetAjaxResponse(IsValid && isCalc, Errors);
     }

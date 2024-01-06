@@ -44,7 +44,7 @@ public class ScheduleMessageHandler : BaseMessageHandler<DaysSettingMessage>
     {
         var autoEmpDays = new List<EmpDay>();
         var holidays = await RegimeHelper.LoadHolidaysAsync(msg.DateFrom.Year);
-        var empDaysId = Work.GetCollection<EmpDay>().NewNumberId();
+        var empDaysId = await Work.NextValue<EmpDay, int>();;
 
         await Parallel.ForEachAsync(calculationRegimes, async (regime, token) =>
         {
