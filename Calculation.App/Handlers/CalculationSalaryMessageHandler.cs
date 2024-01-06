@@ -70,12 +70,12 @@ public class CalculationSalaryMessageHandler : BaseMessageHandler<CalculationSal
         int employeeId, int period)
     {
         await Work.GetCollection<Operation>().DeleteManyAsync(x => x.EmployeeId == employeeId && x.Period == period);
-        var lastId = await Work.NextValue<Operation, long>();
         var operations = new List<Operation>();
         operations.AddRange(accrualOperations);
         operations.AddRange(maintenanceOperations);
+        var lastId = await Work.NextValue<Operation, long>(operations.Count);
         
-        operations.ForEach(op => op.Id = lastId++);
+        operations.ForEach(op => op.Id = lastId--);
         await Work.GetCollection<Operation>().InsertManyAsync(operations);
         return operations;
     }
@@ -158,9 +158,10 @@ public class CalculationSalaryMessageHandler : BaseMessageHandler<CalculationSal
         var rightOperand = parts[1].Trim();
     
         var leftOperandExists = values.TryGetValue(leftOperand, out var leftValue);
+        if (!leftOperandExists && !decimal.TryParse(leftOperand, out leftValue))
+            return false;
         var rightOperandExists = values.TryGetValue(rightOperand, out var rightValue);
-    
-        if (!leftOperandExists || !rightOperandExists)
+        if (!rightOperandExists && !decimal.TryParse(rightOperand, out rightValue))
             return false;
     
         switch (comparisonOperator)
@@ -320,7 +321,7 @@ public class CalculationSalaryMessageHandler : BaseMessageHandler<CalculationSal
             new("WD", calendar.WorkDays),
             new("SickL", calendar.SickLeave),
             new("VacL", calendar.VacationDays),
-            new("Period", calendar.Period),
+            new("Period", calendar.Period%100),
             new("TotH", hour.Summary),
             new("TotDH", hour.Day),
             new("TotEH", hour.Evening),
