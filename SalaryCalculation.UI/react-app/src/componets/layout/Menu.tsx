@@ -1,17 +1,23 @@
 import {UserModel} from "../../models/BaseModels";
 import React, {ReactElement, useState} from "react";
-import OrganizationSettings from "../../views/organization/OrganizationSettings";
 import {NavLink} from "react-router-dom";
+import {EPermission} from "../../models/Enums";
+import { Nav, Row } from "react-bootstrap";
+import OrganizationSettings from "../../views/organization/OrganizationSettings";
 import Home from "../../views/home/Home";
 import OrganizationPermissions from "../../views/organization/OrganizationPermissions";
-import {Organization} from "../../views/organization/Organization";
+import Organization from "../../views/organization/Organization";
 import Employee from "../../views/employees/Employee";
-import {EPermission} from "../../models/Enums";
 import ScheduleSearch from "../../views/schedule/Search";
 import Schedule from "../../views/schedule/Schedule";
-import { Nav } from "react-bootstrap";
-import {Regime} from "../../views/schedule/Regime";
+import Regime from "../../views/schedule/Regime";
 import CalculationSearch from "../../views/calculation/Search";
+import CalculationDetail from "../../views/calculation/Details";
+import OperationsData from "../../views/dictionary/Operations";
+import BaseAmounts from "../../views/dictionary/BaseAmounts";
+import Formulas from "../../views/dictionary/Formulas";
+import IndexFormula from "../../views/dictionary/IndexFormula";
+import {Regimes} from "../../views/dictionary/Regimes";
 
 interface MenuItem{
     id: number | string;
@@ -20,7 +26,7 @@ interface MenuItem{
     icon?: string;
     link?: string;
     ref: string;
-    parentId: number | undefined;
+    parentId?: number | string;
 }
 
 const user = JSON.parse(localStorage.getItem('user') as string) as UserModel;
@@ -47,21 +53,25 @@ export function Menu() {
                 <label onClick={() => condition ? setOpen(item.id) : setOpen(undefined)} className="menu-item">
                     <i className="material-icons">{item.icon}</i> {item.text} <span className="material-icons">{condition ? "expand_more" : "expand_less"}</span>
                 </label>
-                <Nav hidden={condition} className='bg-blue-900'>
-                    <Nav.Item className='mt-1'>
-                        <NavLink to={item.link} className="menu-item-child">
-                            <i className="material-icons small">{item.icon}</i> {item.text}
-                        </NavLink>
-                    </Nav.Item>
-                        {
-                            children.map(ch => ch.link && (
+                <Nav variant="pills" hidden={condition} className='flex-column bg-blue-900'>
+                    <Row>
+                        <Nav.Item className='mt-1'>
+                            <NavLink to={item.link} className="menu-item-child">
+                                <i className="material-icons small">{item.icon}</i> {item.text}
+                            </NavLink>
+                        </Nav.Item>
+                    </Row>
+                    {
+                        children.map(ch => ch.link && (
+                            <Row>
                                 <Nav.Item className='mt-1'>
                                     <NavLink to={ch.link} className="menu-item-child">
                                         <i className="material-icons small">{ch.icon}</i> {ch.text}
                                     </NavLink>
                                 </Nav.Item>
-                            ))
-                        }
+                            </Row>
+                        ))
+                    }
 
                 </Nav>
             </Nav.Item>
@@ -94,7 +104,7 @@ export function InitMenu() : MenuItem[] {
     const permissions = user?.permissions ?? [];
     let items : MenuItem[] = [];
 
-    const getItem = (id: number | string, page: ReactElement, text: string, ref: string, icon?: string, link?: string, parentId?: number) : MenuItem =>  {
+    const getItem = (id: number | string, page: ReactElement, text: string, ref: string, icon?: string, link?: string, parentId?: number | string) : MenuItem =>  {
         return {
             id: id,
             page: page,
@@ -132,10 +142,19 @@ export function InitMenu() : MenuItem[] {
                 ];
                 break;
             case EPermission.viewCalculation :
-                item = [getItem(permission, <CalculationSearch/>,"Розрахунок", `/calculation/search`, "calculate", `/calculation/search`)];
+                item = [
+                    getItem(permission, <CalculationSearch/>,"Розрахунок", `/calculation/search`, "calculate", `/calculation/search`),
+                    getItem('calc-details', <CalculationDetail/>, "Деталізація розрахунку", '/calculation/details/:id')
+                ];
                 break;
             case EPermission.viewDictionary :
-                item = [getItem(permission, <OrganizationSettings/>,"Довідник", `/dictionary`, "feed", `/dictionary`)];
+                item = [
+                    getItem('operationData', <OperationsData/>,"Довідник", `/dictionary/operations`, "feed", `/dictionary/operations`),
+                    getItem('baseAmounts', <BaseAmounts/>, "Базові суми", `/dictionary/base-amounts`, 'foundation', `/dictionary/base-amounts`, 'operationData'),
+                    getItem('formulas', <Formulas/>, "Формули", `/dictionary/formulas`, 'functions', `/dictionary/formulas`, 'operationData'),
+                    getItem('regimes', <Regimes/>, "Режими", `/dictionary/regimes`, 'schedule', `/dictionary/regimes`, 'operationData'),
+                    getItem('formula', <IndexFormula/>, "Управління Формулами", `/dictionary/formula/:id`),
+                ];
                 break;
             case EPermission.createDocuments :
                 item = [getItem(permission, <OrganizationSettings/>,"Звітність", `/reports`, "insert_chart", `/reports`)];

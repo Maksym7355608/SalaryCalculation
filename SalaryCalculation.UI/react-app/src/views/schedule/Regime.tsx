@@ -4,7 +4,7 @@ import {RegimeModel, WorkDetail} from "../../models/schedule";
 import {Button, Col, Container, Form, Row} from "react-bootstrap";
 import {useState} from "react";
 
-export function Regime() {
+export default function Regime() {
     const {id} = useParams();
     const {register, control, handleSubmit} = useForm<RegimeModel>();
     const [holiday, setHoliday] = useState<boolean>(true);

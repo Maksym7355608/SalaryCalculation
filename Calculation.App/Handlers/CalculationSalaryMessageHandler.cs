@@ -62,7 +62,7 @@ public class CalculationSalaryMessageHandler : BaseMessageHandler<CalculationSal
         result.PayedAmount = result.AccrualAmount - result.MaintenanceAmount;
         result.AccrualDetails = operations.Where(x => x.Sign == 1).Select(x => x.Id);
         result.MaintenanceDetails = operations.Where(x => x.Sign == -1).Select(x => x.Id);
-        result.Id = (int)Work.GetCollection<PaymentCard>().NewNumberId();
+        result.Id = await Work.NextValue<PaymentCard, int>();
         return result;
     }
 
@@ -70,7 +70,7 @@ public class CalculationSalaryMessageHandler : BaseMessageHandler<CalculationSal
         int employeeId, int period)
     {
         await Work.GetCollection<Operation>().DeleteManyAsync(x => x.EmployeeId == employeeId && x.Period == period);
-        var lastId = Work.GetCollection<Operation>().NewNumberId();
+        var lastId = await Work.NextValue<Operation, long>();
         var operations = new List<Operation>();
         operations.AddRange(accrualOperations);
         operations.AddRange(maintenanceOperations);

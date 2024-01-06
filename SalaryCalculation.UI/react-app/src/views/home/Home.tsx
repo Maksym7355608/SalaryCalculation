@@ -86,7 +86,7 @@ export default function Home() {
     ];
     return (
         <div className="container-fluid">
-            <form className="form-search pt-1 pb-1" onSubmit={handleSubmit(onSubmit)}>
+            <form className="form-search pt-1 pb-2 pe-2" onSubmit={handleSubmit(onSubmit)}>
                 <div className="row w-100 ps-4">
                     <div className="col-4">
                         <label className="form-label" htmlFor="roll-number">

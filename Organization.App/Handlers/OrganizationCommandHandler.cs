@@ -104,7 +104,7 @@ public class OrganizationCommandHandler : BaseOrganizationCommandHandler, IOrgan
     {
         var organization = new Org()
         {
-            Id = (int)_orgCollection.NewNumberId(),
+            Id = await Work.NextValue<Org, int>(),
             Code = command.Code,
             Name = command.Name,
             Address = command.Address,
@@ -202,7 +202,7 @@ public class OrganizationCommandHandler : BaseOrganizationCommandHandler, IOrgan
     public async Task CreateOrganizationUnitAsync(OrganizationUnitCreateCommand command)
     {
         var organizationUnit = Mapper.Map<OrganizationUnit>(command);
-        organizationUnit.Id = (int)_unitCollection.NewNumberId();
+        organizationUnit.Id = await Work.NextValue<OrganizationUnit, int>();
         if (_unitCollection.Find(x => x.Name == organizationUnit.Name).Any())
             throw new DuplicateNameException("Organization unit with the same name exist");
         await Work.GetCollection<OrganizationUnit>(nameof(OrganizationUnit))
@@ -239,7 +239,7 @@ public class OrganizationCommandHandler : BaseOrganizationCommandHandler, IOrgan
     public async Task CreatePositionAsync(PositionCreateCommand command)
     {
         var position = Mapper.Map<Position>(command);
-        position.Id = (int)_posCollection.NewNumberId();
+        position.Id = await Work.NextValue<Position, int>();
         if (_posCollection.Find(x => x.Name == position.Name)
             .Any())
             throw new DuplicateNameException("Position with the same name exist");

@@ -2,14 +2,17 @@ import React, {useEffect, useState} from "react";
 import {SubmitHandler, useForm} from "react-hook-form";
 import {PaymentCard} from "../../models/calculation";
 import {PaymentCardSearchCommand} from "../../models/commands/CalculationCommand";
-import {toPeriod, user} from "../../store/actions";
+import {handleError, toPeriod, user} from "../../store/actions";
 import RestUnitOfWork from "../../store/rest/RestUnitOfWork";
 import {IdNamePair} from "../../models/BaseModels";
-import {Container, Form, Row} from "react-bootstrap";
+import {Button, Container, Form, Row} from "react-bootstrap";
 import SelectList from "../../componets/helpers/SelectList";
 import {Calendar} from "primereact/calendar";
 import { Icon } from "../../componets/helpers/Icon";
 import CustomDataTable from "../../componets/helpers/CustomDataTable";
+import { Link } from "react-router-dom";
+import {CustomModalDialog} from "../../componets/helpers/CustomModalDialog";
+import {DeletePaymentCardModal} from "../../componets/calculation/DeletePaymentCardModal";
 
 export default function CalculationSearch() {
     const [model, setModel] = useState<PaymentCard[]>([]);
@@ -20,6 +23,8 @@ export default function CalculationSearch() {
     const [selectedUnit, setUnit] = useState<number>();
     const [positions, setPositions] = useState<IdNamePair[]>([]);
     const [selectedPos, setPos] = useState<number>();
+    const [show, setShow] = useState(false);
+    const [selected, setSelected] = useState<number>();
 
     const restClient = new RestUnitOfWork();
 
@@ -41,6 +46,22 @@ export default function CalculationSearch() {
         })
     }
 
+    const createRows = () => {
+        return model.map(m => {
+            let row = m as any;
+            row['actions'] = (
+                <div>
+                    <Link to={`/calculation/details/${m.id}`} className='btn btn-sm btn-light'><Icon name='info' small/></Link>
+                    <Button type='button' variant='light' size='sm' onClick={() => {
+                        setShow(true);
+                        setSelected(m.id);
+                    }}><Icon name='close' small/></Button>
+                </div>
+            )
+            return row;
+        })
+    }
+
     const columnDefs = [
         {field: 'employee.name', text: 'ПІБ'},
         {field: 'calculationPeriod', text: 'Період'},
@@ -48,10 +69,11 @@ export default function CalculationSearch() {
         {field: 'payedAmount', text: 'На руки'},
         {field: 'accrualAmount', text: 'Нараховано'},
         {field: 'maintenanceAmount', text: 'Утримано'},
+        {field: 'actions', text: '', sortable: false}
     ];
     return (
         <Container fluid>
-            <Form onSubmit={handleSubmit(submitHandler)} className="form-search pt-1 pb-1">
+            <Form onSubmit={handleSubmit(submitHandler)} className="form-search pt-1 pb-2 pe-2">
                 <Row className='w-100 ps-4'>
                     <Form.Group className='col'>
                         <Form.Label>Табельний номер</Form.Label>
@@ -88,8 +110,10 @@ export default function CalculationSearch() {
             </Form>
 
             <div className="mt-3 mb-3">
-                <CustomDataTable columns={columnDefs} rows={model}/>
+                <CustomDataTable columns={columnDefs} rows={createRows()}/>
             </div>
+
+            <DeletePaymentCardModal id={selected} show={show} setShow={setShow}/>
         </Container>
     );
 }

@@ -4,6 +4,7 @@ namespace Dictionary.App.Commands;
 
 public class FormulasSearchCommand : BaseCommand
 {
+    public string? Id { get; set; }
     public int OrganizationId { get; set; }
     public string? Name { get; set; }
     public string? ExpressionName { get; set; }

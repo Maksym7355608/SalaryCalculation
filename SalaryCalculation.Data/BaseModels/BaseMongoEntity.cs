@@ -10,6 +10,14 @@ public abstract class BaseMongoDomainModel
     public int Version { get; set; }
 }
 
+public class Sequnce<T> : BaseMongoDomainModel where T : struct
+{
+    public T Value { get; set; }
+
+    [BsonId]
+    public string Name { get; set; }
+}
+
 public class BaseMongoEntity<T> : BaseMongoDomainModel
 {
     [BsonId]

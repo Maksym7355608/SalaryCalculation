@@ -11,4 +11,5 @@ public class OperationDto
     public int Period { get; set; }
     public int EmployeeId { get; set; }
     public int OrganizationId { get; set; }
+    public short Sign { get; set; }
 }

@@ -2,32 +2,46 @@
 using AutoMapper;
 using Dictionary.App.Abstract;
 using Dictionary.App.Commands;
+using Dictionary.App.Dto;
 using Dictionary.Models;
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using Organization.Data.Enums;
 using SalaryCalculation.Data;
 using SalaryCalculation.Data.BaseHandlers;
 using SalaryCalculation.Shared.Common.Validation;
+using SalaryCalculation.Shared.Extensions.EnumExtensions;
 
 namespace Dictionary.App.CommandHandlers;
 
 public class DictionaryCommandHandler : BaseCommandHandler, IDictionaryCommandHandler
 {
+    private readonly string[] _baseExpressionNames = new[]
+    {
+        "S", "AvgS", "SumH", "DH", "EH", "NH", "HolH", "HolDH", "HolEH", "HolNH", "WD", "SickL",
+        "VacL", "Period", "TotH", "TotDH", "TotEH", "TotNH", "TotHolH", "TotHolDH", "TotHolEH",
+        "TotHolNH"
+    }.Concat(EnumExtensions.ForEach<EBenefit>().Select(x => x.ToString())).ToArray();
+
+    private readonly string[] _operators = new[]
+    {
+        ">", "<", "=", "!", "and", "or", "%", "+", "-", "*", "/", "(", ")", "sqrt", "^"
+    };
     public DictionaryCommandHandler(IUnitOfWork work, ILogger<BaseCommandHandler> logger, IMapper mapper) : base(work, logger, mapper)
     {
     }
 
 
-    public Task<List<BaseAmount>> SearchBaseAmounts(BaseAmountsSearchCommand command)
+    public async Task<List<BaseAmountDto>> SearchBaseAmounts(BaseAmountsSearchCommand command)
     {
         var filter = GetBaseAmountSearchFilter(command);
 
-        var result = Work.GetCollection<BaseAmount>()
+        var result = await Work.GetCollection<BaseAmount>()
             .Find(filter)
             .ToListAsync();
 
-        return result;
+        return Mapper.Map<List<BaseAmountDto>>(result);
     }
 
     private FilterDefinition<BaseAmount> GetBaseAmountSearchFilter(BaseAmountsSearchCommand command)
@@ -39,19 +53,33 @@ public class DictionaryCommandHandler : BaseCommandHandler, IDictionaryCommandHa
             definition.Add(builder.Regex(x => x.Name, new BsonRegularExpression(command.Name, "i")));
         if(!string.IsNullOrWhiteSpace(command.ExpressionName))
             definition.Add(builder.Regex(x => x.ExpressionName, new BsonRegularExpression(command.ExpressionName, "i")));
+        if (command.DateFrom.HasValue)
+            definition.AddRange(new[]
+            {
+                builder.Gte(x => x.DateFrom, command.DateFrom.Value),
+                builder.Or(builder.Gte(x => x.DateTo, command.DateFrom.Value),
+                    builder.Eq(x => x.DateTo, null))
+            });
+        if (command.DateTo.HasValue)
+            definition.AddRange(new[]
+            {
+                builder.Lte(x => x.DateFrom, command.DateTo.Value),
+                builder.Or(builder.Lte(x => x.DateTo, command.DateTo.Value),
+                    builder.Eq(x => x.DateTo, null))
+            });
         
         return definition.Count > 0 ? builder.And(definition) : builder.Empty;
     }
 
-    public Task<List<FinanceData>> SearchFinanceData(FinanceDataSearchCommand command)
+    public async Task<List<FinanceDataDto>> SearchFinanceData(FinanceDataSearchCommand command)
     {
         var filter = GetFinanceDataSearchFilter(command);
 
-        var result = Work.GetCollection<FinanceData>()
+        var result = await Work.GetCollection<FinanceData>()
             .Find(filter)
             .ToListAsync();
 
-        return result;
+        return Mapper.Map<List<FinanceDataDto>>(result);
     }
     
     private FilterDefinition<FinanceData> GetFinanceDataSearchFilter(FinanceDataSearchCommand command)
@@ -64,33 +92,35 @@ public class DictionaryCommandHandler : BaseCommandHandler, IDictionaryCommandHa
 
         if(!string.IsNullOrWhiteSpace(command.Name))
             definition.Add(builder.Regex(x => x.Name, new BsonRegularExpression(command.Name, "i")));
-        if(command.Codes.Any())
+        if(command.Codes != null && command.Codes.Any())
             definition.Add(builder.In(x => x.Code, command.Codes));
         
         
         return builder.And(definition);
     }
 
-    public Task<List<Formula>> SearchFormulas(FormulasSearchCommand command)
+    public async Task<List<FormulaDto>> SearchFormulas(FormulasSearchCommand command)
     {
         var filter = GetFormulaSearchFilter(command);
 
-        var result = Work.GetCollection<Formula>()
+        var result = await Work.GetCollection<Formula>()
             .Find(filter)
             .ToListAsync();
 
-        return result;
+        return Mapper.Map<List<FormulaDto>>(result);
     }
     
     private FilterDefinition<Formula> GetFormulaSearchFilter(FormulasSearchCommand command)
     {
         var builder = Builders<Formula>.Filter;
+        if (!string.IsNullOrWhiteSpace(command.Id))
+            return builder.Eq(x => x.Id, new ObjectId(command.Id));
         var definition = new List<FilterDefinition<Formula>>()
         {
             builder.Eq(x => x.OrganizationId, command.OrganizationId),
             builder.Gte(x => x.DateFrom, command.DateFrom)
         };
-
+        
         if(!string.IsNullOrWhiteSpace(command.Name))
             definition.Add(builder.Regex(x => x.Name, new BsonRegularExpression(command.Name, "i")));
         if(!string.IsNullOrWhiteSpace(command.ExpressionName))
@@ -137,10 +167,37 @@ public class DictionaryCommandHandler : BaseCommandHandler, IDictionaryCommandHa
             .AnyAsync();
         if (existingItem)
             throw new DuplicateNameException();
+        var formulas = await Work.GetCollection<Formula>()
+            .Find(x => x.OrganizationId == command.OrganizationId)
+            .Project(x => x.ExpressionName)
+            .ToListAsync();
+        IsConditionValid(command.Condition);
+        IsExpressionValid(command.Expression, formulas);
 
         var item = Mapper.Map<Formula>(command);
         await Work.GetCollection<Formula>().InsertOneAsync(item);
         return true;
+    }
+
+    private void IsConditionValid(string? condition)
+    {
+        if(string.IsNullOrWhiteSpace(condition))
+            return;
+        var split = condition.Trim().Split(_operators, StringSplitOptions.None);
+        var incorrectValues = split.Where(x => !_baseExpressionNames.Contains(x) && !x.All(c => char.IsDigit(c) || c == '.'));
+        if (incorrectValues.Any())
+            throw new Exception($"Incorrect condition members: {string.Join(", ", incorrectValues)}");
+    }
+    
+    private void IsExpressionValid(string expression, List<string> formulas)
+    {
+        if(string.IsNullOrWhiteSpace(expression))
+            throw new Exception("Expression is empty");
+        var split = expression.Trim().Split(_operators, StringSplitOptions.None);
+        var incorrectValues = split.Where(x => !_baseExpressionNames.Contains(x) && !x.All(c => char.IsDigit(c) || c == '.')
+            && !formulas.Contains(x));
+        if (incorrectValues.Any())
+            throw new Exception($"Incorrect expression members: {string.Join(", ", incorrectValues)}");
     }
 
     public async Task<bool> UpdateBaseAmount(ObjectId id, BaseAmountCreateCommand command)

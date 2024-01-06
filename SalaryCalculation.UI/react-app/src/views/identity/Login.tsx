@@ -1,5 +1,5 @@
 import {Link, useNavigate} from "react-router-dom";
-import { useForm, SubmitHandler } from "react-hook-form"
+import { useForm, SubmitHandler } from "react-hook-form";
 import {useDispatch} from "react-redux";
 import {get_user} from "../../store/actions/userActions";
 import {LoginForm} from "../../models/identity/identity";
@@ -15,11 +15,11 @@ export default function Login() {
         formState: { errors },
     } = useForm<LoginForm>()
 
-    const onSubmit: SubmitHandler<LoginForm> = (data) => logIn(data).then(res => {
+    const onSubmit: SubmitHandler<LoginForm> = (data) => logIn(data).then((res) => {
         const userModel = res;
         dispatch(get_user(userModel))
         localStorage.setItem("user", JSON.stringify(userModel));
-        login(userModel.token);
+        localStorage.setItem("token", userModel.token);
         navigate('/');
     });
 

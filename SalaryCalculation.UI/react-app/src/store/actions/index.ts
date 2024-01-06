@@ -56,7 +56,7 @@ export function toPeriodString(date?: Date) {
 }
 
 export function toPeriod(date?: Date) {
-    return parseInt(toPeriodString(date)?.replace('-', '') ?? "0")
+    return parseInt(toPeriodString(date)?.replace('-', '') ?? '')
 }
 
 export function getDaysByMonth(month: number, isLeap?: boolean) : string[] {
@@ -96,7 +96,7 @@ export const nextPeriod = (period: number) => {
     if (month < 12)
         return ++period;
     else
-        return (period / 100 + 1) * 100 + 1;
+        return Math.round(period / 100 + 1) * 100 + 1;
 }
 
 export const previousPeriod = (period: number) => {
@@ -104,7 +104,7 @@ export const previousPeriod = (period: number) => {
     if (month > 1)
         return --period;
     else
-        return (period / 100 - 1) * 100 + 12;
+        return Math.round(period / 100 - 1) * 100 + 12;
 }
 
 export const monthDict = [

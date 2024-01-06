@@ -21,9 +21,9 @@ public interface IScheduleCommandHandler
 
     Task<IEnumerable<EmployeeScheduleDto>> GetWorkDaysAsync(WorkDaySearchCommand command);
     Task<IEnumerable<EmpDayDto>> GetEmpDaysByEmployeeAsync(int employeeId, int period);
-    Task<bool> SetWorkDayAsync(WorkDayCreateCommand command);
+    Task<bool> SetWorkDayAsync(WorkDaysUpdateCommand command);
     
-    Task<bool> CalculatePeriodCalendarAsync(int employeeId, int period, int regimeId);
+    Task<bool> CalculatePeriodCalendarAsync(int employeeId, int period);
     Task MassCalculatePeriodCalendarAsync(PeriodCalendarMassCalculateCommand command);
     Task QuickSettingDaysAsync(DaysSettingMessage msg);
     Task<IEnumerable<IdNamePair>> GetRegimesShortAsync(int organizationId);
