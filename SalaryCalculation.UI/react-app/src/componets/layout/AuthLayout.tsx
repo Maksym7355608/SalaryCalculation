@@ -6,7 +6,7 @@ export const AuthLayout : React.FC<LayoutProps> = ({title, children}) => {
     const navigate = useNavigate();
     if(localStorage.getItem("token"))
     {
-        navigate("/search");
+        navigate("/");
         return null;
     }
     document.title = title;

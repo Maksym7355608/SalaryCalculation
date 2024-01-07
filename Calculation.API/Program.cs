@@ -48,6 +48,7 @@ builder.Services.AddAutoMapper(typeof(CalculationAutoMapperProfile));
 builder.Services.AddCommandHandlers();
 
 builder.Services.AddBusBackgroundService<CalculationSalaryMessage, CalculationSalaryMessageHandler>();
+builder.Services.AddBusBackgroundService<MassCalculationMessage, MassCalculationSalaryMessageHandler>();
 
 var app = builder.Build();
 

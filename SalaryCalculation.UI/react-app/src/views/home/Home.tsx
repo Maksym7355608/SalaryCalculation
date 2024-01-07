@@ -95,6 +95,7 @@ export default function Home() {
                         <input {...register('rollNumber', {pattern: /^[0-9]+$/i })}
                                type="text" id="roll-number" className="form-control" placeholder="Введіть табельний номер"/>
                         <span id="roll-number-validation" className="text-danger"></span>
+                        {errors.rollNumber && <span className='text-danger'>невірно введені дані</span>}
                     </div>
                     <div className="col-4">
                         <label className="form-label" htmlFor="position">
@@ -107,6 +108,7 @@ export default function Home() {
                             Оклад з
                         </label>
                         <input {...register('salaryFrom', {min: 0, pattern: /^[0-9]+$/i})} type="text" id="salary-from" className="form-control" placeholder="Введіть оклад з"/>
+                        {errors.salaryFrom && <span className='text-danger'>невірно введені дані</span>}
                     </div>
                 </div>
                 <div className="row w-100 mt-1 ps-4">
@@ -127,6 +129,7 @@ export default function Home() {
                             Оклад по
                         </label>
                         <input {...register('salaryTo', {min: 0, pattern: /^[0-9]+$/i})} type="text" id="salary-to" className="form-control" placeholder="Введіть оклад по"/>
+                        {errors.salaryTo && <span className='text-danger'>невірно введені дані</span>}
                     </div>
                 </div>
 

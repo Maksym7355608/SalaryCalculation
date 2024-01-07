@@ -134,4 +134,15 @@ public class PaymentCardCommandHandler : BaseCalculationCommandHandler, IPayment
             throw new InvalidOperationException("Payment card was no delete");
         return true;
     }
+
+    public async Task<string> MassCalculatePaymentCardAsync(MassCalculationMessage message)
+    {
+        var progress = new ProgressCreateMessage()
+        {
+            ProgressId = Guid.NewGuid().ToString(),
+        };
+        //await Work.MessageBroker.PublishAsync(progress);
+        await Work.MessageBroker.PublishAsync(message);
+        return progress.ProgressId;
+    }
 }

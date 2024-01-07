@@ -74,4 +74,9 @@ export default class ScheduleApiClient extends Component {
         const response = await this.apiClient.getAsync(`/api/schedule/calendar/calculate/period/${period}/employee/${employeeId}`);
         return response.isSuccess;
     }
+
+    async massCalculationPeriodCalendarAsync(cmd: any) {
+        const response = await this.apiClient.postAsync(`/api/schedule/calendar/calculate/period/mass`, cmd);
+        return response.isSuccess;
+    }
 }

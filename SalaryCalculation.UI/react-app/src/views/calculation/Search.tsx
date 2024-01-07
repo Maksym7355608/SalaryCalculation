@@ -13,10 +13,11 @@ import CustomDataTable from "../../componets/helpers/CustomDataTable";
 import { Link } from "react-router-dom";
 import {CustomModalDialog} from "../../componets/helpers/CustomModalDialog";
 import {DeletePaymentCardModal} from "../../componets/calculation/DeletePaymentCardModal";
+import MassCalculationModal from "../../componets/calculation/MassCalculationModal";
 
 export default function CalculationSearch() {
     const [model, setModel] = useState<PaymentCard[]>([]);
-    const {register, handleSubmit} = useForm<PaymentCardSearchCommand>();
+    const {register, handleSubmit, formState:{errors}} = useForm<PaymentCardSearchCommand>();
     const submitHandler: SubmitHandler<PaymentCardSearchCommand> = (data) => handleSearch(data);
 
     const [organizationUnits, setUnits] = useState<IdNamePair[]>([]);
@@ -24,6 +25,7 @@ export default function CalculationSearch() {
     const [positions, setPositions] = useState<IdNamePair[]>([]);
     const [selectedPos, setPos] = useState<number>();
     const [show, setShow] = useState(false);
+    const [showCalculate, setShowCalculate] = useState(false);
     const [selected, setSelected] = useState<number>();
 
     const restClient = new RestUnitOfWork();
@@ -78,13 +80,11 @@ export default function CalculationSearch() {
                     <Form.Group className='col'>
                         <Form.Label>Табельний номер</Form.Label>
                         <Form.Control {...register('rollNumber', {pattern: /^[0-9]+$/i })}/>
+                        {errors.rollNumber && <span className='text-danger'>Невірно введені дані</span>}
                     </Form.Group>
                     <Form.Group className='col'>
                         <Form.Label>Період</Form.Label>
-                        <div className='w-100 d-flex from-picker' style={{height: '37.5px'}}>
-                            <Calendar className='w-100' {...register('calculationPeriod')} view="month"
-                                      dateFormat="yy-mm"/>
-                        </div>
+                        <input type='month' className='form-control' {...register('calculationPeriod')}/>
                     </Form.Group>
                 </Row>
                 <Row className='w-100 ps-4'>
@@ -106,6 +106,10 @@ export default function CalculationSearch() {
                     <button type="reset" className="col btn btn-sm btn-warning me-2" title="Очистити фільтри">
                         Очистити
                     </button>
+                    <button type="button" className="col btn btn-sm btn-success me-2" title="Розрахувати зарплату"
+                    onClick={() => setShowCalculate(true)}>
+                        <Icon name='calculate' small/> Розрахувати
+                    </button>
                 </div>
             </Form>
 
@@ -114,6 +118,7 @@ export default function CalculationSearch() {
             </div>
 
             <DeletePaymentCardModal id={selected} show={show} setShow={setShow}/>
+            <MassCalculationModal show={showCalculate} setShow={setShowCalculate}/>
         </Container>
     );
 }

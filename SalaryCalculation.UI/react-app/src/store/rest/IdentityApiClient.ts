@@ -1,6 +1,7 @@
 import RestApiClient, {RestApiProps} from "./RestApiClient";
 import {UserCreateCommand} from "../../models/commands/IdentityCommands";
 import {UserModel} from "../../models/BaseModels";
+import {handleError} from "../actions";
 
 class IdentityApiClient {
     private readonly url = "http://localhost:5300";
@@ -14,8 +15,13 @@ class IdentityApiClient {
         this.apiClient = new RestApiClient(settings);
     }
 
-    async signInAsync(login: string, password: string): Promise<UserModel> {
+    async signInAsync(login: string, password: string): Promise<UserModel | undefined> {
         const result = await this.apiClient.postAsync('/api/identity', {login, password});
+        if(!result.isSuccess)
+        {
+            //handleError('')
+            return undefined;
+        }
         const userModel = {
             token: result.data.token,
             id: result.data.user.id,

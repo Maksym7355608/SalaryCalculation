@@ -11,4 +11,5 @@ public interface IPaymentCardCommandHandler
     Task<string> CalculatePaymentCardAsync(PaymentCardCalculationCommand command);
     Task<bool> UpdatePaymentCardsAsync(PaymentCardUpdateCommand command);
     Task<bool> DeletePaymentCardAsync(int id);
+    Task<string> MassCalculatePaymentCardAsync(MassCalculationMessage message);
 }

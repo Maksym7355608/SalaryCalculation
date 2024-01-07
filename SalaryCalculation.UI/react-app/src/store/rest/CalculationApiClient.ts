@@ -33,4 +33,14 @@ export default class CalculationApiClient {
         const response = await this.apiClient.getAsync(`/api/operations/by-employee/${employeeId}/${period}`);
         return response.data as Operation[];
     }
+
+    async calculateEmployeeAsync(cmd: any) {
+        const response = await this.apiClient.postAsync(`/api/paymentCard/calculate`, cmd);
+        return response.data as string;
+    }
+
+    async massCalculateEmployeeAsync(cmd: any) {
+        const response = await this.apiClient.postAsync(`/api/paymentCard/calculate/mass`, cmd);
+        return response.data as string;
+    }
 }

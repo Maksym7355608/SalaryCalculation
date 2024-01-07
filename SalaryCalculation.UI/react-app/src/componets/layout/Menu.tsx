@@ -1,4 +1,3 @@
-import {UserModel} from "../../models/BaseModels";
 import React, {ReactElement, useState} from "react";
 import {NavLink} from "react-router-dom";
 import {EPermission} from "../../models/Enums";
@@ -18,6 +17,7 @@ import BaseAmounts from "../../views/dictionary/BaseAmounts";
 import Formulas from "../../views/dictionary/Formulas";
 import IndexFormula from "../../views/dictionary/IndexFormula";
 import {Regimes} from "../../views/dictionary/Regimes";
+import {user} from "../../store/actions";
 
 interface MenuItem{
     id: number | string;
@@ -28,8 +28,6 @@ interface MenuItem{
     ref: string;
     parentId?: number | string;
 }
-
-const user = JSON.parse(localStorage.getItem('user') as string) as UserModel;
 
 export function Menu() {
     const items = InitMenu();
@@ -83,7 +81,7 @@ export function Menu() {
             <Nav variant="pills" className="flex-column mt-2">
                 <Nav.Item className='mt-2'>
                     <NavLink to="/user/settings" className="menu-item">
-                        <i className="material-icons">account_circle</i> {`${user.firstName} ${user.lastName}`}
+                        <i className="material-icons">account_circle</i> {`${user().firstName} ${user().lastName}`}
                     </NavLink>
                 </Nav.Item>
                 {items.map(item => {
@@ -100,8 +98,7 @@ export function Menu() {
 }
 
 export function InitMenu() : MenuItem[] {
-
-    const permissions = user?.permissions ?? [];
+    const permissions = user()?.permissions ?? [];
     let items : MenuItem[] = [];
 
     const getItem = (id: number | string, page: ReactElement, text: string, ref: string, icon?: string, link?: string, parentId?: number | string) : MenuItem =>  {
@@ -121,7 +118,7 @@ export function InitMenu() : MenuItem[] {
         switch (permission) {
             case EPermission.organizationSettings :
                 item = [
-                    getItem(permission, <OrganizationSettings/>, "Налаштування організації",`/organization/:id/settings`, "build_circle", `/organization/${user.organization}/settings`),
+                    getItem(permission, <OrganizationSettings/>, "Налаштування організації",`/organization/:id/settings`, "build_circle", `/organization/${user().organization}/settings`),
                     getItem('permissions', <OrganizationPermissions/>, "Налаштування прав доступу", `/organization/:id/permissions`),
                     getItem('organization', <Organization/>, "Організація", `/organization/:id`),
                 ]

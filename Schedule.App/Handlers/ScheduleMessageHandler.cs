@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Globalization;
+using AutoMapper;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
 using Newtonsoft.Json;
@@ -32,6 +33,8 @@ public class ScheduleMessageHandler : BaseMessageHandler<DaysSettingMessage>
     {
         var regimes = await GetUsedRegimesAsync(msg);
         var workDays = await CreateDaysAsync(regimes, msg);
+        var empDaysId = await Work.NextValue<EmpDay, long>(workDays.Count);
+        workDays.ForEach(wk => wk.Id = empDaysId--);
         var builder = Builders<EmpDay>.Filter;
         await DeleteExistingDatesAsync(workDays.Select(x => x.EmployeeId), msg);
 
@@ -44,7 +47,6 @@ public class ScheduleMessageHandler : BaseMessageHandler<DaysSettingMessage>
     {
         var autoEmpDays = new List<EmpDay>();
         var holidays = await RegimeHelper.LoadHolidaysAsync(msg.DateFrom.Year);
-        var empDaysId = await Work.NextValue<EmpDay, int>();;
 
         await Parallel.ForEachAsync(calculationRegimes, async (regime, token) =>
         {
@@ -54,12 +56,16 @@ public class ScheduleMessageHandler : BaseMessageHandler<DaysSettingMessage>
             if (!startDate.HasValue)
                 return;
             var regimeDaysCircle = RegimeHelper.GetRegimeDaysCircle(regime);
-
+            
             var employees = await _organizationUnitOfWork.GetCollection<Employee>()
-                .Find(x => x.RegimeId == regime.RegimeId && (!x.DateTo.HasValue || x.DateTo.Value < msg.DateTo))
+                .Find(x => x.RegimeId == regime.RegimeId && (!x.DateTo.HasValue || x.DateTo.Value < msg.DateTo)
+                                                         && x.Organization.Id == msg.OrganizationId
+                                                         && (!msg.OrganizationUnitId.HasValue ||
+                                                             x.OrganizationUnit.Id == msg.OrganizationUnitId.Value)
+                                                         && (!msg.PositionId.HasValue ||
+                                                             x.Position.Id == msg.PositionId.Value))
                 .Project(x => new { x.Id, x.DateFrom, x.DateTo, x.ShiftNumber })
                 .ToListAsync();
-
             var reserveForHoliday = false;
             for (var (currDate, next) = (msg.DateFrom, msg.DateFrom.AddDays(1)); 
                  currDate <= msg.DateTo; (currDate, next) = (currDate.AddDays(1), next.AddDays(1)))
@@ -97,16 +103,14 @@ public class ScheduleMessageHandler : BaseMessageHandler<DaysSettingMessage>
                     var hoursForShifts = RegimeHelper.CreateHoursFromRegime(newDetail, isHoliday, nextDayHoliday);
                     hours.Add(i+1, hoursForShifts);
                 }
-                
-                employees.ParallelForEach(employee =>
+                employees.ParallelForEach(async employee =>
                 {
                     if (currDate < employee.DateFrom || (employee.DateTo.HasValue && currDate > employee.DateTo) || 
                         !hours.TryGetValue(employee.ShiftNumber, out var hoursDetail))
                         return;
                     autoEmpDays.Add(new EmpDay()
                     {
-                        Id = empDaysId++,
-                        Date = currDate,
+                        Date = currDate.ToLocalTime(),
                         DayType = (int)EDayType.Work,
                         Hours = hoursDetail,
                         EmployeeId = employee.Id,
