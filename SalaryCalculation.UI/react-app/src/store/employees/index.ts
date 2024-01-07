@@ -16,7 +16,7 @@ export const searchEmployees = async (data: IHomeForm) => {
         organizationId: user().organization,
         rollNumber: data.rollNumber ? data.rollNumber : undefined,
         organizationUnitId: data.organizationUnit ? data.organizationUnit : undefined,
-        positionId: data.position ? data.organizationUnit : undefined,
+        positionId: data.position ? data.position : undefined,
         dateFrom: data.date ? data.date : undefined,
         dateTo: new Date(Date.now()),
         salaryFrom: data.salaryFrom ? data.salaryFrom : undefined,

@@ -9,12 +9,13 @@ import SelectList from "../helpers/SelectList";
 import {useForm} from "react-hook-form";
 
 const UnitSettings: React.FC<{units: OrganizationUnitDto[]}> = ({units}) => {
-    const {register} = useForm<any>();
+    const {register, setValue} = useForm<any>();
     const [organizationUnits, setUnits] = useState<OrganizationUnitDto[]>([...units]);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [selected, setSelected] = useState<OrganizationUnitDto | undefined>(undefined);
+    const [key, setKey] = useState<string>('selected: null')
 
     const [sUnit, setUnit] = useState<number | undefined>();
 
@@ -29,7 +30,12 @@ const UnitSettings: React.FC<{units: OrganizationUnitDto[]}> = ({units}) => {
 
     const handleChangeState = (show: boolean, type: EModalType, id?: number) => {
         if(id)
-            setSelected(organizationUnits.find(u => u.id == id))
+        {
+            const s = organizationUnits.find(u => u.id == id);
+            setSelected(s);
+            setValue('name', s?.name);
+            setKey(`selected: ${id}`);
+        }
         switch (type) {
             case EModalType.create:
                 setShowCreateModal(show);
@@ -76,7 +82,7 @@ const UnitSettings: React.FC<{units: OrganizationUnitDto[]}> = ({units}) => {
         ];
         const editBody = [
             {id: 'edit-unit-id', control: <Form.Control {...register('id')} type='number' value={selected?.id} hidden={true} id='edit-unit-id'/>},
-            {id: 'edit-unitName', label: "Назва", control: <Form.Control {...register('name')} type="text" placeholder="Введіть назву посади" defaultValue={selected?.name}/>},
+            {id: 'edit-unitName', label: "Назва", control: <Form.Control key={selected?.name} {...register('name')} type="text" placeholder="Введіть назву посади" defaultValue={selected?.name}/>},
             {id: 'edit-units', label: "Підрозділ", control: <SelectList setState={(state) => setUnit(state as number)} id={"units"} useEmpty={true} emptyName='Оберіть батьківський підрозділ' items={shortUnits} value={selected?.organizationUnitId}/>},
         ];
         const deleteBody = [
@@ -152,25 +158,27 @@ const UnitSettings: React.FC<{units: OrganizationUnitDto[]}> = ({units}) => {
         }
 
         return (
-            <>
+            <div key={key}>
                 <CustomModalDialog id='create-unit-modal'
                                    headerText='Створення підрозділу'
                                    body={createBody}
                                    handleActionBtn={(data: any) => handleCreate(data)}
-                                   show={showCreateModal} handleChangeShow={(show: boolean) => handleChangeState(show, EModalType.create)}/>
-                <CustomModalDialog id='edit-unit-modal'
+                                   show={showCreateModal} handleChangeShow={(show: boolean) => setShowCreateModal(show)}/>
+                <CustomModalDialog key={key} id='edit-unit-modal'
                                    headerText='Редагування підрозділу'
                                    body={editBody}
                                    handleActionBtn={(data: any) => handleEdit(data)}
                                    footer={{actionBtnStyle: 'warning', actionBtnText: 'Редагувати'}}
-                                   show={showEditModal} handleChangeShow={(show: boolean) => handleChangeState(show, EModalType.create)}/>
-                <CustomModalDialog id='delete-unit-modal'
+                                   show={showEditModal} handleChangeShow={(show: boolean) => {
+                                       setShowEditModal(show);
+                }}/>
+                <CustomModalDialog key={key} id='delete-unit-modal'
                                    headerText='Видалення підрозділу'
                                    body={deleteBody}
                                    handleActionBtn={(data: any) => handleDelete(data)}
                                    footer={{actionBtnStyle: 'danger', actionBtnText: 'Видалити'}}
-                                   show={showDeleteModal} handleChangeShow={(show: boolean) => handleChangeState(show, EModalType.delete)}/>
-            </>
+                                   show={showDeleteModal} handleChangeShow={(show: boolean) => setShowDeleteModal(show)}/>
+            </div>
         );
     }
 

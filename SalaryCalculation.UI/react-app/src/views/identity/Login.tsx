@@ -4,7 +4,6 @@ import {useDispatch} from "react-redux";
 import {get_user} from "../../store/actions/userActions";
 import {LoginForm} from "../../models/identity/identity";
 import {logIn} from "../../store/identity";
-import {login} from "../../auth";
 
 export default function Login() {
     const dispatch = useDispatch();
@@ -17,10 +16,14 @@ export default function Login() {
 
     const onSubmit: SubmitHandler<LoginForm> = (data) => logIn(data).then((res) => {
         const userModel = res;
-        dispatch(get_user(userModel))
-        localStorage.setItem("user", JSON.stringify(userModel));
-        localStorage.setItem("token", userModel.token);
-        navigate('/');
+        if(userModel != undefined)
+        {
+            dispatch(get_user(userModel))
+            localStorage.setItem("user", JSON.stringify(userModel));
+            localStorage.setItem("token", userModel.token);
+            navigate('/');
+            window.location.reload();
+        }
     });
 
     return (
@@ -50,9 +53,9 @@ export default function Login() {
                         <div className="div-link-signup">
                             <Link to="/signup" className="link-signup">Реєстрація</Link>
                         </div>
-                        <span id="requestInvalid" className="text-danger"></span>
-                        <span id="responseInvalid" className="text-danger"></span>
                     </div>
+                    <span id="request-validation" className="text-danger"></span>
+                    <span id="response-validation" className="text-danger"></span>
                 </form>
             </div>
         </div>

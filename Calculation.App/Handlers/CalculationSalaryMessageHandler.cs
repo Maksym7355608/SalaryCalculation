@@ -70,12 +70,12 @@ public class CalculationSalaryMessageHandler : BaseMessageHandler<CalculationSal
         int employeeId, int period)
     {
         await Work.GetCollection<Operation>().DeleteManyAsync(x => x.EmployeeId == employeeId && x.Period == period);
-        var lastId = await Work.NextValue<Operation, long>();
         var operations = new List<Operation>();
         operations.AddRange(accrualOperations);
         operations.AddRange(maintenanceOperations);
+        var lastId = await Work.NextValue<Operation, long>(operations.Count);
         
-        operations.ForEach(op => op.Id = lastId++);
+        operations.ForEach(op => op.Id = lastId--);
         await Work.GetCollection<Operation>().InsertManyAsync(operations);
         return operations;
     }
@@ -158,9 +158,10 @@ public class CalculationSalaryMessageHandler : BaseMessageHandler<CalculationSal
         var rightOperand = parts[1].Trim();
     
         var leftOperandExists = values.TryGetValue(leftOperand, out var leftValue);
+        if (!leftOperandExists && !decimal.TryParse(leftOperand, out leftValue))
+            return false;
         var rightOperandExists = values.TryGetValue(rightOperand, out var rightValue);
-    
-        if (!leftOperandExists || !rightOperandExists)
+        if (!rightOperandExists && !decimal.TryParse(rightOperand, out rightValue))
             return false;
     
         switch (comparisonOperator)
@@ -273,6 +274,7 @@ public class CalculationSalaryMessageHandler : BaseMessageHandler<CalculationSal
         var baseAmountTask = LoadBaseAmountsAsync(msg.Period);
         await Task.WhenAll(formulaTask, employeeTask, periodCalendarTask, baseAmountTask);
         var regime = await LoadRegimeAsync(periodCalendarTask.Result.RegimeId);
+        var avgSalary = await LoadAverageDaySalaryAsync(employeeTask.Result.Id, msg.Period);
         var hours = await RegimeHelper.GetHoursDetailAsync(regime, periodCalendarTask.Result.Period);
         return new CalculationLoadedData()
         {
@@ -280,11 +282,36 @@ public class CalculationSalaryMessageHandler : BaseMessageHandler<CalculationSal
             FormulaDict = formulaTask.Result.ToLookup(k => k.Code, v => v),
             Employee = employeeTask.Result,
             Calendar = periodCalendarTask.Result,
-            BaseAmounts = baseAmountTask.Result.Concat(GetVariables(employeeTask.Result, periodCalendarTask.Result, hours[employeeTask.Result.ShiftNumber]))
+            BaseAmounts = baseAmountTask.Result.Concat(GetVariables(employeeTask.Result, periodCalendarTask.Result, hours[employeeTask.Result.ShiftNumber], avgSalary))
                 .ToDictionary(k => k.ExprName, v => v.Value),
             Regime = regime,
             Formulas = formulaTask.Result.GroupBy(k => k.ExpressionName).ToDictionary(k => k.Key, v=> v.ToArray()),
         };
+    }
+
+    private async Task<decimal> LoadAverageDaySalaryAsync(int id, int period)
+    {
+        var periodFrom = period / 100 * 100 + 1;
+        var periodTo = period.PreviousPeriod();
+        var calendarsTask = _scheduleUnitOfWork.GetCollection<PeriodCalendar>()
+            .Find(x => x.EmployeeId == id && x.Period >= periodFrom && x.Period <= periodTo)
+            .Project(x => x.WorkDays)
+            .ToListAsync();
+        var paymentsTask = Work.GetCollection<PaymentCard>()
+            .Find(x => x.Employee.Id == id && x.CalculationPeriod >= periodFrom && x.CalculationPeriod <= periodTo)
+            .Project(x => x.AccrualAmount)
+            .ToListAsync();
+        await Task.WhenAll(calendarsTask, paymentsTask);
+        var calendar = calendarsTask.Result;
+        var payment = paymentsTask.Result;
+        if (!calendar.Any())
+            return 0;
+        if (!payment.Any())
+        {
+            return 0;
+        }
+
+        return (payment.Sum()) / (calendar.Sum());
     }
 
     private Task<List<FinanceData>> LoadFinanceDataAsync(int organizationId)
@@ -294,21 +321,17 @@ public class CalculationSalaryMessageHandler : BaseMessageHandler<CalculationSal
             .ToListAsync();
     }
 
-    private List<BaseAmountShort> GetVariables(Employee employee, PeriodCalendar calendar, HoursDetails hour)
+    private List<BaseAmountShort> GetVariables(Employee employee, PeriodCalendar calendar, HoursDetails hour,
+        decimal avgSalary)
     {
         var periodDate = calendar.Period.ToDateTime();
         var currentSalary = employee.Salaries.FirstOrDefault(x =>
             x.DateFrom <= periodDate &&
             (!x.DateTo.HasValue || x.DateTo.Value > periodDate.AddMonths(1)))?.Amount ?? decimal.Zero;
-        var prevSalaries = employee.Salaries.Where(x => x.DateFrom.Year <= periodDate.Year-1 && 
-                                                        (!x.DateTo.HasValue || x.DateTo?.Year >= periodDate.Year-1));
-        if (prevSalaries.Count() == 0)
-            prevSalaries = employee.Salaries.Where(x => x.DateFrom.Year <= periodDate.Year && 
-                                                        (!x.DateTo.HasValue || x.DateTo?.Year >= periodDate.Year));
         var paramsDict = new List<BaseAmountShort>()
         {
             new("S", currentSalary),
-            new("AvgS", Math.Round(prevSalaries.Average(x => x.Amount), 2)),
+            new("AvgS", avgSalary),
             new("SumH", calendar.Hours.Summary),
             new("DH", calendar.Hours.Day),
             new("EH", calendar.Hours.Evening),
@@ -320,7 +343,7 @@ public class CalculationSalaryMessageHandler : BaseMessageHandler<CalculationSal
             new("WD", calendar.WorkDays),
             new("SickL", calendar.SickLeave),
             new("VacL", calendar.VacationDays),
-            new("Period", calendar.Period),
+            new("Period", calendar.Period%100),
             new("TotH", hour.Summary),
             new("TotDH", hour.Day),
             new("TotEH", hour.Evening),

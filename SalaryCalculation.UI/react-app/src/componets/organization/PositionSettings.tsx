@@ -164,7 +164,7 @@ const PositionSettings: React.FC<{units: OrganizationUnitDto[]}> = ({units}) => 
                                    body={editBody}
                                    handleActionBtn={(data: any) => handleEdit(data)}
                                    footer={{actionBtnStyle: 'warning', actionBtnText: 'Редагувати'}}
-                                   show={showEditModal} handleChangeShow={(show: boolean) => handleChangeState(show, EModalType.create)}/>
+                                   show={showEditModal} handleChangeShow={(show: boolean) => handleChangeState(show, EModalType.edit)}/>
                 <CustomModalDialog id='delete-position-modal'
                                    headerText='Видалення підрозділу'
                                    body={deleteBody}

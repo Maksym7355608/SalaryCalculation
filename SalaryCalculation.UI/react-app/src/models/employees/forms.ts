@@ -1,4 +1,5 @@
 export interface IHomeForm {
+    organizationId: number
     rollNumber?: number;
     position?: number;
     organizationUnit?: number;

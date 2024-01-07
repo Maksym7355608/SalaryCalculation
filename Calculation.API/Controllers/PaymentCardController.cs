@@ -44,6 +44,17 @@ public class PaymentCardController : BaseCalculationController
         return GetAjaxResponse(IsValid, result, Errors);
     }
 
+    [HttpPost("calculate/mass")]
+    public async Task<IActionResult> MassCalculatePaymentCardAsync([FromBody] MassCalculationMessage message)
+    {
+        using (var op = Operation.Begin("Mass calculation started"))
+        {
+            var result = await PaymentCardCommandHandler.MassCalculatePaymentCardAsync(message);
+            op.Complete();
+            return GetAjaxResponse(IsValid, result, Errors);
+        }
+    }
+
     [HttpPut]
     public async Task<IActionResult> UpdatePaymentCard([FromBody] PaymentCardUpdateCommand command)
     {

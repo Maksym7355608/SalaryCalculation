@@ -433,7 +433,7 @@ public class ScheduleCommandHandler : BaseScheduleCommandHandler, IScheduleComma
             OrganizationId = empDays.First().OrganizationId,
             Period = period,
             SickLeave = empDays.Where(x => x.DayType == (int)EDayType.Sick).Count(),
-            VacationDays = empDays.Where(x => x.DayType == (int)EDayType.Holiday).Count(),
+            VacationDays = empDays.Where(x => x.DayType == (int)EDayType.Vacation).Count(),
             WorkDays = empDays.Where(x => x.DayType == (int)EDayType.Work).Count(),
             RegimeId = regimeId,
         };

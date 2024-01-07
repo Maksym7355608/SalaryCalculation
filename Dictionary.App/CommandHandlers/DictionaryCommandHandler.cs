@@ -171,31 +171,36 @@ public class DictionaryCommandHandler : BaseCommandHandler, IDictionaryCommandHa
             .Find(x => x.OrganizationId == command.OrganizationId)
             .Project(x => x.ExpressionName)
             .ToListAsync();
-        IsConditionValid(command.Condition);
-        IsExpressionValid(command.Expression, formulas);
+        var baseAmounts = await Work.GetCollection<BaseAmount>()
+            .Find(a => true)
+            .Project(x => x.ExpressionName)
+            .ToListAsync();
+        IsConditionValid(command.Condition, baseAmounts);
+        IsExpressionValid(command.Expression, formulas, baseAmounts);
 
         var item = Mapper.Map<Formula>(command);
         await Work.GetCollection<Formula>().InsertOneAsync(item);
         return true;
     }
 
-    private void IsConditionValid(string? condition)
+    private void IsConditionValid(string? condition, List<string> baseAmounts)
     {
         if(string.IsNullOrWhiteSpace(condition))
             return;
         var split = condition.Trim().Split(_operators, StringSplitOptions.None);
-        var incorrectValues = split.Where(x => !_baseExpressionNames.Contains(x) && !x.All(c => char.IsDigit(c) || c == '.'));
+        var incorrectValues = split.Where(x => !_baseExpressionNames.Contains(x) && !x.All(c => char.IsDigit(c) || c == '.')
+        && !baseAmounts.Contains(x));
         if (incorrectValues.Any())
             throw new Exception($"Incorrect condition members: {string.Join(", ", incorrectValues)}");
     }
     
-    private void IsExpressionValid(string expression, List<string> formulas)
+    private void IsExpressionValid(string expression, List<string> formulas, List<string> baseAmounts)
     {
         if(string.IsNullOrWhiteSpace(expression))
             throw new Exception("Expression is empty");
         var split = expression.Trim().Split(_operators, StringSplitOptions.None);
         var incorrectValues = split.Where(x => !_baseExpressionNames.Contains(x) && !x.All(c => char.IsDigit(c) || c == '.')
-            && !formulas.Contains(x));
+            && !formulas.Contains(x) && !baseAmounts.Contains(x));
         if (incorrectValues.Any())
             throw new Exception($"Incorrect expression members: {string.Join(", ", incorrectValues)}");
     }

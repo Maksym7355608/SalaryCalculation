@@ -128,7 +128,17 @@ export default function Schedule() {
     }
 
     const handleCalculate = () => {
-        restClient.schedule.calculatePeriodCalendarAsync(periodId, empId);
+        restClient.schedule.calculatePeriodCalendarAsync(periodId, empId).then(r => {
+            if(r)
+                window.location.reload();
+        });
+    };
+    const handleCalculateSalary = () => {
+        restClient.calculation.calculateEmployeeAsync({
+            organizationId: user().organization,
+            employeeId: empId,
+            period: periodId
+        });
     };
     return (
         <Container fluid>
@@ -274,6 +284,8 @@ export default function Schedule() {
                 <button type='submit' className='btn btn-primary me-1' hidden={!isEditMode}>Зберегти зміни</button>
                 <button type='button' className='btn btn-info' hidden={periodCalendar != undefined}
                     onClick={() => handleCalculate()}>Розрахувати період</button>
+                <button type='button' className='btn btn-success' hidden={periodCalendar == undefined}
+                    onClick={() => handleCalculateSalary()}><Icon name='calculate' small/> Розрахувати зарплату</button>
             </form>
         </Container>
     );
