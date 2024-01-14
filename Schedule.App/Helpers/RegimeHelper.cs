@@ -91,7 +91,7 @@ public static class RegimeHelper
     public static int GetCircleNumber(CalculationRegime regime, DateTime regimeStartDateUsing, DateTime date)
     {
         var difDays = (date - regimeStartDateUsing).Days;
-        return difDays / regime.DaysCount;
+        return difDays > 0 ? difDays / regime.DaysCount : 0;
     }
 
     public static (IEnumerable<int> work, IEnumerable<int> rest) GetCircleInfo(CalculationRegime regime, DateTime startDate, int circleNumber)
@@ -127,9 +127,12 @@ public static class RegimeHelper
 
     public static int GetDayOfCircle(CalculationRegime regime, DateTime startDate, int circleNumber, DateTime currDate)
     {
-        var firstDayInCircle = startDate.AddDays(regime.DaysCount * circleNumber - 1);
+        var firstDayInCircle = startDate.AddDays(regime.DaysCount * circleNumber);
 
-        return (currDate - firstDayInCircle).Days;
+        if (firstDayInCircle > currDate)
+            firstDayInCircle = firstDayInCircle.AddDays(-regime.DaysCount);
+
+        return (currDate - firstDayInCircle).Days + 1;
     }
     
     public static HoursDetail CreateHoursFromRegime(WorkDayDetail workDayDetail, bool isHoliday, bool nextDayHoliday)

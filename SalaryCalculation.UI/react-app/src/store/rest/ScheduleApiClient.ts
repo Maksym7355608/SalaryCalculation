@@ -23,6 +23,11 @@ export default class ScheduleApiClient extends Component {
         return response.data as RegimeModel[];
     }
 
+    async getRegimeAsync(id: number) {
+        const response = await this.apiClient.getAsync(`/api/schedule/regime/${id}`)
+        return response.data as RegimeModel;
+    }
+
     async getRegimesShortAsync(organizationId: number) : Promise<IdNamePair[]> {
         const response = await this.apiClient.getAsync(`/api/schedule/regime/by-organization/${organizationId}/short`)
         return response.data as IdNamePair[];

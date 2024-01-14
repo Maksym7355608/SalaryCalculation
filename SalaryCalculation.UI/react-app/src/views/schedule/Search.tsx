@@ -67,7 +67,7 @@ export default function ScheduleSearch() {
             const year = period.getFullYear();
             const createColumn = (day: string) => {
                 return {
-                    field: `${("0" + day).slice(-2)}.${month}.${year}`,
+                    field: `${("0" + day).slice(-2)}.${("0" + month).slice(-2)}.${year}`,
                     text: `${day}`,
                     sortable: false
                 };

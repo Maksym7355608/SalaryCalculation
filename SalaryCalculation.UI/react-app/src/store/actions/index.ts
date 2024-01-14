@@ -107,6 +107,11 @@ export const previousPeriod = (period: number) => {
         return Math.round(period / 100 - 1) * 100 + 12;
 }
 
+export const getDefaultValues = (model: any): {key: string, value: any}[] => {
+    let keys = Object.keys(typeof model);
+    return keys.map(k => {return {key: k, value: model[k]}})
+}
+
 export const monthDict = [
     "Січень",
     "Лютий",

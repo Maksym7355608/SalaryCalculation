@@ -42,8 +42,8 @@ export default function Home() {
     } = useForm<IHomeForm>()
 
     const onSubmit: SubmitHandler<IHomeForm> = (data) => {
-        data.organizationUnit = selectedUnit;
-        data.position = selectedPos;
+        data.organizationUnit = selectedUnit != undefined && selectedUnit != -1 ? selectedUnit : undefined;
+        data.position = selectedPos != undefined && selectedPos != -1 ? selectedPos : undefined;
         searchEmployees(data).then(res => {
             setEmployees(mapToEmployeeShortModel(res))
         });

@@ -162,7 +162,13 @@ export default function Employee() {
                 <Form.Group className="row input-group mt-2" controlId="regimes">
                     <Form.Label className="col-2">Режим</Form.Label>
                     <SelectList setState={(state) => setRegime(state as number)} id={'regimes'} items={regimes}
-                                disabled={sUnit === undefined || isInfoMode} useEmpty={true} emptyName={'--- ---'}/>
+                                disabled={sUnit === undefined || isInfoMode} value={sRegime}/>
+                </Form.Group>
+
+                <Form.Group className="row input-group mt-2">
+                    <Form.Label className="col-2">Оклад</Form.Label>
+                    <Form.Control className='col-3' type='text' placeholder='Оклад' {...register('salary')}
+                                  disabled={isInfoMode} defaultValue={employee?.salary}/>
                 </Form.Group>
 
                 <Form.Group className="row input-group mt-2" controlId="dateFrom">

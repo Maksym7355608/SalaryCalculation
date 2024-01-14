@@ -1,19 +1,31 @@
 import {useParams} from "react-router-dom";
-import {useFieldArray, useForm} from "react-hook-form";
+import {Controller, useFieldArray, useForm} from "react-hook-form";
 import {RegimeModel, WorkDetail} from "../../models/schedule";
 import {Button, Col, Container, Form, Row} from "react-bootstrap";
-import {useState} from "react";
+import {useEffect, useState} from "react";
+import RestUnitOfWork from "../../store/rest/RestUnitOfWork";
+import {getDefaultValues, toShortDateString} from "../../store/actions";
+
 
 export default function Regime() {
     const {id} = useParams();
-    const {register, control, handleSubmit} = useForm<RegimeModel>();
-    const [holiday, setHoliday] = useState<boolean>(true);
+    const {register, control, handleSubmit, reset, getValues, formState: {defaultValues, errors}} = useForm<RegimeModel>();
     const [launch, setLaunch] = useState<boolean>(false);
     const {fields, append, remove} = useFieldArray({
         control,
-        name: 'workDays', // Ім'я поля, що представляє масив об'єктів WorkDayDetailDto
+        name: 'workDays',
     });
     const isEditMode = id?.toLowerCase() !== 'create';
+
+    const restClient = new RestUnitOfWork();
+    useEffect(() => {
+        if (isEditMode)
+            restClient.schedule.getRegimeAsync(parseInt(id as string))
+                .then(r => {
+                    reset(r);
+                });
+    }, []);
+
     const onSubmit = (data: RegimeModel) => {
         console.log(data);
     };
@@ -37,12 +49,14 @@ export default function Regime() {
                     <Col md={9}>
                         <Row>
                             <Col>
-                                <Form.Control type="number"
-                                              placeholder='0-24' {...register(`workDays.${index}.startTime.hours`)}/>
+                                <Form.Control placeholder='0-24' {...register(`workDays.${index}.startTime.hour`, {
+                                    pattern: /^[0-9]+$/i, min: 0, max: 23
+                                })}/>
                             </Col>
                             <Col>
-                                <Form.Control type="number"
-                                              placeholder='0-60' {...register(`workDays.${index}.startTime.minutes`)}/>
+                                <Form.Control placeholder='0-60' {...register(`workDays.${index}.startTime.minutes`, {
+                                    pattern: /^[0-9]+$/i, min: 0, max: 59
+                                })}/>
                             </Col>
                         </Row>
                     </Col>
@@ -54,12 +68,14 @@ export default function Regime() {
                     <Col md={9}>
                         <Row>
                             <Col>
-                                <Form.Control type="number"
-                                              placeholder='0-24' {...register(`workDays.${index}.endTime.hours`)}/>
+                                <Form.Control placeholder='0-24' {...register(`workDays.${index}.endTime.hour`, {
+                                    pattern: /^[0-9]+$/i, min: 0, max: 23
+                                })}/>
                             </Col>
                             <Col>
-                                <Form.Control type="number"
-                                              placeholder='0-60' {...register(`workDays.${index}.endTime.minutes`)}/>
+                                <Form.Control placeholder='0-60' {...register(`workDays.${index}.endTime.minutes`, {
+                                    pattern: /^[0-9]+$/i, min: 0, max: 59
+                                })}/>
                             </Col>
                         </Row>
                     </Col>
@@ -77,8 +93,7 @@ export default function Regime() {
                         <Form.Label>Святкові дні робочі</Form.Label>
                     </Col>
                     <Col md={9}>
-                        <Form.Check {...register(`workDays.${index}.isHolidayWork`)}
-                                    onChange={(event) => setHoliday(!event.target.checked)}/>
+                        <Form.Check {...register(`workDays.${index}.isHolidayWork`)}/>
                     </Col>
                 </Row>
                 <Row>
@@ -89,7 +104,7 @@ export default function Regime() {
                         <Form.Check {...register(`workDays.${index}.isHolidayShort`)}/>
                     </Col>
                 </Row>
-                <div hidden={holiday}>
+                <div hidden={!getValues(`workDays.${index}.isHolidayWork`)}>
                     <Row>
                         <Col md={3}>
                             <Form.Label>Початок роботи у свято</Form.Label>
@@ -97,12 +112,14 @@ export default function Regime() {
                         <Col md={9}>
                             <Row>
                                 <Col>
-                                    <Form.Control type="number"
-                                                  placeholder='0-24' {...register(`workDays.${index}.startTime.hours`)}/>
+                                    <Form.Control placeholder='0-24' {...register(`workDays.${index}.startTimeInHoliday.hour`, {
+                                        pattern: /^[0-9]+$/i, min: 0, max: 23
+                                    })}/>
                                 </Col>
                                 <Col>
-                                    <Form.Control type="number"
-                                                  placeholder='0-60' {...register(`workDays.${index}.startTime.minutes`)}/>
+                                    <Form.Control placeholder='0-60' {...register(`workDays.${index}.startTimeInHoliday.minutes`, {
+                                        pattern: /^[0-9]+$/i, min: 0, max: 59
+                                    })}/>
                                 </Col>
                             </Row>
                         </Col>
@@ -114,12 +131,14 @@ export default function Regime() {
                         <Col md={9}>
                             <Row>
                                 <Col>
-                                    <Form.Control type="number"
-                                                  placeholder='0-24' {...register(`workDays.${index}.startTimeInHoliday.hours`)}/>
+                                    <Form.Control placeholder='0-24' {...register(`workDays.${index}.endTimeInHoliday.hour`, {
+                                                      pattern: /^[0-9]+$/i, min: 0, max: 23
+                                                  })}/>
                                 </Col>
                                 <Col>
-                                    <Form.Control type="number"
-                                                  placeholder='0-60' {...register(`workDays.${index}.endTimeInHoliday.minutes`)}/>
+                                    <Form.Control placeholder='0-60' {...register(`workDays.${index}.endTimeInHoliday.minutes`, {
+                                        pattern: /^[0-9]+$/i, min: 0, max: 59
+                                    })}/>
                                 </Col>
                             </Row>
                         </Col>
@@ -197,7 +216,8 @@ export default function Regime() {
                         <Form.Label>Кількість змін</Form.Label>
                     </Col>
                     <Col md={9}>
-                        <Form.Control type="number" {...register('shiftsCount')} />
+                        <Form.Control {...register('shiftsCount', {
+                            pattern: /^[0-9]+$/i, min: 1})} />
                     </Col>
                 </Row>
                 <Row>
@@ -205,7 +225,14 @@ export default function Regime() {
                         <Form.Label>Дата початку цього року</Form.Label>
                     </Col>
                     <Col md={9}>
-                        <Form.Control type="date" {...register('startDateInCurrentYear')}/>
+                        <Controller
+                            control={control}
+                            name={"startDateInCurrentYear"}
+                            render={({field: {onChange, onBlur, value, ref}}) => (
+                                <Form.Control type="date" onChange={onChange} onBlur={onBlur}
+                                              defaultValue={toShortDateString(value)}/>
+                            )
+                            }/>
                     </Col>
                 </Row>
                 <Row>
@@ -213,7 +240,14 @@ export default function Regime() {
                         <Form.Label>Дата початку попереднього року</Form.Label>
                     </Col>
                     <Col md={9}>
-                        <Form.Control type="date" {...register('startDateInPreviousYear')}/>
+                        <Controller
+                            control={control}
+                            name={"startDateInPreviousYear"}
+                            render={({field: {onChange, onBlur, value, ref}}) => (
+                                <Form.Control type="date" onChange={onChange} onBlur={onBlur}
+                                              defaultValue={toShortDateString(value)}/>
+                            )
+                            }/>
                     </Col>
                 </Row>
                 <Row>
@@ -221,7 +255,14 @@ export default function Regime() {
                         <Form.Label>Дата початку наступного року</Form.Label>
                     </Col>
                     <Col md={9}>
-                        <Form.Control type="date" {...register('startDateInNextYear')}/>
+                        <Controller
+                            control={control}
+                            name={"startDateInNextYear"}
+                            render={({field: {onChange, onBlur, value, ref}}) => (
+                                <Form.Control type="date" onChange={onChange} onBlur={onBlur}
+                                              defaultValue={toShortDateString(value)}/>
+                            )
+                            }/>
                     </Col>
                 </Row>
 

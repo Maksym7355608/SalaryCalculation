@@ -6,7 +6,7 @@ export interface ScheduleShortModel {
 }
 
 interface Time{
-    hours: number;
+    hour: number;
     minutes: number;
 }
 

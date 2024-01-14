@@ -2,6 +2,7 @@
 
 public class RegimeDto
 {
+    public int Id { get; set; }
     public int Code { get; set; }
 
     public string Name { get; set; }
@@ -21,4 +22,5 @@ public class RegimeDto
     public DateTime? StartDateInPreviousYear { get; set; }
 
     public DateTime? StartDateInNextYear { get; set; }
+    public int ShiftsCount { get; set; }
 }

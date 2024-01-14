@@ -5,6 +5,7 @@ import CustomDataTable from "../../componets/helpers/CustomDataTable";
 import RestUnitOfWork from "../../store/rest/RestUnitOfWork";
 import {toShortDateString, user} from "../../store/actions";
 import {Icon} from "../../componets/helpers/Icon";
+import {Link} from "react-router-dom";
 
 export function Regimes() {
     const restClient = new RestUnitOfWork();
@@ -26,7 +27,7 @@ export function Regimes() {
             row["workDaysCount"] = r.workDays.map(x => x.daysOfWeek.trim().split(',').length).reduce((a, b) => a + b);
             row["restDaysCount"] = r.restDays.trim().split(',').length;
             row["actions"] = (<>
-                <Button type='button' variant='light' size='sm'><Icon name='edit_square' small/></Button>
+                <Link to={`/schedule/regime/${r.id}`} className='btn btn-sm btn-light'><Icon name='edit_square' small/></Link>
                 <Button type='button' variant='light' size='sm'><Icon name='close' small/></Button>
             </>);
             return row;

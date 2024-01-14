@@ -187,7 +187,7 @@ public class DictionaryCommandHandler : BaseCommandHandler, IDictionaryCommandHa
     {
         if(string.IsNullOrWhiteSpace(condition))
             return;
-        var split = condition.Trim().Split(_operators, StringSplitOptions.None);
+        var split = condition.Trim().Split(_operators, StringSplitOptions.None).Select(x => x.Trim());
         var incorrectValues = split.Where(x => !_baseExpressionNames.Contains(x) && !x.All(c => char.IsDigit(c) || c == '.')
         && !baseAmounts.Contains(x));
         if (incorrectValues.Any())
@@ -198,7 +198,7 @@ public class DictionaryCommandHandler : BaseCommandHandler, IDictionaryCommandHa
     {
         if(string.IsNullOrWhiteSpace(expression))
             throw new Exception("Expression is empty");
-        var split = expression.Trim().Split(_operators, StringSplitOptions.None);
+        var split = expression.Trim().Split(_operators, StringSplitOptions.None).Select(x => x.Trim());
         var incorrectValues = split.Where(x => !_baseExpressionNames.Contains(x) && !x.All(c => char.IsDigit(c) || c == '.')
             && !formulas.Contains(x) && !baseAmounts.Contains(x));
         if (incorrectValues.Any())
